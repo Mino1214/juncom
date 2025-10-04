@@ -4,6 +4,7 @@ import Footer from "./components/footer.tsx";
 import Product from "./components/product.tsx";
 import ProductDetailPage from "./components/product.tsx";
 import PurchasePage from "./components/purchase.tsx";
+import SignupPage from "./components/signup.tsx";
 // import type { JSX } from 'react';
 // Types
 interface User {
@@ -36,12 +37,6 @@ export interface NavigateProps {
     navigate: (path: string) => void;
 }
 
-interface FormData {
-    name: string;
-    employeeId: string;
-    email: string;
-    password: string;
-}
 
 // Context for global state
 const AppContext = createContext<AppContextType | null>(null);
@@ -165,92 +160,6 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                             처음이신가요? <span className="font-semibold text-blue-600">회원가입</span>
                         </button>
                     </div>
-                </div>
-            </div>
-        </div>
-    );
-};
-
-// 회원가입 페이지
-const SignupPage = ({ navigate }: NavigateProps) => {
-    const [formData, setFormData] = useState<FormData>({
-        name: '',
-        employeeId: '',
-        email: '',
-        password: ''
-    });
-
-    const handleSignup = async (): Promise<void> => {
-        // TODO: API 연동
-        alert('회원가입이 완료되었습니다!');
-        navigate('#/login');
-    };
-
-    return (
-        <div className="min-h-screen bg-gray-50">
-            <div className="max-w-md mx-auto p-4">
-                <button
-                    onClick={() => navigate('#/login')}
-                    className="mb-6 text-gray-600 flex items-center gap-1 hover:text-gray-900"
-                >
-                    ← 뒤로
-                </button>
-
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">회원가입</h1>
-                <p className="text-gray-600 mb-8">임직원 정보를 입력해주세요</p>
-
-                <div className="space-y-6">
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">이름</label>
-                        <input
-                            type="text"
-                            placeholder="홍길동"
-                            value={formData.name}
-                            onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="w-full px-4 py-4 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">사번</label>
-                        <input
-                            type="text"
-                            placeholder="EMP2024001"
-                            value={formData.employeeId}
-                            onChange={(e) => setFormData({ ...formData, employeeId: e.target.value })}
-                            className="w-full px-4 py-4 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">이메일</label>
-                        <input
-                            type="email"
-                            placeholder="hong@company.com"
-                            value={formData.email}
-                            onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                            className="w-full px-4 py-4 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                        />
-                    </div>
-
-                    <div>
-                        <label className="block text-sm font-semibold text-gray-700 mb-2">비밀번호</label>
-                        <input
-                            type="password"
-                            placeholder="8자 이상"
-                            value={formData.password}
-                            onChange={(e) => setFormData({ ...formData, password: e.target.value })}
-                            className="w-full px-4 py-4 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                        />
-                    </div>
-
-                    <button
-                        onClick={handleSignup}
-                        disabled={!formData.name || !formData.employeeId || !formData.email || !formData.password}
-                        className="w-full py-4 bg-blue-600 text-white rounded-xl font-semibold text-base hover:bg-blue-700 transition disabled:bg-gray-200 disabled:text-gray-400"
-                    >
-                        가입하기
-                    </button>
                 </div>
             </div>
         </div>
@@ -642,14 +551,27 @@ const HomePage = ({ navigate }: NavigateProps) => {
 // };
 
 
+// App 컴포넌트 수정
 const App = () => {
+    const [currentPath, setCurrentPath] = useState<string>(window.location.hash || '#/login');
+
+    useEffect(() => {
+        const handleHashChange = () => setCurrentPath(window.location.hash);
+        window.addEventListener('hashchange', handleHashChange);
+        return () => window.removeEventListener('hashchange', handleHashChange);
+    }, []);
+
+    // Footer를 숨길 페이지 목록
+    const hideFooterPaths = ['#/login', '#/signup'];
+    const shouldShowFooter = !hideFooterPaths.includes(currentPath);
+
     return (
         <AppProvider>
             <div className="flex flex-col min-h-screen">
                 <div className="flex-grow">
                     <Router />
                 </div>
-                <Footer />
+                {shouldShowFooter && <Footer />}
             </div>
         </AppProvider>
     );
