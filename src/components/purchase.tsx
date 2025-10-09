@@ -20,7 +20,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
     const [showModal, setShowModal] = useState<string | null>(null);
 
     useEffect(() => {
-        if (!user) navigate('#/login');
+        if (!user) navigate('/login');
     }, [user, navigate]);
 
     const allAgreed = agreements.terms && agreements.privacy && agreements.refund;
@@ -146,7 +146,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                             </div>
                         </div>
                         <button
-                            onClick={() => navigate('#/home')}
+                            onClick={() => navigate('/home')}
                             className="w-full py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
                         >
                             확인
@@ -161,7 +161,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-2xl mx-auto p-4 py-8">
                 <button
-                    onClick={() => navigate('#/home')}
+                    onClick={() => navigate('/home')}
                     className="mb-6 text-gray-600 flex items-center gap-1 hover:text-gray-900"
                 >
                     ← 뒤로

@@ -19,10 +19,17 @@ interface Agreements {
 }
 
 const SignupPage = ({navigate}: NavigateProps) => {
+    // URL 파라미터 파싱
+    const urlParams = new URLSearchParams(window.location.hash.split('?')[1] || '');
+    const kakaoId = urlParams.get('kakaoId') || '';
+    const kakaoName = urlParams.get('name') || '';
+    const kakaoEmail = urlParams.get('email') || '';
+    const isKakaoSignup = !!kakaoId;
+
     const [formData, setFormData] = useState<FormData>({
-        name: '',
+        name: kakaoName,
         employeeId: '',
-        email: '',
+        email: kakaoEmail,
         password: '',
         passwordConfirm: '',
         address: '',
@@ -37,12 +44,18 @@ const SignupPage = ({navigate}: NavigateProps) => {
     });
 
     const [showModal, setShowModal] = useState<string | null>(null);
+    const [loading, setLoading] = useState<boolean>(false);
 
     const allRequiredAgreed = agreements.terms && agreements.privacy;
-    const allFieldsFilled = formData.name && formData.employeeId && formData.email &&
+
+    // 카카오 회원가입은 비밀번호 불필요
+    const allFieldsFilled = isKakaoSignup
+        ? formData.name && formData.employeeId && formData.email && formData.address && formData.phone
+        : formData.name && formData.employeeId && formData.email &&
         formData.password && formData.passwordConfirm &&
         formData.address && formData.phone;
-    const passwordMatch = formData.password === formData.passwordConfirm;
+
+    const passwordMatch = isKakaoSignup || formData.password === formData.passwordConfirm;
 
     const agreementContents = {
         terms: {
@@ -126,7 +139,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
     };
 
     const handleSignup = async (): Promise<void> => {
-        if (!passwordMatch) {
+        if (!isKakaoSignup && !passwordMatch) {
             alert('비밀번호가 일치하지 않습니다.');
             return;
         }
@@ -136,9 +149,40 @@ const SignupPage = ({navigate}: NavigateProps) => {
             return;
         }
 
-        // TODO: API 연동
-        alert('회원가입이 완료되었습니다!');
-        navigate('#/login');
+        setLoading(true);
+
+        try {
+            const response = await fetch('http://localhost:3000/api/auth/signup', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    employeeId: formData.employeeId,
+                    password: isKakaoSignup ? undefined : formData.password,
+                    name: formData.name,
+                    email: formData.email,
+                    phone: formData.phone,
+                    address: formData.address + (formData.detailAddress ? ' ' + formData.detailAddress : ''),
+                    kakaoId: kakaoId || undefined,
+                    marketingAgreed: agreements.marketing
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('회원가입이 완료되었습니다!');
+                navigate('/login');
+            } else {
+                alert(data.message || '회원가입에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Signup error:', error);
+            alert('회원가입 중 오류가 발생했습니다.');
+        } finally {
+            setLoading(false);
+        }
     };
 
     const openModal = (type: string) => {
@@ -153,14 +197,26 @@ const SignupPage = ({navigate}: NavigateProps) => {
         <div className="min-h-screen bg-gray-50">
             <div className="max-w-md mx-auto p-4 py-8">
                 <button
-                    onClick={() => navigate('#/login')}
+                    onClick={() => navigate('/login')}
                     className="mb-6 text-gray-600 flex items-center gap-1 hover:text-gray-900"
                 >
                     ← 뒤로
                 </button>
 
-                <h1 className="text-3xl font-bold text-gray-900 mb-2">회원가입</h1>
-                <p className="text-gray-600 mb-8">임직원 정보를 입력해주세요</p>
+                <h1 className="text-3xl font-bold text-gray-900 mb-2">
+                    {isKakaoSignup ? '카카오 회원가입' : '회원가입'}
+                </h1>
+                <p className="text-gray-600 mb-8">
+                    {isKakaoSignup ? '추가 정보를 입력해주세요' : '임직원 정보를 입력해주세요'}
+                </p>
+
+                {isKakaoSignup && (
+                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
+                        <p className="text-sm text-yellow-800">
+                            🎉 카카오 계정으로 간편하게 가입하실 수 있습니다!
+                        </p>
+                    </div>
+                )}
 
                 <div className="space-y-6">
                     {/* 기본 정보 */}
@@ -175,7 +231,8 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     placeholder="홍길동"
                                     value={formData.name}
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    disabled={isKakaoSignup && !!kakaoName}
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:bg-gray-50 disabled:text-gray-500"
                                 />
                             </div>
 
@@ -197,38 +254,44 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     placeholder="hong@company.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    disabled={isKakaoSignup && !!kakaoEmail}
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:bg-gray-50 disabled:text-gray-500"
                                 />
                             </div>
 
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">비밀번호 *</label>
-                                <input
-                                    type="password"
-                                    placeholder="8자 이상"
-                                    value={formData.password}
-                                    onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                />
-                            </div>
+                            {/* 비밀번호는 일반 회원가입시만 표시 */}
+                            {!isKakaoSignup && (
+                                <>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">비밀번호 *</label>
+                                        <input
+                                            type="password"
+                                            placeholder="8자 이상"
+                                            value={formData.password}
+                                            onChange={(e) => setFormData({...formData, password: e.target.value})}
+                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        />
+                                    </div>
 
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">비밀번호 확인 *</label>
-                                <input
-                                    type="password"
-                                    placeholder="비밀번호를 다시 입력하세요"
-                                    value={formData.passwordConfirm}
-                                    onChange={(e) => setFormData({...formData, passwordConfirm: e.target.value})}
-                                    className={`w-full px-4 py-3 bg-white border rounded-xl text-base focus:outline-none focus:ring-2 transition ${
-                                        formData.passwordConfirm && !passwordMatch
-                                            ? 'border-red-300 focus:ring-red-500'
-                                            : 'border-gray-200 focus:ring-blue-500'
-                                    }`}
-                                />
-                                {formData.passwordConfirm && !passwordMatch && (
-                                    <p className="text-red-500 text-sm mt-1">비밀번호가 일치하지 않습니다</p>
-                                )}
-                            </div>
+                                    <div>
+                                        <label className="block text-sm font-semibold text-gray-700 mb-2">비밀번호 확인 *</label>
+                                        <input
+                                            type="password"
+                                            placeholder="비밀번호를 다시 입력하세요"
+                                            value={formData.passwordConfirm}
+                                            onChange={(e) => setFormData({...formData, passwordConfirm: e.target.value})}
+                                            className={`w-full px-4 py-3 bg-white border rounded-xl text-base focus:outline-none focus:ring-2 transition ${
+                                                formData.passwordConfirm && !passwordMatch
+                                                    ? 'border-red-300 focus:ring-red-500'
+                                                    : 'border-gray-200 focus:ring-blue-500'
+                                            }`}
+                                        />
+                                        {formData.passwordConfirm && !passwordMatch && (
+                                            <p className="text-red-500 text-sm mt-1">비밀번호가 일치하지 않습니다</p>
+                                        )}
+                                    </div>
+                                </>
+                            )}
                         </div>
                     </div>
 
@@ -350,10 +413,10 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
                     <button
                         onClick={handleSignup}
-                        disabled={!allFieldsFilled || !allRequiredAgreed || !passwordMatch}
+                        disabled={!allFieldsFilled || !allRequiredAgreed || !passwordMatch || loading}
                         className="w-full py-4 bg-blue-600 text-white rounded-xl font-semibold text-base hover:bg-blue-700 transition disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
                     >
-                        가입하기
+                        {loading ? '가입 중...' : '가입하기'}
                     </button>
                 </div>
 

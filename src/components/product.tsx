@@ -29,7 +29,7 @@ const ProductDetailPage = ({ navigate, user, saleStatus, productId }: ProductDet
     const [isDetailOpen, setIsDetailOpen] = useState(false); // 상세 이미지 펼치기/접기 상태
 
     useEffect(() => {
-        if (!user) navigate('#/login');
+        if (!user) navigate('/login');
     }, [user, navigate]);
 
     // 실제로는 productId로 상품 정보를 가져와야 하지만, 여기서는 하드코딩
@@ -107,7 +107,7 @@ const ProductDetailPage = ({ navigate, user, saleStatus, productId }: ProductDet
             <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
                 <div className="max-w-5xl mx-auto px-4 py-4">
                     <button
-                        onClick={() => navigate('#/home')}
+                        onClick={() => navigate('/home')}
                         className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
                     >
                         <ChevronLeft size={20} />
