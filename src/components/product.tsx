@@ -1,5 +1,5 @@
-import { ChevronLeft, Package, Truck, Shield, AlertCircle } from 'lucide-react';
-import {useEffect, useState} from "react";
+import { ChevronLeft, Package, Truck, Shield } from 'lucide-react';
+import { useEffect, useState } from "react";
 
 interface Product {
     id: number;
@@ -7,71 +7,60 @@ interface Product {
     spec: string;
     price: number;
     stock: number;
-    emoji: string;
+    emoji?: string;
     description?: string;
     features?: string[];
-    detailImages?: string[];
-}
-
-interface User {
-    name: string;
-    employeeId: string;
-}
-
-interface SaleInfo {
-    product: Product;
-    sale: {
-        id: number;
-        saleStart: string;
-        saleEnd: string;
-        totalStock: number;
-        remainingStock: number;
-        status: 'before' | 'during' | 'after';
-        secondsUntilStart: number;
-    };
+    detail_images?: string[];
+    created_at?: string;
+    updated_at?: string;
+    status?: "draft" | "scheduled" | "active" | "stopped";
+    release_date?: string;
+    is_visible?: boolean;
+    image_url?: string;
 }
 
 interface ProductDetailPageProps {
     navigate: (path: string) => void;
-    user: User | null;
-    saleStatus?: 'before' | 'during' | 'after';
-    productId?: number; // 선택적으로 변경
+    user: any;
+    productId?: number;
 }
 
-const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
-    const [isDetailOpen, setIsDetailOpen] = useState(false);
-    const [saleInfo, setSaleInfo] = useState<SaleInfo | null>(null);
+const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps) => {
+    const [product, setProduct] = useState<Product | null>(null);
     const [loading, setLoading] = useState(true);
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
 
+    // ✅ 데이터 로드
     useEffect(() => {
         if (!user) {
             navigate('/login');
             return;
         }
 
-        // 판매 정보 가져오기
-        const fetchSaleInfo = async () => {
+        const fetchProduct = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch('https://jimo.world/api/sale/current',
-                    {
-                        headers: {
-                            "Authorization": `Bearer ${token}`, // ✅ 토큰 첨부
-                            "Content-Type": "application/json",
-                        },
-                    });
-                const data = await response.json();
-                setSaleInfo(data);
-                setLoading(false);
-            } catch (error) {
-                console.error('Failed to fetch sale info:', error);
+                const res = await fetch(`https://jimo.world/api/products/${productId}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+
+                if (!res.ok) throw new Error("상품 조회 실패");
+                const data = await res.json();
+                setProduct(data);
+            } catch (err) {
+                console.error("상품 불러오기 실패:", err);
+            } finally {
                 setLoading(false);
             }
         };
 
-        fetchSaleInfo();
-    }, [user, navigate]);
+        fetchProduct();
+    }, [user, navigate, productId]);
 
+    // ✅ 로딩 처리
     if (loading) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
@@ -83,7 +72,7 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
         );
     }
 
-    if (!saleInfo) {
+    if (!product) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
@@ -99,8 +88,15 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
         );
     }
 
-    const { product, sale } = saleInfo;
-    const saleStatus = sale.status;
+    // ✅ 상태 및 출시일 계산
+    const now = new Date();
+    const releaseDate = product.release_date ? new Date(product.release_date) : null;
+    const isBeforeRelease = releaseDate && releaseDate > now;
+
+    let displayStatus: "before" | "active" | "stopped" | "draft" = "draft";
+    if (isBeforeRelease) displayStatus = "before";
+    else if (product.status === "active") displayStatus = "active";
+    else if (product.status === "stopped") displayStatus = "stopped";
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -119,9 +115,18 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
 
             <div className="max-w-5xl mx-auto p-4 py-8">
                 <div className="grid md:grid-cols-2 gap-8 mb-8">
-                    {/* 상품 이미지 */}
-                    <div className="bg-gradient-to-br from-blue-50 to-indigo-50 rounded-3xl p-16 flex items-center justify-center">
-                        <span className="text-9xl">{product.emoji}</span>
+                    {/* ✅ 상품 이미지 - 세로로 길게 */}
+                    <div
+                        className="rounded-3xl aspect-[4/5] flex items-center justify-center overflow-hidden relative bg-transparent">
+                        {product.image_url ? (
+                            <img
+                                src={product.image_url}
+                                alt={product.name}
+                                className="w-full h-full object-cover"
+                            />
+                        ) : (
+                            <span className="text-9xl">{product.emoji || "📦"}</span>
+                        )}
                     </div>
 
                     {/* 상품 정보 */}
@@ -133,67 +138,72 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
 
                         <div className="mb-6">
                             <div className="flex items-baseline gap-2 mb-2">
-                                <span className="text-4xl font-bold text-gray-900">
-                                    {product.price.toLocaleString()}원
-                                </span>
+                <span className="text-4xl font-bold text-gray-900">
+                  {product.price.toLocaleString()}원
+                </span>
                             </div>
-                            <p className="text-sm text-gray-500">
-                                재고 {sale.remainingStock}/{sale.totalStock}대 남음
-                            </p>
+                            <p className="text-sm text-gray-500">재고 {product.stock}개 남음</p>
                         </div>
 
-                        {/* 상태 배지 */}
+                        {/* ✅ 상태 배지 */}
                         <div className="mb-6">
-                            {saleStatus === 'before' && (
+                            {displayStatus === "before" && (
                                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
                                     <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                                     판매 대기중
                                 </div>
                             )}
-                            {saleStatus === 'during' && (
+                            {displayStatus === "active" && (
                                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
                                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                     판매 진행중
                                 </div>
                             )}
-                            {saleStatus === 'after' && (
+                            {displayStatus === "stopped" && (
                                 <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
-                                    품절
+                                    판매 중지됨
+                                </div>
+                            )}
+                            {product.status === "draft" && (
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm font-medium">
+                                    임시 저장 상태
                                 </div>
                             )}
                         </div>
 
-                        {/* 판매 시작 시간 표시 (before 상태일 때) */}
-                        {saleStatus === 'before' && (
+                        {/* ✅ 출시일 표시 */}
+                        {displayStatus === "before" && releaseDate && (
                             <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
                                 <p className="text-sm text-yellow-800">
-                                    📅 판매 시작: {new Date(sale.saleStart).toLocaleString('ko-KR', {
-                                    year: 'numeric',
-                                    month: 'long',
-                                    day: 'numeric',
-                                    hour: '2-digit',
-                                    minute: '2-digit'
-                                })}
+                                    📅 출시 예정:{" "}
+                                    {releaseDate.toLocaleString("ko-KR", {
+                                        year: "numeric",
+                                        month: "long",
+                                        day: "numeric",
+                                        hour: "2-digit",
+                                        minute: "2-digit",
+                                    })}
                                 </p>
                             </div>
                         )}
 
-                        {/* 구매 버튼 */}
+                        {/* ✅ 구매 버튼 */}
                         <button
-                            onClick={() => saleStatus === 'during' && navigate('/purchase')}
-                            disabled={saleStatus !== 'during'}
+                            onClick={() => displayStatus === "active" && navigate("/purchase")}
+                            disabled={displayStatus !== "active"}
                             className={`w-full py-4 rounded-xl font-bold text-lg transition ${
-                                saleStatus === 'during'
-                                    ? 'bg-blue-600 text-white hover:bg-blue-700'
-                                    : 'bg-gray-200 text-gray-400 cursor-not-allowed'
+                                displayStatus === "active"
+                                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                                    : "bg-gray-200 text-gray-400 cursor-not-allowed"
                             }`}
                         >
-                            {saleStatus === 'before' && '판매 시작 전입니다'}
-                            {saleStatus === 'during' && '구매하기'}
-                            {saleStatus === 'after' && '품절되었습니다'}
+                            {displayStatus === "before" && "출시 전입니다"}
+                            {displayStatus === "active" && "구매하기"}
+                            {displayStatus === "stopped" && "판매 중지됨"}
+                            {product.status === "draft" && "임시 저장 상태"}
                         </button>
 
-                        {/* 혜택 안내 */}
+                        {/* ✅ 혜택 안내 */}
                         <div className="mt-6 space-y-3">
                             <div className="flex items-center gap-3 text-sm text-gray-600">
                                 <Package size={18} className="text-blue-600" />
@@ -211,7 +221,7 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
                     </div>
                 </div>
 
-                {/* 상품 설명 */}
+                {/* ✅ 상품 설명 */}
                 <div className="bg-white rounded-2xl p-8 mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">상품 설명</h2>
                     <p className="text-gray-600 leading-relaxed">
@@ -219,61 +229,25 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
                     </p>
                 </div>
 
-                {/* 주요 특징 */}
-                {product.features && product.features.length > 0 && (
-                    <div className="bg-white rounded-2xl p-8 mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900 mb-6">주요 특징</h2>
-                        <div className="grid md:grid-cols-2 gap-4">
-                            {product.features.map((feature, index) => (
-                                <div key={index} className="flex items-start gap-3">
-                                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                        <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                        </svg>
-                                    </div>
-                                    <span className="text-gray-700">{feature}</span>
-                                </div>
-                            ))}
-                        </div>
-                    </div>
-                )}
-
-                {/* 주의사항 */}
-                <div className="bg-yellow-50 rounded-2xl p-6 border border-yellow-100">
-                    <div className="flex gap-3">
-                        <AlertCircle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
-                        <div>
-                            <h3 className="font-semibold text-yellow-900 mb-3">구매 전 확인사항</h3>
-                            <ul className="text-sm text-yellow-800 space-y-2">
-                                <li>• 임직원 복지 프로그램의 일환으로 할인된 가격으로 제공됩니다</li>
-                                <li>• 1인 1대 한정으로 구매 가능하며, 중복 구매 시 주문이 취소됩니다</li>
-                                <li>• 구매 후 취소 및 환불이 불가능하니 신중하게 선택해 주세요</li>
-                                <li>• 수령은 구매일로부터 7일 이내 본사 1층 로비에서 가능합니다</li>
-                                <li>• 재고 소진 시 판매가 조기 종료될 수 있습니다</li>
-                            </ul>
-                        </div>
-                    </div>
-                </div>
-
-                {/* 상세 이미지 (접기/펼치기) */}
-                {product.detailImages && product.detailImages.length > 0 && (
-                    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 mt-6">
+                {/* ✅ 상세 이미지 */}
+                {product.detail_images && product.detail_images.length > 0 && (
+                    <div className="rounded-2xl overflow-hidden border border-gray-100 mt-6">
                         <div
                             className={`relative transition-all duration-500 ease-in-out ${
                                 isDetailOpen ? "max-h-none" : "max-h-[500px] overflow-hidden"
                             }`}
                         >
-                            {product.detailImages.map((imageUrl, index) => (
+                            {product.detail_images.map((imageUrl, index) => (
                                 <img
                                     key={index}
                                     src={imageUrl}
                                     alt={`${product.name} 상세 이미지 ${index + 1}`}
-                                    className="w-full"
+                                    className="w-full block"
                                 />
                             ))}
 
                             {!isDetailOpen && (
-                                <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent flex items-end justify-center">
+                                <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white/90 to-transparent flex items-end justify-center">
                                     <button
                                         onClick={() => setIsDetailOpen(true)}
                                         className="mb-4 px-6 py-2 bg-gray-900 text-white text-sm rounded-full shadow-lg hover:bg-gray-800"
@@ -285,7 +259,7 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
                         </div>
 
                         {isDetailOpen && (
-                            <div className="flex justify-center p-4 border-t">
+                            <div className="flex justify-center p-4 border-t border-gray-100">
                                 <button
                                     onClick={() => setIsDetailOpen(false)}
                                     className="px-6 py-2 bg-gray-200 text-gray-700 text-sm rounded-full hover:bg-gray-300"

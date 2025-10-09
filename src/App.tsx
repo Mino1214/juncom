@@ -6,7 +6,16 @@ import SignupPage from "./components/signup.tsx";
 import LoginPage from "./components/login.tsx";
 import HomePage from "./components/home.tsx";
 import MyPage from "./components/mypage.tsx";
+import AdminPage from "./components/admin.tsx";
+import {jwtDecode} from "jwt-decode";
 
+// JWT Payload 타입 정의
+export interface JwtPayload {
+    employeeId: string;
+    role: string;
+    name: string;
+    exp: number;
+}
 // Types
 interface User {
     name: string;
@@ -74,7 +83,8 @@ export const useApp = (): AppContextType => {
 
 const Router = () => {
     const [currentPath, setCurrentPath] = useState<string>(window.location.hash || '#/login');
-    const { user, saleStatus } = useApp();
+    const { user } = useApp();
+    const [role, setRole] = useState<string | null>(null);
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -93,16 +103,30 @@ const Router = () => {
         window.location.hash = finalPath;
     };
 
-    // 로그인 상태 제어
+    // ✅ JWT 토큰에서 role 추출
+    useEffect(() => {
+        const token = localStorage.getItem("token");
+        if (token) {
+            try {
+                const decoded = jwtDecode<JwtPayload>(token);
+                setRole(decoded.role);
+            } catch (err) {
+                console.error("JWT decode 실패:", err);
+                setRole(null);
+            }
+        } else {
+            setRole(null);
+        }
+    }, [user]);
+
+    // ✅ 로그인 상태 제어
     useEffect(() => {
         const cleanPath = (currentPath.split('?')[0]).toLowerCase();
         const isLoginPage = cleanPath === '#/login' || cleanPath === '#/signup';
 
         if (!user && !isLoginPage) {
-            // ✅ 로그인 안된 상태에서 접근 시 로그인 페이지로 이동
             navigate('/login');
         } else if (user && isLoginPage) {
-            // ✅ 로그인된 상태에서 로그인/회원가입 페이지 접근 시 홈으로 이동
             navigate('/home');
         }
     }, [user, currentPath]);
@@ -116,10 +140,23 @@ const Router = () => {
             <ProductDetailPage
                 navigate={navigate}
                 user={user}
-                saleStatus={saleStatus}
+                // saleStatus={saleStatus}
                 productId={productId}
             />
         );
+    }
+
+    // ✅ 관리자만 접근 가능한 경로
+    if (cleanPath === '#/admin') {
+        if (role === "admin") {
+            return <AdminPage navigate={navigate} />;
+        } else {
+            return (
+                <div className="p-6 text-center text-red-500">
+                    ⚠ 접근 권한이 없습니다.
+                </div>
+            );
+        }
     }
 
     const routes: Record<string, React.ComponentType<NavigateProps>> = {
@@ -134,7 +171,6 @@ const Router = () => {
 
     return <Component navigate={navigate} />;
 };
-
 // App 컴포넌트
 const App = () => {
     const [currentPath, setCurrentPath] = useState<string>(window.location.hash || '#/login');

@@ -58,6 +58,8 @@ const LoginPage = ({ navigate }: NavigateProps) => {
             const data = await response.json();
 
             if (response.ok) {
+                const data = await response.json();
+                console.log("✅ 서버 응답:", data);
                 // ✅ 서버 응답 구조 예시:
                 // {
                 //   message: "로그인 성공",
@@ -145,13 +147,16 @@ const LoginPage = ({ navigate }: NavigateProps) => {
 
                                 const data = await apiResponse.json();
 
-                                if (apiResponse.ok && data.isRegistered) {
-                                    // 기존 회원 - 바로 로그인
+                                // ✅ 기존 회원 - 토큰/유저 정보 저장
+                                const { token, user } = data;
+                                if (token && user) {
+                                    localStorage.setItem("token", token);
+                                    localStorage.setItem("user", JSON.stringify(user));
                                     setUser({
-                                        name: data.name,
-                                        employeeId: data.employeeId
+                                        name: user.name,
+                                        employeeId: user.employeeId
                                     });
-                                    navigate('/home');
+                                    navigate("/home");
                                 } else if (apiResponse.ok && !data.isRegistered) {
                                     // 신규 회원 - 가입 페이지로 이동
                                     navigate(`/signup?kakaoId=${kakaoId}&name=${encodeURIComponent(kakaoName)}&email=${encodeURIComponent(kakaoEmail)}`);
