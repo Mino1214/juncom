@@ -10,7 +10,7 @@ interface Product {
     emoji: string;
     description?: string;
     features?: string[];
-    detailImages?: string[]; // 상세 설명 이미지 URL 배열
+    detailImages?: string[];
 }
 
 interface User {
@@ -18,88 +18,82 @@ interface User {
     employeeId: string;
 }
 
+interface SaleInfo {
+    product: Product;
+    sale: {
+        id: number;
+        saleStart: string;
+        saleEnd: string;
+        totalStock: number;
+        remainingStock: number;
+        status: 'before' | 'during' | 'after';
+        secondsUntilStart: number;
+    };
+}
+
 interface ProductDetailPageProps {
     navigate: (path: string) => void;
     user: User | null;
-    saleStatus: 'before' | 'during' | 'after';
-    productId: number;
+    saleStatus?: 'before' | 'during' | 'after';
+    productId?: number; // 선택적으로 변경
 }
 
-const ProductDetailPage = ({ navigate, user, saleStatus, productId }: ProductDetailPageProps) => {
-    const [isDetailOpen, setIsDetailOpen] = useState(false); // 상세 이미지 펼치기/접기 상태
+const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
+    const [isDetailOpen, setIsDetailOpen] = useState(false);
+    const [saleInfo, setSaleInfo] = useState<SaleInfo | null>(null);
+    const [loading, setLoading] = useState(true);
 
     useEffect(() => {
-        if (!user) navigate('/login');
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+
+        // 판매 정보 가져오기
+        const fetchSaleInfo = async () => {
+            try {
+                const response = await fetch('http://localhost:3000/api/sale/current');
+                const data = await response.json();
+                setSaleInfo(data);
+                setLoading(false);
+            } catch (error) {
+                console.error('Failed to fetch sale info:', error);
+                setLoading(false);
+            }
+        };
+
+        fetchSaleInfo();
     }, [user, navigate]);
 
-    // 실제로는 productId로 상품 정보를 가져와야 하지만, 여기서는 하드코딩
-    const products: Product[] = [
-        {
-            id: 1,
-            name: 'MacBook Pro 14" M3',
-            spec: 'M3 칩 • 16GB • 512GB',
-            price: 1200000,
-            stock: 150,
-            emoji: '💻',
-            description: '강력한 성능의 M3 칩을 탑재한 MacBook Pro입니다. 전문가를 위한 최고의 선택입니다.',
-            features: [
-                'M3 Pro 칩으로 놀라운 성능',
-                '14.2형 Liquid Retina XDR 디스플레이',
-                '최대 18시간의 배터리 사용 시간',
-                '16GB 통합 메모리',
-                '512GB SSD 저장 공간',
-                'MagSafe 3 충전 포트',
-                '3개의 Thunderbolt 4 포트'
-            ],
-            detailImages: [
-                'https://www.jungomall.com/web/upload/NNEditor/20250707/24d1de9c4bc3b42a1b2b60928bc931d7.jpg'
-            ]
-        },
-        {
-            id: 2,
-            name: 'LG 그램 17',
-            spec: 'Intel i7 • 16GB • 1TB',
-            price: 980000,
-            stock: 180,
-            emoji: '💻',
-            description: '초경량 대화면 노트북으로 휴대성과 생산성을 모두 갖췄습니다.',
-            features: [
-                '17인치 대화면 WQXGA 디스플레이',
-                '1.35kg의 초경량 무게',
-                'Intel Core i7 13세대 프로세서',
-                '16GB DDR5 메모리',
-                '1TB NVMe SSD',
-                '최대 20시간 배터리',
-                'Thunderbolt 4 지원'
-            ],
-            detailImages: [
-                'https://www.jungomall.com/web/upload/NNEditor/20250707/24d1de9c4bc3b42a1b2b60928bc931d7.jpg'
-            ]
-        },
-        {
-            id: 3,
-            name: 'Dell XPS 15',
-            spec: 'Intel i9 • 32GB • 1TB',
-            price: 1450000,
-            stock: 170,
-            emoji: '💻',
-            description: '최고 사양의 프리미엄 노트북으로 모든 작업을 완벽하게 처리합니다.',
-            features: [
-                '15.6인치 4K OLED 터치 디스플레이',
-                'Intel Core i9 13세대 프로세서',
-                '32GB DDR5 메모리',
-                '1TB PCIe NVMe SSD',
-                'NVIDIA GeForce RTX 4060',
-                'CNC 가공 알루미늄 섀시',
-                '프리미엄 사운드 시스템'
-            ],
-            detailImages: [
-                'https://www.jungomall.com/web/upload/NNEditor/20250707/24d1de9c4bc3b42a1b2b60928bc931d7.jpg'
-            ]
-        }
-    ];
+    if (loading) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <p className="text-gray-600">로딩 중...</p>
+                </div>
+            </div>
+        );
+    }
 
-    const product = products.find(p => p.id === productId) || products[0];
+    if (!saleInfo) {
+        return (
+            <div className="min-h-screen bg-gray-50 flex items-center justify-center">
+                <div className="text-center">
+                    <p className="text-gray-600">상품 정보를 찾을 수 없습니다.</p>
+                    <button
+                        onClick={() => navigate('/home')}
+                        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                    >
+                        홈으로 돌아가기
+                    </button>
+                </div>
+            </div>
+        );
+    }
+
+    const { product, sale } = saleInfo;
+    const saleStatus = sale.status;
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -136,7 +130,9 @@ const ProductDetailPage = ({ navigate, user, saleStatus, productId }: ProductDet
                                     {product.price.toLocaleString()}원
                                 </span>
                             </div>
-                            <p className="text-sm text-gray-500">재고 {product.stock}대 남음</p>
+                            <p className="text-sm text-gray-500">
+                                재고 {sale.remainingStock}/{sale.totalStock}대 남음
+                            </p>
                         </div>
 
                         {/* 상태 배지 */}
@@ -160,9 +156,24 @@ const ProductDetailPage = ({ navigate, user, saleStatus, productId }: ProductDet
                             )}
                         </div>
 
+                        {/* 판매 시작 시간 표시 (before 상태일 때) */}
+                        {saleStatus === 'before' && (
+                            <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
+                                <p className="text-sm text-yellow-800">
+                                    📅 판매 시작: {new Date(sale.saleStart).toLocaleString('ko-KR', {
+                                    year: 'numeric',
+                                    month: 'long',
+                                    day: 'numeric',
+                                    hour: '2-digit',
+                                    minute: '2-digit'
+                                })}
+                                </p>
+                            </div>
+                        )}
+
                         {/* 구매 버튼 */}
                         <button
-                            onClick={() => saleStatus === 'during' && navigate('#/purchase')}
+                            onClick={() => saleStatus === 'during' && navigate('/purchase')}
                             disabled={saleStatus !== 'during'}
                             className={`w-full py-4 rounded-xl font-bold text-lg transition ${
                                 saleStatus === 'during'
@@ -196,25 +207,29 @@ const ProductDetailPage = ({ navigate, user, saleStatus, productId }: ProductDet
                 {/* 상품 설명 */}
                 <div className="bg-white rounded-2xl p-8 mb-6">
                     <h2 className="text-2xl font-bold text-gray-900 mb-4">상품 설명</h2>
-                    <p className="text-gray-600 leading-relaxed">{product.description}</p>
+                    <p className="text-gray-600 leading-relaxed">
+                        {product.description || '상품 설명이 없습니다.'}
+                    </p>
                 </div>
 
                 {/* 주요 특징 */}
-                <div className="bg-white rounded-2xl p-8 mb-6">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-6">주요 특징</h2>
-                    <div className="grid md:grid-cols-2 gap-4">
-                        {product.features?.map((feature, index) => (
-                            <div key={index} className="flex items-start gap-3">
-                                <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
-                                    <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
-                                        <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
-                                    </svg>
+                {product.features && product.features.length > 0 && (
+                    <div className="bg-white rounded-2xl p-8 mb-6">
+                        <h2 className="text-2xl font-bold text-gray-900 mb-6">주요 특징</h2>
+                        <div className="grid md:grid-cols-2 gap-4">
+                            {product.features.map((feature, index) => (
+                                <div key={index} className="flex items-start gap-3">
+                                    <div className="w-6 h-6 bg-blue-100 rounded-full flex items-center justify-center flex-shrink-0 mt-0.5">
+                                        <svg className="w-4 h-4 text-blue-600" fill="currentColor" viewBox="0 0 20 20">
+                                            <path fillRule="evenodd" d="M16.707 5.293a1 1 0 010 1.414l-8 8a1 1 0 01-1.414 0l-4-4a1 1 0 011.414-1.414L8 12.586l7.293-7.293a1 1 0 011.414 0z" clipRule="evenodd" />
+                                        </svg>
+                                    </div>
+                                    <span className="text-gray-700">{feature}</span>
                                 </div>
-                                <span className="text-gray-700">{feature}</span>
-                            </div>
-                        ))}
+                            ))}
+                        </div>
                     </div>
-                </div>
+                )}
 
                 {/* 주의사항 */}
                 <div className="bg-yellow-50 rounded-2xl p-6 border border-yellow-100">
@@ -254,7 +269,7 @@ const ProductDetailPage = ({ navigate, user, saleStatus, productId }: ProductDet
                                 <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white to-transparent flex items-end justify-center">
                                     <button
                                         onClick={() => setIsDetailOpen(true)}
-                                        className="mb-4 px-6 py-2 bg-gray-900 text-white text-sm rounded-full shadow-lg"
+                                        className="mb-4 px-6 py-2 bg-gray-900 text-white text-sm rounded-full shadow-lg hover:bg-gray-800"
                                     >
                                         더보기
                                     </button>
