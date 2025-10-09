@@ -52,7 +52,7 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
         // 판매 정보 가져오기
         const fetchSaleInfo = async () => {
             try {
-                const response = await fetch('http://localhost:3000/api/sale/current');
+                const response = await fetch('https://jimo.world/api/sale/current');
                 const data = await response.json();
                 setSaleInfo(data);
                 setLoading(false);
