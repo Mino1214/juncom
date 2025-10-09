@@ -253,13 +253,13 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                 </div>
 
                 {/* 개발자 안내 */}
-                <div className="mt-4 p-4 bg-blue-50 rounded-lg text-xs text-blue-600">
-                    <p className="font-semibold mb-1">🔧 개발자 설정 필요:</p>
-                    <p>1. 카카오 개발자 센터에서 앱 등록</p>
-                    <p>2. JavaScript 키 발급</p>
-                    <p>3. 플랫폼 설정 (Web, Android, iOS)</p>
-                    <p>4. 코드의 KAKAO_JS_KEY 변경</p>
-                </div>
+                {/*<div className="mt-4 p-4 bg-blue-50 rounded-lg text-xs text-blue-600">*/}
+                {/*    <p className="font-semibold mb-1">🔧 개발자 설정 필요:</p>*/}
+                {/*    <p>1. 카카오 개발자 센터에서 앱 등록</p>*/}
+                {/*    <p>2. JavaScript 키 발급</p>*/}
+                {/*    <p>3. 플랫폼 설정 (Web, Android, iOS)</p>*/}
+                {/*    <p>4. 코드의 KAKAO_JS_KEY 변경</p>*/}
+                {/*</div>*/}
             </div>
         </div>
     );
