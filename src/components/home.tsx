@@ -1,6 +1,6 @@
 // 홈 페이지
 import {type NavigateProps, type Product, useApp} from "../App.tsx";
-import {Check, Clock} from "lucide-react";
+import {Check, Clock, User} from "lucide-react";
 import {useEffect, useState} from "react";
 
 interface SaleInfo {
@@ -21,6 +21,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
     const [saleInfo, setSaleInfo] = useState<SaleInfo | null>(null);
     const [loading, setLoading] = useState(true);
     const [timeLeft, setTimeLeft] = useState({ days: 0, hours: 0, minutes: 0, seconds: 0 });
+    const [open, setOpen] = useState(false);
 
     // 판매 정보 가져오기
     useEffect(() => {
@@ -31,7 +32,13 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
         const fetchSaleInfo = async () => {
             try {
-                const response = await fetch('https://jimo.world/api/sale/current');
+                const token = localStorage.getItem("token");
+                const response = await fetch('https://jimo.world/api/sale/current',{
+                    headers: {
+                        "Authorization": `Bearer ${token}`, // ✅ 토큰 첨부
+                        "Content-Type": "application/json",
+                    },
+                });
                 const data = await response.json();
                 setSaleInfo(data);
                 setLoading(false);
@@ -106,31 +113,31 @@ const HomePage = ({ navigate }: NavigateProps) => {
     const Countdown = () => {
         if (saleStatus === 'before') {
             return (
-                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border-l-4 border-yellow-400 p-8 rounded-r-xl">
+                <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 p-8 rounded-xl">
                     <div className="text-center">
-                        <div className="flex items-center justify-center gap-2 mb-4">
+                        <div className="flex items-center justify-center gap-2 mb-6">
                             <Clock className="text-yellow-600" size={24} />
                             <p className="font-bold text-2xl text-yellow-900">판매 시작까지</p>
                         </div>
-                        <div className="flex justify-center gap-3 mb-2">
-                            <div className="bg-white rounded-xl p-4 min-w-[80px]">
+                        <div className="flex justify-center gap-3 mb-4">
+                            <div className="bg-white rounded-lg p-4 min-w-[80px] shadow-sm">
                                 <div className="text-4xl font-bold text-gray-900">{timeLeft.days}</div>
-                                <div className="text-sm text-gray-500 mt-1">일</div>
+                                <div className="text-sm text-gray-600 mt-1">일</div>
                             </div>
-                            <div className="bg-white rounded-xl p-4 min-w-[80px]">
+                            <div className="bg-white rounded-lg p-4 min-w-[80px] shadow-sm">
                                 <div className="text-4xl font-bold text-gray-900">{String(timeLeft.hours).padStart(2, '0')}</div>
-                                <div className="text-sm text-gray-500 mt-1">시간</div>
+                                <div className="text-sm text-gray-600 mt-1">시간</div>
                             </div>
-                            <div className="bg-white rounded-xl p-4 min-w-[80px]">
+                            <div className="bg-white rounded-lg p-4 min-w-[80px] shadow-sm">
                                 <div className="text-4xl font-bold text-gray-900">{String(timeLeft.minutes).padStart(2, '0')}</div>
-                                <div className="text-sm text-gray-500 mt-1">분</div>
+                                <div className="text-sm text-gray-600 mt-1">분</div>
                             </div>
-                            <div className="bg-white rounded-xl p-4 min-w-[80px]">
+                            <div className="bg-white rounded-lg p-4 min-w-[80px] shadow-sm">
                                 <div className="text-4xl font-bold text-gray-900">{String(timeLeft.seconds).padStart(2, '0')}</div>
-                                <div className="text-sm text-gray-500 mt-1">초</div>
+                                <div className="text-sm text-gray-600 mt-1">초</div>
                             </div>
                         </div>
-                        <p className="text-sm text-yellow-700 mt-4">
+                        <p className="text-sm text-yellow-800">
                             {new Date(sale.saleStart).toLocaleString('ko-KR', {
                                 year: 'numeric',
                                 month: 'long',
@@ -144,13 +151,13 @@ const HomePage = ({ navigate }: NavigateProps) => {
             );
         } else if (saleStatus === 'during') {
             return (
-                <div className="bg-gradient-to-br from-green-50 to-emerald-50 border-l-4 border-green-400 p-8 rounded-r-xl">
+                <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 p-8 rounded-xl">
                     <div className="text-center">
-                        <div className="flex items-center justify-center gap-3 mb-2">
-                            <div className="w-3 h-3 bg-green-500 rounded-full animate-pulse"></div>
+                        <div className="flex items-center justify-center gap-3 mb-3">
+                            <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
                             <p className="font-bold text-3xl text-green-900">판매 진행중</p>
                         </div>
-                        <p className="text-lg text-green-700 mt-2">
+                        <p className="text-lg text-green-800">
                             선착순 {sale.totalStock}대 한정! (남은 재고: {sale.remainingStock}대)
                         </p>
                     </div>
@@ -158,13 +165,13 @@ const HomePage = ({ navigate }: NavigateProps) => {
             );
         } else {
             return (
-                <div className="bg-gradient-to-br from-gray-50 to-slate-50 border-l-4 border-gray-400 p-8 rounded-r-xl">
+                <div className="bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200 p-8 rounded-xl">
                     <div className="text-center">
-                        <div className="flex items-center justify-center gap-3 mb-2">
+                        <div className="flex items-center justify-center gap-3 mb-3">
                             <Check className="text-gray-600" size={28} />
                             <p className="font-bold text-3xl text-gray-900">판매 종료</p>
                         </div>
-                        <p className="text-lg text-gray-700 mt-2">모든 상품이 품절되었습니다</p>
+                        <p className="text-lg text-gray-700">모든 상품이 품절되었습니다</p>
                     </div>
                 </div>
             );
@@ -184,17 +191,61 @@ const HomePage = ({ navigate }: NavigateProps) => {
                         />
                         <span className="font-bold text-lg">임직원 복지몰</span>
                     </div>
-                    <div className="flex items-center gap-4">
-                        <span className="text-sm text-gray-600">{user?.name}님</span>
+                    <div className="relative">
+                        {/* 아이콘 버튼 */}
                         <button
-                            onClick={() => {
-                                setUser(null);
-                                navigate('/login');
-                            }}
-                            className="text-sm text-gray-500 hover:text-gray-700"
+                            onClick={() => setOpen(!open)}
+                            className="flex items-center justify-center w-9 h-9 rounded-full hover:bg-gray-100 transition"
                         >
-                            로그아웃
+                            <User className="w-5 h-5 text-gray-600"/>
                         </button>
+
+                        {/* 드롭다운 메뉴 */}
+                        {open && (
+                            <div
+                                className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-lg border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
+
+                                {/* 사용자 정보 섹션 */}
+                                <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-br from-blue-50 to-purple-50">
+                                    <p className="text-sm font-semibold text-gray-800">
+                                        {user?.name ? `${user.name}님` : "게스트"}
+                                    </p>
+                                    {/*<p className="text-xs text-gray-500 mt-0.5">*/}
+                                    {/*    {user?.email || "로그인이 필요합니다"}*/}
+                                    {/*</p>*/}
+                                </div>
+
+                                {/* 메뉴 아이템들 */}
+                                <div className="py-1">
+                                    <button
+                                        onClick={() => {
+                                            navigate("/mypage");
+                                            setOpen(false);
+                                        }}
+                                        className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 flex items-center gap-2 group"
+                                    >
+                                        <svg className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z" />
+                                        </svg>
+                                        마이페이지
+                                    </button>
+
+                                    <button
+                                        onClick={() => {
+                                            setUser(null);
+                                            navigate("/login");
+                                            setOpen(false);
+                                        }}
+                                        className="w-full text-left px-4 py-2.5 text-sm font-medium text-red-600 hover:bg-red-50 transition-all duration-200 flex items-center gap-2 group"
+                                    >
+                                        <svg className="w-4 h-4 text-red-400 group-hover:text-red-600 transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                            <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M17 16l4-4m0 0l-4-4m4 4H7m6 4v1a3 3 0 01-3 3H6a3 3 0 01-3-3V7a3 3 0 013-3h4a3 3 0 013 3v1" />
+                                        </svg>
+                                        로그아웃
+                                    </button>
+                                </div>
+                            </div>
+                        )}
                     </div>
                 </div>
             </header>
@@ -207,8 +258,10 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                 {/* 상품 카드 */}
                 <div className="max-w-md mx-auto">
-                    <div className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition">
-                        <div className="bg-gradient-to-br from-blue-50 to-indigo-50 p-12 flex items-center justify-center">
+                    <div
+                        className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-lg transition">
+                        <div
+                            className="bg-gradient-to-br from-blue-50 to-indigo-50 p-12 flex items-center justify-center">
                             <span className="text-6xl">{product.emoji}</span>
                         </div>
 

@@ -2,6 +2,13 @@ import {useEffect, useState} from "react";
 import {AlertCircle, Check} from "lucide-react";
 import {type NavigateProps, useApp} from "../App.tsx";
 
+// Daum 주소 검색 타입 정의
+declare global {
+    interface Window {
+        daum: any;
+    }
+}
+
 const PurchasePage = ({navigate}: NavigateProps) => {
     const {user} = useApp();
     const [agreements, setAgreements] = useState({
@@ -20,10 +27,33 @@ const PurchasePage = ({navigate}: NavigateProps) => {
     const [showModal, setShowModal] = useState<string | null>(null);
 
     useEffect(() => {
+        // Daum 우편번호 서비스 스크립트 로드
+        const script = document.createElement('script');
+        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+        script.async = true;
+        document.head.appendChild(script);
+
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
+
+    useEffect(() => {
         if (!user) navigate('/login');
     }, [user, navigate]);
 
     const allAgreed = agreements.terms && agreements.privacy && agreements.refund;
+
+    // 카카오 주소 검색
+    const handleAddressSearch = () => {
+        new window.daum.Postcode({
+            oncomplete: function(data: any) {
+                // 도로명 주소 우선, 없으면 지번 주소
+                const fullAddress = data.roadAddress || data.jibunAddress;
+                setDeliveryInfo(prev => ({ ...prev, address: fullAddress }));
+            }
+        }).open();
+    };
 
     const handlePurchase = async (): Promise<void> => {
         setPurchasing(true);
@@ -207,12 +237,22 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     <div className="space-y-4">
                         <div>
                             <label className="text-sm text-gray-600 block mb-2">배송지 주소</label>
-                            <input
-                                type="text"
-                                value={deliveryInfo.address}
-                                onChange={(e) => setDeliveryInfo({...deliveryInfo, address: e.target.value})}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                            />
+                            <div className="flex gap-2">
+                                <input
+                                    type="text"
+                                    value={deliveryInfo.address}
+                                    readOnly
+                                    placeholder="주소 검색 버튼을 클릭하세요"
+                                    className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleAddressSearch}
+                                    className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium whitespace-nowrap"
+                                >
+                                    주소 검색
+                                </button>
+                            </div>
                         </div>
                         <div>
                             <label className="text-sm text-gray-600 block mb-2">상세 주소</label>
@@ -276,12 +316,12 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 </div>
 
                 {/* 주의사항 */}
-                <div className="bg-yellow-50 rounded-2xl p-5 mb-6 border border-yellow-100">
+                <div className="bg-blue-50 rounded-2xl p-5 mb-6 border border-blue-100">
                     <div className="flex gap-3">
-                        <AlertCircle className="text-yellow-600 flex-shrink-0 mt-0.5" size={20} />
+                        <AlertCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
                         <div>
-                            <h3 className="font-semibold text-yellow-900 mb-2">구매 전 확인사항</h3>
-                            <ul className="text-sm text-yellow-800 space-y-1">
+                            <h3 className="font-semibold text-blue-900 mb-2">구매 전 확인사항</h3>
+                            <ul className="text-sm text-blue-800 space-y-1">
                                 <li>• 1인 1대 한정 구매 가능합니다</li>
                                 <li>• 구매 후 취소/환불이 불가능합니다</li>
                                 <li>• 수령은 구매일로부터 7일 이내 가능합니다</li>

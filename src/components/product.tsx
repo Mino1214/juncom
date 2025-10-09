@@ -52,7 +52,14 @@ const ProductDetailPage = ({ navigate, user }: ProductDetailPageProps) => {
         // 판매 정보 가져오기
         const fetchSaleInfo = async () => {
             try {
-                const response = await fetch('https://jimo.world/api/sale/current');
+                const token = localStorage.getItem("token");
+                const response = await fetch('https://jimo.world/api/sale/current',
+                    {
+                        headers: {
+                            "Authorization": `Bearer ${token}`, // ✅ 토큰 첨부
+                            "Content-Type": "application/json",
+                        },
+                    });
                 const data = await response.json();
                 setSaleInfo(data);
                 setLoading(false);

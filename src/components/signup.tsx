@@ -1,4 +1,4 @@
-import {useState} from "react";
+import {useEffect, useState} from "react";
 import {type NavigateProps} from "../App.tsx";
 
 interface FormData {
@@ -16,6 +16,13 @@ interface Agreements {
     terms: boolean;
     privacy: boolean;
     marketing: boolean;
+}
+
+// Daum 주소 검색 타입 정의
+declare global {
+    interface Window {
+        daum: any;
+    }
 }
 
 const SignupPage = ({navigate}: NavigateProps) => {
@@ -45,6 +52,18 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
     const [showModal, setShowModal] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
+
+    useEffect(() => {
+        // Daum 우편번호 서비스 스크립트 로드
+        const script = document.createElement('script');
+        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+        script.async = true;
+        document.head.appendChild(script);
+
+        return () => {
+            document.head.removeChild(script);
+        };
+    }, []);
 
     const allRequiredAgreed = agreements.terms && agreements.privacy;
 
@@ -138,6 +157,17 @@ const SignupPage = ({navigate}: NavigateProps) => {
         }
     };
 
+    // 카카오 주소 검색
+    const handleAddressSearch = () => {
+        new window.daum.Postcode({
+            oncomplete: function(data: any) {
+                // 도로명 주소 우선, 없으면 지번 주소
+                const fullAddress = data.roadAddress || data.jibunAddress;
+                setFormData(prev => ({ ...prev, address: fullAddress }));
+            }
+        }).open();
+    };
+
     const handleSignup = async (): Promise<void> => {
         if (!isKakaoSignup && !passwordMatch) {
             alert('비밀번호가 일치하지 않습니다.');
@@ -211,8 +241,8 @@ const SignupPage = ({navigate}: NavigateProps) => {
                 </p>
 
                 {isKakaoSignup && (
-                    <div className="mb-6 p-4 bg-yellow-50 border border-yellow-200 rounded-xl">
-                        <p className="text-sm text-yellow-800">
+                    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
+                        <p className="text-sm text-blue-800">
                             🎉 카카오 계정으로 간편하게 가입하실 수 있습니다!
                         </p>
                     </div>
@@ -313,13 +343,22 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">주소 *</label>
-                                <input
-                                    type="text"
-                                    placeholder="서울특별시 강남구 테헤란로 123"
-                                    value={formData.address}
-                                    onChange={(e) => setFormData({...formData, address: e.target.value})}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
-                                />
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="주소 검색 버튼을 클릭하세요"
+                                        value={formData.address}
+                                        readOnly
+                                        className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    />
+                                    <button
+                                        type="button"
+                                        onClick={handleAddressSearch}
+                                        className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium whitespace-nowrap"
+                                    >
+                                        주소 검색
+                                    </button>
+                                </div>
                             </div>
 
                             <div>

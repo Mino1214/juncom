@@ -5,6 +5,7 @@ import PurchasePage from "./components/purchase.tsx";
 import SignupPage from "./components/signup.tsx";
 import LoginPage from "./components/login.tsx";
 import HomePage from "./components/home.tsx";
+import MyPage from "./components/mypage.tsx";
 
 // Types
 interface User {
@@ -41,8 +42,20 @@ export interface NavigateProps {
 const AppContext = createContext<AppContextType | null>(null);
 
 const AppProvider = ({ children }: { children: ReactNode }) => {
-    const [user, setUser] = useState<User | null>(null);
+    const [user, setUser] = useState<User | null>(() => {
+        const saved = localStorage.getItem('user');
+        return saved ? JSON.parse(saved) : null;
+    });
     const [saleStatus, setSaleStatus] = useState<SaleStatus>('before');
+
+    // user가 바뀔 때마다 localStorage에 저장
+    useEffect(() => {
+        if (user) {
+            localStorage.setItem('user', JSON.stringify(user));
+        } else {
+            localStorage.removeItem('user');
+        }
+    }, [user]);
 
     return (
         <AppContext.Provider value={{ user, setUser, saleStatus, setSaleStatus }}>
@@ -66,35 +79,47 @@ const Router = () => {
     useEffect(() => {
         const handleHashChange = () => {
             const hash = window.location.hash || '#/login';
-            console.log('Hash changed to:', hash);
             setCurrentPath(hash);
         };
 
         window.addEventListener('hashchange', handleHashChange);
-
-        // 초기 로드시 실행
         handleHashChange();
 
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
     const navigate = (path: string): void => {
-        // #이 있으면 그대로, 없으면 추가
         const finalPath = path.startsWith('#') ? path : `#${path}`;
-        console.log('Navigating to:', finalPath);
         window.location.hash = finalPath;
     };
 
-    // 쿼리 파라미터를 제거한 순수 경로 추출
-    const cleanPath = currentPath.split('?')[0]; // #/signup?kakaoId=xxx -> #/signup
-    console.log('Current path:', currentPath, '| Clean path:', cleanPath);
+    // 로그인 상태 제어
+    useEffect(() => {
+        const cleanPath = (currentPath.split('?')[0]).toLowerCase();
+        const isLoginPage = cleanPath === '#/login' || cleanPath === '#/signup';
 
-    // 상품 상세 페이지 매칭
+        if (!user && !isLoginPage) {
+            // ✅ 로그인 안된 상태에서 접근 시 로그인 페이지로 이동
+            navigate('/login');
+        } else if (user && isLoginPage) {
+            // ✅ 로그인된 상태에서 로그인/회원가입 페이지 접근 시 홈으로 이동
+            navigate('/home');
+        }
+    }, [user, currentPath]);
+
+    const cleanPath = currentPath.split('?')[0];
     const productMatch = cleanPath.match(/#\/product\/(\d+)/);
 
     if (productMatch) {
         const productId = parseInt(productMatch[1]);
-        return <ProductDetailPage navigate={navigate} user={user} saleStatus={saleStatus} productId={productId} />;
+        return (
+            <ProductDetailPage
+                navigate={navigate}
+                user={user}
+                saleStatus={saleStatus}
+                productId={productId}
+            />
+        );
     }
 
     const routes: Record<string, React.ComponentType<NavigateProps>> = {
@@ -102,9 +127,9 @@ const Router = () => {
         '#/signup': SignupPage,
         '#/home': HomePage,
         '#/purchase': PurchasePage,
+        '#/mypage': MyPage,
     };
 
-    // cleanPath로 매칭 (쿼리 파라미터 제거된 상태)
     const Component = routes[cleanPath] || LoginPage;
 
     return <Component navigate={navigate} />;

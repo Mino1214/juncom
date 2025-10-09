@@ -44,7 +44,6 @@ const LoginPage = ({ navigate }: NavigateProps) => {
         setLoading(true);
 
         try {
-            // TODO: 실제 API 엔드포인트로 변경
             const response = await fetch('https://jimo.world/api/auth/login', {
                 method: 'POST',
                 headers: {
@@ -59,20 +58,39 @@ const LoginPage = ({ navigate }: NavigateProps) => {
             const data = await response.json();
 
             if (response.ok) {
-                // 로그인 성공 - 회원인 경우
+                // ✅ 서버 응답 구조 예시:
+                // {
+                //   message: "로그인 성공",
+                //   token: "eyJhbGciOiJIUzI1...",
+                //   user: { name, employeeId, email, role }
+                // }
+
+                const { token, user } = data;
+
+                if (!token || !user) {
+                    throw new Error("서버 응답 형식이 올바르지 않습니다.");
+                }
+
+                // ✅ 토큰 및 사용자 정보 로컬에 저장
+                localStorage.setItem("token", token);
+                localStorage.setItem("user", JSON.stringify(user));
+
+                // ✅ 전역 상태(AppContext)에 반영
                 setUser({
-                    name: data.name,
-                    employeeId: data.employeeId
+                    name: user.name,
+                    employeeId: user.employeeId
                 });
+
+                // ✅ 로그인 후 홈으로 이동
                 navigate('/home');
-            } else if (response.status === 404) {
-                // 회원이 아닌 경우 - 가입 페이지로
+            }
+            else if (response.status === 404) {
                 setError('등록되지 않은 사번입니다. 회원가입을 진행해주세요.');
                 setTimeout(() => {
                     navigate(`/signup?employeeId=${employeeId}`);
                 }, 1500);
-            } else {
-                // 비밀번호 오류 등
+            }
+            else {
                 setError(data.message || '로그인에 실패했습니다.');
             }
         } catch (err) {
@@ -251,15 +269,6 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                         </button>
                     </div>
                 </div>
-
-                {/* 개발자 안내 */}
-                {/*<div className="mt-4 p-4 bg-blue-50 rounded-lg text-xs text-blue-600">*/}
-                {/*    <p className="font-semibold mb-1">🔧 개발자 설정 필요:</p>*/}
-                {/*    <p>1. 카카오 개발자 센터에서 앱 등록</p>*/}
-                {/*    <p>2. JavaScript 키 발급</p>*/}
-                {/*    <p>3. 플랫폼 설정 (Web, Android, iOS)</p>*/}
-                {/*    <p>4. 코드의 KAKAO_JS_KEY 변경</p>*/}
-                {/*</div>*/}
             </div>
         </div>
     );
