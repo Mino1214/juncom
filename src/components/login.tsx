@@ -45,7 +45,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
 
         try {
             // TODO: 실제 API 엔드포인트로 변경
-            const response = await fetch('https://localhost:3000/api/auth/login', {
+            const response = await fetch('https://jimo.world/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -112,7 +112,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
 
                             // 백엔드로 카카오 정보 전송하여 회원 확인
                             try {
-                                const apiResponse = await fetch('http://localhost:3000/api/auth/kakao', {
+                                const apiResponse = await fetch('https://jimo.world/api/auth/kakao', {
                                     method: 'POST',
                                     headers: {
                                         'Content-Type': 'application/json',
