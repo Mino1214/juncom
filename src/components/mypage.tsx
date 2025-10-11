@@ -153,7 +153,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">로딩 중...</p>
                 </div>
             </div>
@@ -189,20 +189,20 @@ const MyPage = ({ navigate }: NavigateProps) => {
                 {/* 프로필 헤더 */}
                 <div className="bg-white rounded-2xl p-8 mb-6">
                     <div className="flex items-center gap-6 mb-6">
-                        <div className="w-20 h-20 bg-gradient-to-br from-blue-500 to-indigo-600 rounded-full flex items-center justify-center">
+                        <div className="w-20 h-20 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-full flex items-center justify-center">
                             <User size={40} className="text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900 mb-1">{userDetail.name}</h1>
+                            <h1 className="text-3xl font-bold text-gray-900">{userDetail.name}</h1>
                             <p className="text-gray-500">사번: {userDetail.employee_id}</p>
                         </div>
                     </div>
 
-                    {userDetail.kakao_id && (
-                        <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">
-                            🍋 카카오 계정 연동됨
-                        </div>
-                    )}
+                    {/*{userDetail.kakao_id && (*/}
+                    {/*    <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">*/}
+                    {/*        카카오 계정 연동됨*/}
+                    {/*    </div>*/}
+                    {/*)}*/}
                 </div>
 
                 {/* 개인 정보 */}
@@ -212,7 +212,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
                         {!isEditing ? (
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
                             >
                                 수정하기
                             </button>
@@ -234,7 +234,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                 </button>
                                 <button
                                     onClick={handleSave}
-                                    className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition"
+                                    className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
                                 >
                                     저장
                                 </button>
@@ -253,7 +253,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                         type="text"
                                         value={editForm.name}
                                         onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                     />
                                 ) : (
                                     <p className="text-gray-900 font-medium">{userDetail.name}</p>
@@ -271,7 +271,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                         type="email"
                                         value={editForm.email}
                                         onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                     />
                                 ) : (
                                     <p className="text-gray-900 font-medium">{userDetail.email || '미입력'}</p>
@@ -290,7 +290,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                         value={editForm.phone}
                                         onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
                                         placeholder="010-1234-5678"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                     />
                                 ) : (
                                     <p className="text-gray-900 font-medium">{userDetail.phone || '미입력'}</p>
@@ -311,13 +311,13 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                                 value={editForm.address}
                                                 onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
                                                 placeholder="주소 검색 버튼을 클릭하세요"
-                                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                                 readOnly
                                             />
                                             <button
                                                 type="button"
                                                 onClick={handleAddressSearch}
-                                                className="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-500 transition font-medium whitespace-nowrap"
+                                                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-500 transition font-medium whitespace-nowrap"
                                             >
                                                 주소 검색
                                             </button>
@@ -325,7 +325,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                         <input
                                             type="text"
                                             placeholder="상세주소 입력"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                         />
                                     </div>
                                 ) : (

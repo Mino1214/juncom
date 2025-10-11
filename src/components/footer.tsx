@@ -38,22 +38,22 @@ const Footer = () => {
                             <p>201</p>
                             <p className="pt-3">대표 전화: 010-2385-4214</p>
                         </div>
-                        <div className="mt-6">
-                            <a
-                                href="/privacy"
-                                className="text-blue-600 hover:text-blue-800 font-medium underline"
-                            >
-                                개인정보처리방침
-                            </a>
-                        </div>
+                        {/*<div className="mt-6">*/}
+                        {/*    <a*/}
+                        {/*        href="/privacy"*/}
+                        {/*        className="text-brand-600 hover:text-brand-800 font-medium underline"*/}
+                        {/*    >*/}
+                        {/*        개인정보처리방침*/}
+                        {/*    </a>*/}
+                        {/*</div>*/}
                     </div>
                 </div>
 
                 {/* 중요 안내사항 */}
-                <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-8">
-                    <p className="text-sm text-blue-900 leading-relaxed">
+                <div className="bg-brand-50 border border-brand-200 rounded-lg p-4 mt-8">
+                    <p className="text-sm text-brand-900 leading-relaxed">
                         <span className="font-semibold">안내:</span> 모든 거래에 대한 책임과 배송, 교환, 환불 민원 등의 처리는
-                        <span className="font-bold text-blue-700"> 준컴</span>에서 진행합니다.
+                        <span className="font-bold text-brand-700"> 준컴</span>에서 진행합니다.
                         문의사항은 고객센터(010-2385-4214)로 연락 주시기 바랍니다.
                     </p>
                 </div>

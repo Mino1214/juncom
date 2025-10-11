@@ -30,6 +30,8 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
     const [loading, setLoading] = useState(true);
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
+    const [activeTab, setActiveTab] = useState<"info" | "detail" | "refund">("info");
+
     // ✅ 데이터 로드
     useEffect(() => {
         if (!user) {
@@ -65,7 +67,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand mx-auto mb-4"></div>
                     <p className="text-gray-600">로딩 중...</p>
                 </div>
             </div>
@@ -79,7 +81,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                     <p className="text-gray-600">상품 정보를 찾을 수 없습니다.</p>
                     <button
                         onClick={() => navigate('/home')}
-                        className="mt-4 px-6 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700"
+                        className="mt-4 px-6 py-2 bg-brand text-white rounded-lg hover:bg-brand/90"
                     >
                         홈으로 돌아가기
                     </button>
@@ -148,14 +150,13 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                     <div className="flex flex-col">
                         <div className="mb-6">
                             <h1 className="text-4xl font-bold text-gray-900 mb-3">{product.name}</h1>
-                            {/*<p className="text-lg text-gray-600">{product.spec}</p>*/}
                         </div>
 
                         <div className="mb-6">
                             <div className="flex items-baseline gap-2 mb-2">
-                <span className="text-4xl font-bold text-gray-900">
-                  {product.price.toLocaleString()}원
-                </span>
+                                <span className="text-4xl font-bold text-gray-900">
+                                    {product.price.toLocaleString()}원
+                                </span>
                             </div>
                             <p className="text-sm text-gray-500">재고 {product.stock}개 남음</p>
                         </div>
@@ -163,28 +164,24 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                         {/* ✅ 상태 배지 */}
                         <div className="mb-6">
                             {displayStatus === "before" && (
-                                <div
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
                                     <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
                                     판매 대기중
                                 </div>
                             )}
                             {displayStatus === "active" && (
-                                <div
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
                                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                     판매 진행중
                                 </div>
                             )}
                             {displayStatus === "stopped" && (
-                                <div
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
                                     판매 중지됨
                                 </div>
                             )}
                             {product.status === "draft" && (
-                                <div
-                                    className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm font-medium">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm font-medium">
                                     임시 저장 상태
                                 </div>
                             )}
@@ -212,7 +209,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                             disabled={displayStatus !== "active"}
                             className={`w-full py-4 rounded-xl font-bold text-lg transition ${
                                 displayStatus === "active"
-                                    ? "bg-blue-600 text-white hover:bg-blue-700"
+                                    ? "bg-brand text-white hover:bg-brand/90"
                                     : "bg-gray-200 text-gray-400 cursor-not-allowed"
                             }`}
                         >
@@ -225,94 +222,158 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                         {/* ✅ 혜택 안내 */}
                         <div className="mt-6 space-y-3">
                             <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <Package size={18} className="text-blue-600"/>
+                                <Package size={18} className="text-brand"/>
                                 <span>1인 1대 한정 구매</span>
                             </div>
                             <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <Truck size={18} className="text-blue-600"/>
+                                <Truck size={18} className="text-brand"/>
                                 <span>구매 후 7일 이내 수령</span>
                             </div>
                             <div className="flex items-center gap-3 text-sm text-gray-600">
-                                <Shield size={18} className="text-blue-600"/>
+                                <Shield size={18} className="text-brand"/>
                                 <span>판매사 공식 보증</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
-                {/* ✅ 상품 설명 (info.png) */}
-                <div className="bg-white rounded-2xl overflow-hidden mb-6">
-                    <img
-                        src="/info.png"
-                        alt="상품 설명"
-                        className="w-full block"
-                    />
+                {/* ✅ 탭 메뉴 */}
+                <div className="bg-white border-b border-gray-200 sticky top-[73px] z-10 -mx-4 px-4">
+                    <div className="max-w-5xl mx-auto flex">
+                        <button
+                            onClick={() => setActiveTab("info")}
+                            className={`flex-1 py-5 text-center font-semibold transition ${
+                                activeTab === "info"
+                                    ? "text-brand border-b-2 border-brand"
+                                    : "text-gray-500 hover:text-gray-700"
+                            }`}
+                        >
+                            구매정보
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("detail")}
+                            className={`flex-1 py-5 text-center font-semibold transition ${
+                                activeTab === "detail"
+                                    ? "text-brand border-b-2 border-brand"
+                                    : "text-gray-500 hover:text-gray-700"
+                            }`}
+                        >
+                            상세정보
+                        </button>
+                        <button
+                            onClick={() => setActiveTab("refund")}
+                            className={`flex-1 py-5 text-center font-semibold transition ${
+                                activeTab === "refund"
+                                    ? "text-brand border-b-2 border-brand"
+                                    : "text-gray-500 hover:text-gray-700"
+                            }`}
+                        >
+                            배송 및 환불
+                        </button>
+                    </div>
                 </div>
 
-                {/* ✅ 상세 정보 (detail.png) */}
-                <div className="rounded-2xl overflow-hidden border border-gray-100 mb-6">
-                    <div
-                        className={`relative transition-all duration-500 ease-in-out ${
-                            isDetailOpen ? "max-h-none" : "max-h-[500px] overflow-hidden"
-                        }`}
-                    >
-                        <img
-                            src="/detail.png"
-                            alt="상세 정보"
-                            className="w-full block"
-                        />
-
-                        {!isDetailOpen && (
-                            <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent flex items-end justify-center pb-6">
-                                <button
-                                    onClick={() => setIsDetailOpen(true)}
-                                    className="px-8 py-3 bg-gray-900 text-white text-sm font-medium rounded-full shadow-lg hover:bg-gray-800 transition"
-                                >
-                                    상세정보 더보기 ▼
-                                </button>
-                            </div>
-                        )}
-                    </div>
-
-                    {isDetailOpen && (
-                        <div className="flex justify-center p-6 bg-white border-t border-gray-100">
-                            <button
-                                onClick={() => setIsDetailOpen(false)}
-                                className="px-8 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-200 transition"
-                            >
-                                접기 ▲
-                            </button>
+                {/* ✅ 탭 콘텐츠 */}
+                <div className="bg-white overflow-hidden">
+                    {/* 구매정보 탭 */}
+                    {activeTab === "info" && (
+                        <div className="animate-fadeIn">
+                            <img
+                                src="/info.png"
+                                alt="구매 정보"
+                                className="w-full block"
+                            />
                         </div>
                     )}
-                </div>
 
-                {/* ✅ 환불 규정 */}
-                <div className="bg-gray-50 rounded-2xl p-8 border border-gray-200">
-                    <h2 className="text-xl font-bold text-gray-900 mb-4">환불 규정</h2>
-                    <div className="space-y-3 text-sm text-gray-600">
-                        <div className="flex gap-2">
-                            <span className="font-semibold text-gray-700 min-w-[80px]">교환/반품</span>
-                            <span>상품 수령 후 7일 이내 가능 (단순 변심 시 왕복 배송비 고객 부담)</span>
+                    {/* 상세정보 탭 */}
+                    {activeTab === "detail" && (
+                        <div className="animate-fadeIn">
+                            <div
+                                className={`relative transition-all duration-500 ease-in-out ${
+                                    isDetailOpen ? "max-h-none" : "max-h-[500px] overflow-hidden"
+                                }`}
+                            >
+                                <img
+                                    src="/detail.png"
+                                    alt="상세 정보"
+                                    className="w-full block"
+                                />
+
+                                {!isDetailOpen && (
+                                    <div className="absolute bottom-0 left-0 w-full h-32 bg-gradient-to-t from-white via-white/80 to-transparent flex items-end justify-center pb-6">
+                                        <button
+                                            onClick={() => setIsDetailOpen(true)}
+                                            className="px-8 py-3 bg-gray-900 text-white text-sm font-medium rounded-full shadow-lg hover:bg-gray-800 transition"
+                                        >
+                                            상세정보 더보기 ▼
+                                        </button>
+                                    </div>
+                                )}
+                            </div>
+
+                            {isDetailOpen && (
+                                <div className="flex justify-center p-6 bg-white border-t border-gray-100">
+                                    <button
+                                        onClick={() => setIsDetailOpen(false)}
+                                        className="px-8 py-3 bg-gray-100 text-gray-700 text-sm font-medium rounded-full hover:bg-gray-200 transition"
+                                    >
+                                        접기 ▲
+                                    </button>
+                                </div>
+                            )}
                         </div>
-                        {/*<div className="flex gap-2">*/}
-                        {/*    <span className="font-semibold text-gray-700 min-w-[80px]">환불 불가</span>*/}
-                        {/*    <span>제품 개봉, 사용 흔적이 있는 경우 / 상품 택, 라벨 제거 시</span>*/}
-                        {/*</div>*/}
-                        <div className="flex gap-2">
-                            <span className="font-semibold text-gray-700 min-w-[80px]">불량 제품</span>
-                            <span>수령 후 14일 이내 무상 교환 또는 환불 (배송비 판매자 부담)</span>
+                    )}
+
+                    {/* 배송 및 환불 탭 */}
+                    {activeTab === "refund" && (
+                        <div className="p-8 animate-fadeIn">
+                            <h2 className="text-xl font-bold text-gray-900 mb-6">배송 및 환불 정보</h2>
+
+                            <div className="mb-8">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-4">배송 안내</h3>
+                                <div className="space-y-3 text-sm text-gray-600">
+                                    <div className="flex gap-2">
+                                        <span className="font-semibold text-gray-700 min-w-[100px]">배송 방법</span>
+                                        <span>택배 배송</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <span className="font-semibold text-gray-700 min-w-[100px]">배송 기간</span>
+                                        <span>결제 완료 후 7일 이내 수령</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <span className="font-semibold text-gray-700 min-w-[100px]">배송 비용</span>
+                                        <span>무료 배송</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="pt-6 border-t border-gray-200">
+                                <h3 className="text-lg font-semibold text-gray-800 mb-4">환불 규정</h3>
+                                <div className="space-y-3 text-sm text-gray-600">
+                                    <div className="flex gap-2">
+                                        <span className="font-semibold text-gray-700 min-w-[100px]">교환/반품</span>
+                                        <span>상품 수령 후 7일 이내 가능 (단순 변심 시 왕복 배송비 고객 부담)</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <span className="font-semibold text-gray-700 min-w-[100px]">불량 제품</span>
+                                        <span>수령 후 14일 이내 무상 교환 또는 환불 (배송비 판매자 부담)</span>
+                                    </div>
+                                    <div className="flex gap-2">
+                                        <span className="font-semibold text-gray-700 min-w-[100px]">환불 기간</span>
+                                        <span>반품 승인 후 3-5 영업일 내 환불 처리</span>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <div className="mt-6 pt-4 border-t border-gray-300">
+                                <p className="text-xs text-gray-500">
+                                    * 상세한 교환/환불 절차는 고객센터(010-2385-4214)로 문의해주세요.<br/>
+                                    * 전자상거래법 및 소비자보호법에 따라 소비자의 권리가 보호됩니다.
+                                </p>
+                            </div>
                         </div>
-                        <div className="flex gap-2">
-                            <span className="font-semibold text-gray-700 min-w-[80px]">환불 기간</span>
-                            <span>반품 승인 후 3-5 영업일 내 환불 처리</span>
-                        </div>
-                    </div>
-                    <div className="mt-6 pt-4 border-t border-gray-300">
-                        <p className="text-xs text-gray-500">
-                            * 상세한 교환/환불 절차는 고객센터(010-2385-4214)로 문의해주세요.<br/>
-                            * 전자상거래법 및 소비자보호법에 따라 소비자의 권리가 보호됩니다.
-                        </p>
-                    </div>
+                    )}
                 </div>
             </div>
         </div>

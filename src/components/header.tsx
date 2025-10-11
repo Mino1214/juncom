@@ -50,7 +50,7 @@ const Header = ({ user, setUser, navigate }: any) => {
                             className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-lg border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200"
                         >
                             {/* 사용자 정보 섹션 */}
-                            <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-br from-blue-50 to-purple-50">
+                            <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-br from-brand-50 to-purple-50">
                                 <p className="text-sm font-semibold text-gray-800">
                                     {user?.name ? `${user.name}님` : "게스트"}
                                 </p>
@@ -90,10 +90,10 @@ const Header = ({ user, setUser, navigate }: any) => {
                                         navigate("/mypage");
                                         setOpen(false);
                                     }}
-                                    className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 transition-all duration-200 flex items-center gap-2 group"
+                                    className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-brand-50 hover:to-purple-50 transition-all duration-200 flex items-center gap-2 group"
                                 >
                                     <svg
-                                        className="w-4 h-4 text-gray-400 group-hover:text-blue-500 transition-colors"
+                                        className="w-4 h-4 text-gray-400 group-hover:text-brand-500 transition-colors"
                                         fill="none"
                                         stroke="currentColor"
                                         viewBox="0 0 24 24"

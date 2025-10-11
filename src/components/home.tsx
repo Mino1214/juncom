@@ -108,7 +108,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <div className="text-center">
-                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
+                    <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-brand-600 mx-auto mb-4"></div>
                     <p className="text-gray-600">로딩 중...</p>
                 </div>
             </div>
@@ -245,7 +245,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                         {open && (
                             <div className="absolute right-0 mt-2 w-48 bg-white/95 backdrop-blur-lg border border-gray-100 rounded-2xl shadow-xl overflow-hidden z-50 animate-in fade-in slide-in-from-top-2 duration-200">
-                                <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-br from-blue-50 to-purple-50">
+                                <div className="px-4 py-3 border-b border-gray-100 bg-gradient-to-br from-brand-50 to-purple-50">
                                     <p className="text-sm font-semibold text-gray-800">
                                         {user?.name ? `${user.name}님` : "게스트"}
                                     </p>
@@ -257,7 +257,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                             navigate("/mypage");
                                             setOpen(false);
                                         }}
-                                        className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-blue-50 hover:to-purple-50 flex items-center gap-2"
+                                        className="w-full text-left px-4 py-2.5 text-sm font-medium text-gray-700 hover:bg-gradient-to-r hover:from-brand-50 hover:to-purple-50 flex items-center gap-2"
                                     >
                                         마이페이지
                                     </button>
@@ -328,7 +328,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                         onClick={() => navigate("/purchase")}
                                         className={`w-full py-3.5 rounded-xl font-semibold transition ${
                                             saleStatus === "active"
-                                                ? "bg-blue-600 text-white hover:bg-blue-700"
+                                                ? "bg-brand-600 text-white hover:bg-brand-700"
                                                 : "bg-gray-100 text-gray-400 cursor-not-allowed"
                                         }`}
                                     >

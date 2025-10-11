@@ -219,7 +219,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                                 onChange={(e) => setEmployeeId(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && !loading && handleLogin()}
                                 disabled={loading}
-                                className="w-full px-4 py-4 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:opacity-50"
+                                className="w-full px-4 py-4 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:opacity-50"
                             />
                         </div>
                         <div>
@@ -230,13 +230,13 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                                 onChange={(e) => setPassword(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && !loading && handleLogin()}
                                 disabled={loading}
-                                className="w-full px-4 py-4 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:opacity-50"
+                                className="w-full px-4 py-4 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:opacity-50"
                             />
                         </div>
                         <button
                             onClick={handleLogin}
                             disabled={!employeeId || !password || loading}
-                            className="w-full py-4 bg-blue-600 text-white rounded-xl font-semibold text-base disabled:bg-gray-200 disabled:text-gray-400 transition hover:bg-blue-700"
+                            className="w-full py-4 bg-brand-600 text-white rounded-xl font-semibold text-base disabled:bg-gray-200 disabled:text-gray-400 transition hover:bg-brand-700"
                         >
                             {loading ? '로그인 중...' : '로그인'}
                         </button>
@@ -270,7 +270,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                             disabled={loading}
                             className="text-gray-600 text-sm hover:text-gray-900 disabled:opacity-50"
                         >
-                            처음이신가요? <span className="font-semibold text-blue-600">회원가입</span>
+                            처음이신가요? <span className="font-semibold text-brand-600">회원가입</span>
                         </button>
                     </div>
                 </div>

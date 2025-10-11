@@ -177,7 +177,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                         </div>
                         <button
                             onClick={() => navigate('/home')}
-                            className="w-full py-4 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
+                            className="w-full py-4 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition"
                         >
                             확인
                         </button>
@@ -243,12 +243,12 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                     value={deliveryInfo.address}
                                     readOnly
                                     placeholder="주소 검색 버튼을 클릭하세요"
-                                    className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                    className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
                                 />
                                 <button
                                     type="button"
                                     onClick={handleAddressSearch}
-                                    className="px-4 py-3 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition font-medium whitespace-nowrap"
+                                    className="px-4 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-medium whitespace-nowrap"
                                 >
                                     주소 검색
                                 </button>
@@ -260,7 +260,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                 type="text"
                                 value={deliveryInfo.detailAddress}
                                 onChange={(e) => setDeliveryInfo({...deliveryInfo, detailAddress: e.target.value})}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
                             />
                         </div>
                         <div>
@@ -269,7 +269,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                 type="tel"
                                 value={deliveryInfo.phone}
                                 onChange={(e) => setDeliveryInfo({...deliveryInfo, phone: e.target.value})}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
                             />
                         </div>
                         <div>
@@ -278,12 +278,12 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                 value={deliveryInfo.requestMessage}
                                 onChange={(e) => setDeliveryInfo({...deliveryInfo, requestMessage: e.target.value})}
                                 rows={3}
-                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-blue-500 resize-none"
+                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500 resize-none"
                                 placeholder="예) 부재 시 경비실에 맡겨주세요"
                             />
                         </div>
-                        <div className="bg-blue-50 rounded-lg p-4 border border-blue-100">
-                            <p className="text-sm text-blue-800">
+                        <div className="bg-brand-50 rounded-lg p-4 border border-brand-100">
+                            <p className="text-sm text-brand-800">
                                 <span className="font-semibold">예상 수령일:</span> 2024년 10월 10일 (목)
                             </p>
                         </div>
@@ -309,19 +309,19 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                         <div className="border-t border-gray-200 pt-3 mt-3">
                             <div className="flex justify-between items-center">
                                 <span className="text-lg font-bold text-gray-900">최종 결제금액</span>
-                                <span className="text-2xl font-bold text-blue-600">1,200,000원</span>
+                                <span className="text-2xl font-bold text-brand-600">1,200,000원</span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* 주의사항 */}
-                <div className="bg-blue-50 rounded-2xl p-5 mb-6 border border-blue-100">
+                <div className="bg-brand-50 rounded-2xl p-5 mb-6 border border-brand-100">
                     <div className="flex gap-3">
-                        <AlertCircle className="text-blue-600 flex-shrink-0 mt-0.5" size={20} />
+                        <AlertCircle className="text-brand-600 flex-shrink-0 mt-0.5" size={20} />
                         <div>
-                            <h3 className="font-semibold text-blue-900 mb-2">구매 전 확인사항</h3>
-                            <ul className="text-sm text-blue-800 space-y-1">
+                            <h3 className="font-semibold text-brand-900 mb-2">구매 전 확인사항</h3>
+                            <ul className="text-sm text-brand-800 space-y-1">
                                 <li>• 1인 1대 한정 구매 가능합니다</li>
                                 <li>• 구매 후 취소/환불이 불가능합니다</li>
                                 <li>• 수령은 구매일로부터 7일 이내 가능합니다</li>
@@ -341,7 +341,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                 type="checkbox"
                                 checked={agreements.terms}
                                 onChange={(e) => setAgreements({...agreements, terms: e.target.checked})}
-                                className="w-5 h-5 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                             />
                             <div className="flex-1">
                                 <span className="text-gray-700">전자금융거래 이용약관에 동의합니다. (필수)</span>
@@ -351,7 +351,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                         e.preventDefault();
                                         openModal('terms');
                                     }}
-                                    className="ml-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                                    className="ml-2 text-sm text-brand-600 hover:text-brand-700 underline"
                                 >
                                     상세보기
                                 </button>
@@ -364,7 +364,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                 type="checkbox"
                                 checked={agreements.privacy}
                                 onChange={(e) => setAgreements({...agreements, privacy: e.target.checked})}
-                                className="w-5 h-5 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                             />
                             <div className="flex-1">
                                 <span className="text-gray-700">개인정보 제3자 제공에 동의합니다. (필수)</span>
@@ -374,7 +374,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                         e.preventDefault();
                                         openModal('privacy');
                                     }}
-                                    className="ml-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                                    className="ml-2 text-sm text-brand-600 hover:text-brand-700 underline"
                                 >
                                     상세보기
                                 </button>
@@ -387,7 +387,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                 type="checkbox"
                                 checked={agreements.refund}
                                 onChange={(e) => setAgreements({...agreements, refund: e.target.checked})}
-                                className="w-5 h-5 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                             />
                             <div className="flex-1">
                                 <span className="text-gray-700">결제 취소 및 환불 규정에 동의합니다. (필수)</span>
@@ -397,7 +397,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                         e.preventDefault();
                                         openModal('refund');
                                     }}
-                                    className="ml-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                                    className="ml-2 text-sm text-brand-600 hover:text-brand-700 underline"
                                 >
                                     상세보기
                                 </button>
@@ -412,7 +412,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     disabled={!allAgreed || purchasing}
                     className={`w-full py-4 rounded-xl font-bold text-lg transition ${
                         allAgreed && !purchasing
-                            ? 'bg-blue-600 text-white hover:bg-blue-700'
+                            ? 'bg-brand-600 text-white hover:bg-brand-700'
                             : 'bg-gray-200 text-gray-400 cursor-not-allowed'
                     }`}
                 >
@@ -437,7 +437,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                             <div className="p-6 border-t border-gray-200">
                                 <button
                                     onClick={closeModal}
-                                    className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
+                                    className="w-full py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition"
                                 >
                                     닫기
                                 </button>

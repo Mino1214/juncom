@@ -155,7 +155,7 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
                                         <button onClick={() => { setEditingId(null); setEditData({}); setNewImage(null); }} className="text-gray-500 hover:underline">취소</button>
                                     </>
                                 ) : (
-                                    <button onClick={() => { setEditingId(p.id); setEditData(p); }} className="text-blue-600 hover:underline">✏️ 수정</button>
+                                    <button onClick={() => { setEditingId(p.id); setEditData(p); }} className="text-brand-600 hover:underline">✏️ 수정</button>
                                 )}
                             </td>
                         </tr>
@@ -176,7 +176,7 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
                                     <button onClick={() => { setEditingId(null); setEditData({}); setNewImage(null); }} className="text-gray-500 text-sm">취소</button>
                                 </div>
                             ) : (
-                                <button onClick={() => { setEditingId(p.id); setEditData(p); }} className="text-blue-600 text-sm">✏️ 수정</button>
+                                <button onClick={() => { setEditingId(p.id); setEditData(p); }} className="text-brand-600 text-sm">✏️ 수정</button>
                             )}
                         </div>
 

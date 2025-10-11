@@ -241,8 +241,8 @@ const SignupPage = ({navigate}: NavigateProps) => {
                 </p>
 
                 {isKakaoSignup && (
-                    <div className="mb-6 p-4 bg-blue-50 border border-blue-200 rounded-xl">
-                        <p className="text-sm text-blue-800">
+                    <div className="mb-6 p-4 bg-brand-50 border border-brand-200 rounded-xl">
+                        <p className="text-sm text-brand-800">
                             🎉 카카오 계정으로 간편하게 가입하실 수 있습니다!
                         </p>
                     </div>
@@ -262,7 +262,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     value={formData.name}
                                     onChange={(e) => setFormData({...formData, name: e.target.value})}
                                     disabled={isKakaoSignup && !!kakaoName}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:bg-gray-50 disabled:text-gray-500"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
                                 />
                             </div>
 
@@ -273,7 +273,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     placeholder="EMP2024001"
                                     value={formData.employeeId}
                                     onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
                                 />
                             </div>
 
@@ -285,7 +285,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
                                     disabled={isKakaoSignup && !!kakaoEmail}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition disabled:bg-gray-50 disabled:text-gray-500"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
                                 />
                             </div>
 
@@ -299,7 +299,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                             placeholder="8자 이상"
                                             value={formData.password}
                                             onChange={(e) => setFormData({...formData, password: e.target.value})}
-                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                            className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
                                         />
                                     </div>
 
@@ -313,7 +313,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                             className={`w-full px-4 py-3 bg-white border rounded-xl text-base focus:outline-none focus:ring-2 transition ${
                                                 formData.passwordConfirm && !passwordMatch
                                                     ? 'border-red-300 focus:ring-red-500'
-                                                    : 'border-gray-200 focus:ring-blue-500'
+                                                    : 'border-gray-200 focus:ring-brand-500'
                                             }`}
                                         />
                                         {formData.passwordConfirm && !passwordMatch && (
@@ -337,7 +337,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     placeholder="010-1234-5678"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
                                 />
                             </div>
 
@@ -349,12 +349,12 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                         placeholder="주소 검색 버튼을 클릭하세요"
                                         value={formData.address}
                                         readOnly
-                                        className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                        className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
                                     />
                                     <button
                                         type="button"
                                         onClick={handleAddressSearch}
-                                        className="px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium whitespace-nowrap"
+                                        className="px-4 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium whitespace-nowrap"
                                     >
                                         주소 검색
                                     </button>
@@ -368,7 +368,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     placeholder="스타트업 캠퍼스 5층"
                                     value={formData.detailAddress}
                                     onChange={(e) => setFormData({...formData, detailAddress: e.target.value})}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-blue-500 transition"
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
                                 />
                             </div>
                         </div>
@@ -385,7 +385,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     type="checkbox"
                                     checked={agreements.terms}
                                     onChange={(e) => setAgreements({...agreements, terms: e.target.checked})}
-                                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                                 />
                                 <div className="flex-1">
                                     <span className="text-gray-700">이용약관에 동의합니다. <span className="text-red-500">*</span></span>
@@ -395,7 +395,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                             e.preventDefault();
                                             openModal('terms');
                                         }}
-                                        className="ml-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                                        className="ml-2 text-sm text-brand-600 hover:text-brand-700 underline"
                                     >
                                         상세보기
                                     </button>
@@ -408,7 +408,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     type="checkbox"
                                     checked={agreements.privacy}
                                     onChange={(e) => setAgreements({...agreements, privacy: e.target.checked})}
-                                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                                 />
                                 <div className="flex-1">
                                     <span className="text-gray-700">개인정보 수집 및 이용에 동의합니다. <span className="text-red-500">*</span></span>
@@ -418,7 +418,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                             e.preventDefault();
                                             openModal('privacy');
                                         }}
-                                        className="ml-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                                        className="ml-2 text-sm text-brand-600 hover:text-brand-700 underline"
                                     >
                                         상세보기
                                     </button>
@@ -431,7 +431,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     type="checkbox"
                                     checked={agreements.marketing}
                                     onChange={(e) => setAgreements({...agreements, marketing: e.target.checked})}
-                                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-blue-600 focus:ring-blue-500"
+                                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
                                 />
                                 <div className="flex-1">
                                     <span className="text-gray-700">마케팅 정보 수신에 동의합니다. (선택)</span>
@@ -441,7 +441,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                             e.preventDefault();
                                             openModal('marketing');
                                         }}
-                                        className="ml-2 text-sm text-blue-600 hover:text-blue-700 underline"
+                                        className="ml-2 text-sm text-brand-600 hover:text-brand-700 underline"
                                     >
                                         상세보기
                                     </button>
@@ -453,7 +453,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                     <button
                         onClick={handleSignup}
                         disabled={!allFieldsFilled || !allRequiredAgreed || !passwordMatch || loading}
-                        className="w-full py-4 bg-blue-600 text-white rounded-xl font-semibold text-base hover:bg-blue-700 transition disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
+                        className="w-full py-4 bg-brand-600 text-white rounded-xl font-semibold text-base hover:bg-brand-700 transition disabled:bg-gray-200 disabled:text-gray-400 disabled:cursor-not-allowed"
                     >
                         {loading ? '가입 중...' : '가입하기'}
                     </button>
@@ -477,7 +477,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                             <div className="p-6 border-t border-gray-200">
                                 <button
                                     onClick={closeModal}
-                                    className="w-full py-3 bg-blue-600 text-white rounded-xl font-semibold hover:bg-blue-700 transition"
+                                    className="w-full py-3 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition"
                                 >
                                     닫기
                                 </button>
