@@ -294,7 +294,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                             className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1">
 
                             {/* ✅ 상단 고정, 하단만 자르기 */}
-                            <div className="aspect-[4/3] overflow-hidden bg-gray-50">
+                            <div className="aspect-[4/4] overflow-hidden bg-gray-50">
                                 <img
                                     src={product.image_url}
                                     alt={product.name}
@@ -305,7 +305,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                             {/* ✅ 여백 확대 + 시각적 강조 */}
                             <div className="p-6">
                                 <h3 className="font-bold text-2xl text-gray-900 mb-2">{product.name}</h3>
-                                <p className="text-sm text-gray-500 mb-5">{product.description}</p>
+                                {/*<p className="text-sm text-gray-500 mb-5">{product.description}</p>*/}
 
                                 <div className="flex justify-between items-baseline mb-2">
             <span className="text-3xl font-bold text-gray-900">
