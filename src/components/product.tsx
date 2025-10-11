@@ -238,18 +238,8 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                 </div>
 
                 {/* ✅ 탭 메뉴 */}
-                <div className="bg-white border-b border-gray-200 sticky top-[73px] z-10 -mx-4 px-4">
+                <div className="bg-white border-b border-gray-200 sticky top-[55px] sm:top-[73px] z-10 -mx-4 px-4">
                     <div className="max-w-5xl mx-auto flex">
-                        <button
-                            onClick={() => setActiveTab("info")}
-                            className={`flex-1 py-5 text-center font-semibold transition ${
-                                activeTab === "info"
-                                    ? "text-brand border-b-2 border-brand"
-                                    : "text-gray-500 hover:text-gray-700"
-                            }`}
-                        >
-                            구매정보
-                        </button>
                         <button
                             onClick={() => setActiveTab("detail")}
                             className={`flex-1 py-5 text-center font-semibold transition ${
@@ -260,6 +250,17 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                         >
                             상세정보
                         </button>
+                        <button
+                            onClick={() => setActiveTab("info")}
+                            className={`flex-1 py-5 text-center font-semibold transition ${
+                                activeTab === "info"
+                                    ? "text-brand border-b-2 border-brand"
+                                    : "text-gray-500 hover:text-gray-700"
+                            }`}
+                        >
+                            구매정보
+                        </button>
+
                         <button
                             onClick={() => setActiveTab("refund")}
                             className={`flex-1 py-5 text-center font-semibold transition ${
