@@ -52,7 +52,7 @@ const Footer = () => {
                 {/* 중요 안내사항 */}
                 <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 mt-8">
                     <p className="text-sm text-blue-900 leading-relaxed">
-                        <span className="font-semibold">📢 안내:</span> 모든 거래에 대한 책임과 배송, 교환, 환불 민원 등의 처리는
+                        <span className="font-semibold">안내:</span> 모든 거래에 대한 책임과 배송, 교환, 환불 민원 등의 처리는
                         <span className="font-bold text-blue-700"> 준컴</span>에서 진행합니다.
                         문의사항은 고객센터(010-2385-4214)로 연락 주시기 바랍니다.
                     </p>
@@ -67,7 +67,7 @@ const Footer = () => {
                         <div className="flex gap-4 text-xs text-gray-500">
                             <a href="/terms" className="hover:text-gray-800">이용약관</a>
                             <span>|</span>
-                            <a href="/privacy" className="hover:text-gray-800">개인정보처리방침</a>
+                            <a href="#/privacy" className="hover:text-gray-800">개인정보처리방침</a>
                             <span>|</span>
                             <a href="/guide" className="hover:text-gray-800">이용안내</a>
                         </div>

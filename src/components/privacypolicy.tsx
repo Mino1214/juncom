@@ -1,0 +1,247 @@
+import React from 'react';
+
+interface PrivacyPolicyPageProps {
+    navigate: (path: string) => void;
+}
+
+const PrivacyPolicyPage: React.FC<PrivacyPolicyPageProps> = ({ navigate }) => {
+    return (
+        <div className="min-h-screen bg-gray-50">
+            {/* Header */}
+            <header className="bg-white shadow-sm sticky top-0 z-10">
+                <div className="max-w-4xl mx-auto px-4 py-4 flex items-center">
+                    <button
+                        onClick={() => navigate('/home')}
+                        className="text-gray-600 hover:text-gray-900 mr-4"
+                    >
+                        ← 돌아가기
+                    </button>
+                    <h1 className="text-xl font-bold text-gray-900">개인정보처리방침</h1>
+                </div>
+            </header>
+
+            {/* Content */}
+            <main className="max-w-4xl mx-auto px-4 py-8">
+                <section className="bg-white rounded-lg shadow-sm p-6 md:p-8">
+                    <div className="privacy-policy">
+                        <style>{`
+              .privacy-policy { 
+                font-family: system-ui, -apple-system, Segoe UI, Roboto, Apple SD Gothic Neo, 'Noto Sans KR', sans-serif; 
+                color: #111; 
+                line-height: 1.7; 
+              }
+              .privacy-policy h1, .privacy-policy h2 { 
+                margin: 1.4rem 0 0.6rem; 
+                line-height: 1.3; 
+              }
+              .privacy-policy h1 { 
+                font-size: 1.6rem; 
+                font-weight: 800; 
+              }
+              .privacy-policy h2 { 
+                font-size: 1.1rem; 
+                font-weight: 700; 
+                margin-top: 1.6rem; 
+              }
+              .privacy-policy p { 
+                margin: 0.6rem 0; 
+              }
+              .privacy-policy table { 
+                width: 100%; 
+                border-collapse: collapse; 
+                margin: 0.6rem 0 1rem; 
+                font-size: 0.95rem; 
+              }
+              .privacy-policy th, .privacy-policy td { 
+                border: 1px solid #e5e7eb; 
+                padding: 0.6rem 0.7rem; 
+                vertical-align: top; 
+              }
+              .privacy-policy th { 
+                background: #f7f7f8; 
+                text-align: left; 
+                font-weight: 700; 
+              }
+              .privacy-policy .meta { 
+                font-size: 0.9rem; 
+                color: #555; 
+              }
+            `}</style>
+
+                        <h1 id="privacy-title">준컴 개인정보처리방침</h1>
+                        <p className="meta">시행일자: <strong>2025년 1월 1일</strong></p>
+
+                        <p>
+                            준컴(이하 "회사")은 「개인정보 보호법」 등 관련 법령을 준수하며,
+                            이용자의 개인정보를 안전하게 보호하고 권익을 보장하기 위해 다음과 같은 처리방침을 수립·운영합니다.
+                        </p>
+
+                        <h2>1. 개인정보의 수집 및 이용 목적</h2>
+                        <p>
+                            회사는 다음의 목적을 위하여 최소한의 개인정보를 수집·이용합니다.
+                            수집된 정보는 명시된 목적 외의 용도로 사용되지 않으며, 목적이 변경될 경우 별도의 동의를 받습니다.
+                        </p>
+
+                        <table role="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">구분</th>
+                                <th scope="col">수집 항목</th>
+                                <th scope="col">이용 목적</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>회원가입 및 관리</td>
+                                <td>
+                                    성명, 이메일, 연락처, 비밀번호, 소속, 사번(또는 직원번호),
+                                    <strong> CI(연계정보), SNS 로그인 식별값(카카오/네이버/애플/구글 등)</strong>
+                                </td>
+                                <td>회원 식별 및 본인확인, 소셜 로그인 계정 연동, 서비스 이용 관리</td>
+                            </tr>
+                            <tr>
+                                <td>주문 및 결제 처리</td>
+                                <td>수령인명, 주소, 연락처, 결제정보(카드사명, 승인번호 등)</td>
+                                <td>상품 주문, 결제 및 배송 처리</td>
+                            </tr>
+                            <tr>
+                                <td>고객상담 및 문의</td>
+                                <td>이름, 이메일, 연락처, 상담 내용</td>
+                                <td>문의 응대 및 불만 처리</td>
+                            </tr>
+                            <tr>
+                                <td>포인트 및 혜택 관리</td>
+                                <td>사번, 포인트 내역, 거래기록</td>
+                                <td>포인트 적립 및 사용, 이벤트 참여, 혜택 제공</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <h2>2. 개인정보의 보유 및 이용기간</h2>
+                        <p>회사는 원칙적으로 개인정보 수집 및 이용 목적이 달성된 후에는 해당 정보를 지체 없이 파기합니다. 단, 관련 법령에 따라 일정 기간 보관할 수 있습니다.</p>
+                        <table role="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">보존 항목</th>
+                                <th scope="col">보존 근거</th>
+                                <th scope="col">보존 기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>계약 또는 청약철회 관련 기록</td>
+                                <td>전자상거래법</td>
+                                <td>5년</td>
+                            </tr>
+                            <tr>
+                                <td>대금결제 및 재화 공급 관련 기록</td>
+                                <td>전자상거래법</td>
+                                <td>5년</td>
+                            </tr>
+                            <tr>
+                                <td>소비자 불만 및 분쟁처리 관련 기록</td>
+                                <td>전자상거래법</td>
+                                <td>3년</td>
+                            </tr>
+                            <tr>
+                                <td>로그인 및 접속 기록</td>
+                                <td>통신비밀보호법</td>
+                                <td>3개월</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <h2>3. 개인정보의 제3자 제공</h2>
+                        <p>
+                            회사는 이용자의 개인정보를 원칙적으로 외부에 제공하지 않으며,
+                            다만 배송, 결제 등 서비스 이행을 위해 필요한 경우 회원의 동의를 얻어 제3자에게 제공합니다.
+                        </p>
+
+                        <table role="table">
+                            <thead>
+                            <tr>
+                                <th scope="col">제공받는 자</th>
+                                <th scope="col">제공 목적</th>
+                                <th scope="col">제공 항목</th>
+                                <th scope="col">보유기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>우체국택배(우정사업본부)</td>
+                                <td>상품 배송 및 배송 관련 고객지원</td>
+                                <td>이름, 연락처, 배송주소, 주문번호</td>
+                                <td>배송 완료 후 3개월</td>
+                            </tr>
+                            <tr>
+                                <td>(PG사명 미정)</td>
+                                <td>결제 처리 및 환불 업무</td>
+                                <td>이름, 결제금액, 결제수단, 거래번호, 이메일, 연락처</td>
+                                <td>결제 처리 완료 후 5년</td>
+                            </tr>
+                            <tr>
+                                <td>카카오 주식회사</td>
+                                <td>카카오 계정 로그인 인증 및 회원 식별</td>
+                                <td>이메일, CI(연계정보), 프로필명, 카카오 UID</td>
+                                <td>회원 탈퇴 시 또는 제휴 종료 시까지</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <h2>4. 개인정보의 처리 위탁</h2>
+                        <p>회사는 서비스 운영을 위해 아래와 같이 일부 업무를 위탁할 수 있습니다.</p>
+                        <table role="table">
+                            <thead>
+                            <tr>
+                                <th>수탁업체명</th>
+                                <th>위탁업무 내용</th>
+                                <th>보유 및 이용기간</th>
+                            </tr>
+                            </thead>
+                            <tbody>
+                            <tr>
+                                <td>우체국택배(우정사업본부)</td>
+                                <td>상품 배송 업무</td>
+                                <td>회원 탈퇴 또는 계약 종료 시까지</td>
+                            </tr>
+                            <tr>
+                                <td>(PG사명 미정)</td>
+                                <td>결제 처리 및 정산</td>
+                                <td>결제 서비스 제공기간 동안</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <h2>5. 개인정보 보호책임자</h2>
+                        <table>
+                            <tbody>
+                            <tr>
+                                <td>성명</td>
+                                <td>김민오</td>
+                            </tr>
+                            <tr>
+                                <td>직책</td>
+                                <td>개발자</td>
+                            </tr>
+                            <tr>
+                                <td>연락처</td>
+                                <td>010-9566-6385 / min55555kim@gmail.com</td>
+                            </tr>
+                            <tr>
+                                <td>주소</td>
+                                <td>경기도 고양시 일산동구 은행마을로 100 (식사동) 301-705</td>
+                            </tr>
+                            </tbody>
+                        </table>
+
+                        <footer className="meta">
+                            <p>시행일자: 2025년 1월 1일 &nbsp;|&nbsp; 최초 제정일: 2025년 1월 1일</p>
+                        </footer>
+                    </div>
+                </section>
+            </main>
+        </div>
+    );
+};
+
+export default PrivacyPolicyPage;

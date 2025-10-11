@@ -10,7 +10,6 @@ interface FormData {
     address: string;
     detailAddress: string;
     phone: string;
-
 }
 
 interface Agreements {

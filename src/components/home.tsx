@@ -293,12 +293,12 @@ const HomePage = ({ navigate }: NavigateProps) => {
                         <div
                             className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1">
 
-                            {/* ✅ 이미지 더 커지게 조정 */}
+                            {/* ✅ 상단 고정, 하단만 자르기 */}
                             <div className="aspect-[4/3] overflow-hidden bg-gray-50">
                                 <img
                                     src={product.image_url}
                                     alt={product.name}
-                                    className="w-full h-full object-cover"
+                                    className="w-full h-full object-cover object-top"
                                 />
                             </div>
 
