@@ -55,18 +55,10 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                 })
             });
 
-            const data = await response.json();
+            const data = await response.json(); // ✅ 딱 한 번만 호출
 
             if (response.ok) {
-                const data = await response.json();
                 console.log("✅ 서버 응답:", data);
-                // ✅ 서버 응답 구조 예시:
-                // {
-                //   message: "로그인 성공",
-                //   token: "eyJhbGciOiJIUzI1...",
-                //   user: { name, employeeId, email, role }
-                // }
-
                 const { token, user } = data;
 
                 if (!token || !user) {
