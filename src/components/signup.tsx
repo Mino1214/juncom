@@ -50,6 +50,15 @@ const SignupPage = ({navigate}: NavigateProps) => {
         marketing: false
     });
 
+    // 이메일 인증 관련 state
+    const [verificationCode, setVerificationCode] = useState('');
+    const [isEmailVerified, setIsEmailVerified] = useState(false);
+    const [isCodeSent, setIsCodeSent] = useState(false);
+    const [isSendingCode, setIsSendingCode] = useState(false);
+    const [isVerifyingCode, setIsVerifyingCode] = useState(false);
+    const [timer, setTimer] = useState(0);
+    const [verificationToken, setVerificationToken] = useState('');
+
     const [showModal, setShowModal] = useState<string | null>(null);
     const [loading, setLoading] = useState<boolean>(false);
 
@@ -65,14 +74,24 @@ const SignupPage = ({navigate}: NavigateProps) => {
         };
     }, []);
 
+    // 타이머 카운트다운
+    useEffect(() => {
+        if (timer > 0) {
+            const interval = setInterval(() => {
+                setTimer(prev => prev - 1);
+            }, 1000);
+            return () => clearInterval(interval);
+        }
+    }, [timer]);
+
     const allRequiredAgreed = agreements.terms && agreements.privacy;
 
-    // 카카오 회원가입은 비밀번호 불필요
+    // 카카오 회원가입은 비밀번호 불필요, 이메일 인증 필수
     const allFieldsFilled = isKakaoSignup
-        ? formData.name && formData.employeeId && formData.email && formData.address && formData.phone
+        ? formData.name && formData.employeeId && formData.email && formData.address && formData.phone && isEmailVerified
         : formData.name && formData.employeeId && formData.email &&
         formData.password && formData.passwordConfirm &&
-        formData.address && formData.phone;
+        formData.address && formData.phone && isEmailVerified;
 
     const passwordMatch = isKakaoSignup || formData.password === formData.passwordConfirm;
 
@@ -157,11 +176,89 @@ const SignupPage = ({navigate}: NavigateProps) => {
         }
     };
 
+    // 인증번호 발송
+    const handleSendVerificationCode = async () => {
+        if (!formData.employeeId || !formData.email) {
+            alert('사번과 이메일을 먼저 입력해주세요.');
+            return;
+        }
+
+        setIsSendingCode(true);
+
+        try {
+            const response = await fetch('https://jimo.world/api/auth/send-verification', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    employeeId: formData.employeeId,
+                    email: formData.email
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('인증번호가 이메일로 발송되었습니다.');
+                setIsCodeSent(true);
+                setTimer(300); // 5분
+                setVerificationCode('');
+                setIsEmailVerified(false);
+            } else {
+                alert(data.message || '인증번호 발송에 실패했습니다.');
+            }
+        } catch (error) {
+            console.error('Send verification error:', error);
+            alert('인증번호 발송 중 오류가 발생했습니다.');
+        } finally {
+            setIsSendingCode(false);
+        }
+    };
+
+    // 인증번호 확인
+    const handleVerifyCode = async () => {
+        if (!verificationCode) {
+            alert('인증번호를 입력해주세요.');
+            return;
+        }
+
+        setIsVerifyingCode(true);
+
+        try {
+            const response = await fetch('https://jimo.world/api/auth/verify-code', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({
+                    employeeId: formData.employeeId,
+                    code: verificationCode
+                })
+            });
+
+            const data = await response.json();
+
+            if (response.ok) {
+                alert('이메일 인증이 완료되었습니다!');
+                setIsEmailVerified(true);
+                setVerificationToken(data.verificationToken);
+                setTimer(0);
+            } else {
+                alert(data.message || '인증번호가 일치하지 않습니다.');
+            }
+        } catch (error) {
+            console.error('Verify code error:', error);
+            alert('인증번호 확인 중 오류가 발생했습니다.');
+        } finally {
+            setIsVerifyingCode(false);
+        }
+    };
+
     // 카카오 주소 검색
     const handleAddressSearch = () => {
         new window.daum.Postcode({
             oncomplete: function(data: any) {
-                // 도로명 주소 우선, 없으면 지번 주소
                 const fullAddress = data.roadAddress || data.jibunAddress;
                 setFormData(prev => ({ ...prev, address: fullAddress }));
             }
@@ -176,6 +273,11 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
         if (!allRequiredAgreed) {
             alert('필수 약관에 동의해주세요.');
+            return;
+        }
+
+        if (!isEmailVerified) {
+            alert('이메일 인증을 완료해주세요.');
             return;
         }
 
@@ -195,7 +297,8 @@ const SignupPage = ({navigate}: NavigateProps) => {
                     phone: formData.phone,
                     address: formData.address + (formData.detailAddress ? ' ' + formData.detailAddress : ''),
                     kakaoId: kakaoId || undefined,
-                    marketingAgreed: agreements.marketing
+                    marketingAgreed: agreements.marketing,
+                    verificationToken: verificationToken
                 })
             });
 
@@ -221,6 +324,13 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
     const closeModal = () => {
         setShowModal(null);
+    };
+
+    // 타이머 포맷 (MM:SS)
+    const formatTimer = (seconds: number) => {
+        const mins = Math.floor(seconds / 60);
+        const secs = seconds % 60;
+        return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
 
     return (
@@ -254,17 +364,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                         <h2 className="font-semibold text-gray-900 mb-4">기본 정보</h2>
 
                         <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">이름 *</label>
-                                <input
-                                    type="text"
-                                    placeholder="홍길동"
-                                    value={formData.name}
-                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
-                                    disabled={isKakaoSignup && !!kakaoName}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
-                                />
-                            </div>
+
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">사번 *</label>
@@ -273,7 +373,8 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     placeholder="EMP2024001"
                                     value={formData.employeeId}
                                     onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                                    disabled={isEmailVerified}
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
                                 />
                             </div>
 
@@ -284,9 +385,63 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     placeholder="hong@company.com"
                                     value={formData.email}
                                     onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    disabled={isKakaoSignup && !!kakaoEmail}
+                                    disabled={(isKakaoSignup && !!kakaoEmail) || isEmailVerified}
                                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
                                 />
+                            </div>
+
+                            {/* 이메일 인증 */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">이메일 인증 *</label>
+                                <div className="flex gap-2 mb-2">
+                                    <button
+                                        type="button"
+                                        onClick={handleSendVerificationCode}
+                                        disabled={isSendingCode || isEmailVerified || !formData.employeeId || !formData.email}
+                                        className="flex-1 px-4 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                    >
+                                        {isSendingCode ? '발송 중...' : isEmailVerified ? '인증 완료' : isCodeSent ? '재발송' : '인증번호 발송'}
+                                    </button>
+                                </div>
+
+                                {isCodeSent && !isEmailVerified && (
+                                    <div className="space-y-2">
+                                        <div className="flex gap-2">
+                                            <input
+                                                type="text"
+                                                placeholder="인증번호 6자리"
+                                                value={verificationCode}
+                                                onChange={(e) => setVerificationCode(e.target.value)}
+                                                maxLength={6}
+                                                className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                                            />
+                                            <button
+                                                type="button"
+                                                onClick={handleVerifyCode}
+                                                disabled={isVerifyingCode || !verificationCode}
+                                                className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed whitespace-nowrap"
+                                            >
+                                                {isVerifyingCode ? '확인 중...' : '확인'}
+                                            </button>
+                                        </div>
+                                        {timer > 0 && (
+                                            <p className="text-sm text-red-600">
+                                                남은 시간: {formatTimer(timer)}
+                                            </p>
+                                        )}
+                                        {timer === 0 && (
+                                            <p className="text-sm text-red-600">
+                                                인증번호가 만료되었습니다. 재발송해주세요.
+                                            </p>
+                                        )}
+                                    </div>
+                                )}
+
+                                {isEmailVerified && (
+                                    <p className="text-sm text-green-600 flex items-center gap-1">
+                                        ✅ 이메일 인증이 완료되었습니다.
+                                    </p>
+                                )}
                             </div>
 
                             {/* 비밀번호는 일반 회원가입시만 표시 */}
@@ -330,6 +485,17 @@ const SignupPage = ({navigate}: NavigateProps) => {
                         <h2 className="font-semibold text-gray-900 mb-4">배송 정보</h2>
 
                         <div className="space-y-4">
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">이름 *</label>
+                                <input
+                                    type="text"
+                                    placeholder="홍길동"
+                                    value={formData.name}
+                                    onChange={(e) => setFormData({...formData, name: e.target.value})}
+                                    disabled={isKakaoSignup && !!kakaoName}
+                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
+                                />
+                            </div>
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">연락처 *</label>
                                 <input
@@ -426,27 +592,27 @@ const SignupPage = ({navigate}: NavigateProps) => {
                             </label>
 
                             {/* 마케팅 정보 수신 (선택) */}
-                            <label className="flex items-start gap-3 cursor-pointer group">
-                                <input
-                                    type="checkbox"
-                                    checked={agreements.marketing}
-                                    onChange={(e) => setAgreements({...agreements, marketing: e.target.checked})}
-                                    className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"
-                                />
-                                <div className="flex-1">
-                                    <span className="text-gray-700">마케팅 정보 수신에 동의합니다. (선택)</span>
-                                    <button
-                                        type="button"
-                                        onClick={(e) => {
-                                            e.preventDefault();
-                                            openModal('marketing');
-                                        }}
-                                        className="ml-2 text-sm text-brand-600 hover:text-brand-700 underline"
-                                    >
-                                        상세보기
-                                    </button>
-                                </div>
-                            </label>
+                            {/*<label className="flex items-start gap-3 cursor-pointer group">*/}
+                            {/*    <input*/}
+                            {/*        type="checkbox"*/}
+                            {/*        checked={agreements.marketing}*/}
+                            {/*        onChange={(e) => setAgreements({...agreements, marketing: e.target.checked})}*/}
+                            {/*        className="w-5 h-5 mt-0.5 rounded border-gray-300 text-brand-600 focus:ring-brand-500"*/}
+                            {/*    />*/}
+                            {/*    <div className="flex-1">*/}
+                            {/*        <span className="text-gray-700">마케팅 정보 수신에 동의합니다. (선택)</span>*/}
+                            {/*        <button*/}
+                            {/*            type="button"*/}
+                            {/*            onClick={(e) => {*/}
+                            {/*                e.preventDefault();*/}
+                            {/*                openModal('marketing');*/}
+                            {/*            }}*/}
+                            {/*            className="ml-2 text-sm text-brand-600 hover:text-brand-700 underline"*/}
+                            {/*        >*/}
+                            {/*            상세보기*/}
+                            {/*        </button>*/}
+                            {/*    </div>*/}
+                            {/*</label>*/}
                         </div>
                     </div>
 
