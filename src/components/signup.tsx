@@ -462,7 +462,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                 </button>
                                 {isBlacklistChecked && (
                                     <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
-                                        ✅ 확인이 완료되었습니다. 이메일 인증을 진행해주세요.
+                                        확인이 완료되었습니다. 이메일 인증을 진행해주세요.
                                     </p>
                                 )}
                             </div>
@@ -504,7 +504,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                                 disabled={isVerifyingCode || !verificationCode}
                                                 className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed whitespace-nowrap"
                                             >
-                                                {isVerifyingCode ? '인증 중...' : '인증'}
+                                                {isVerifyingCode ? '인증' : '인증'}
                                             </button>
                                         </div>
                                         {timer > 0 && (
@@ -522,7 +522,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
                                 {isEmailVerified && (
                                     <p className="text-sm text-green-600 flex items-center gap-1">
-                                        ✅ 이메일 인증이 완료되었습니다.
+                                        이메일 인증이 완료되었습니다.
                                     </p>
                                 )}
                             </div>
