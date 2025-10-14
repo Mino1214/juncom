@@ -504,7 +504,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                                 disabled={isVerifyingCode || !verificationCode}
                                                 className="px-6 py-3 bg-green-600 text-white rounded-xl hover:bg-green-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed whitespace-nowrap"
                                             >
-                                                {isVerifyingCode ? '인증' : '인증'}
+                                                {isVerifyingCode ? '요청중' : '인증'}
                                             </button>
                                         </div>
                                         {timer > 0 && (
