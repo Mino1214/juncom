@@ -414,7 +414,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">사번 *</label>
                                 <input
                                     type="text"
-                                    placeholder="EMP2024001"
+                                    placeholder="82019999"
                                     value={formData.employeeId}
                                     onChange={(e) => {
                                         setFormData({...formData, employeeId: e.target.value});
@@ -430,7 +430,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">이메일 *</label>
                                 <input
                                     type="email"
-                                    placeholder="hong@company.com"
+                                    placeholder="hong@kr.kpmg.com"
                                     value={formData.email}
                                     onChange={(e) => {
                                         setFormData({...formData, email: e.target.value});
