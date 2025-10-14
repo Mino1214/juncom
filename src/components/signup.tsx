@@ -50,6 +50,10 @@ const SignupPage = ({navigate}: NavigateProps) => {
         marketing: false
     });
 
+    // 블랙리스트 검증 관련 state
+    const [isBlacklistChecked, setIsBlacklistChecked] = useState(false);
+    const [isCheckingBlacklist, setIsCheckingBlacklist] = useState(false);
+
     // 이메일 인증 관련 state
     const [verificationCode, setVerificationCode] = useState('');
     const [isEmailVerified, setIsEmailVerified] = useState(false);
@@ -88,10 +92,10 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
     // 카카오 회원가입은 비밀번호 불필요, 이메일 인증 필수
     const allFieldsFilled = isKakaoSignup
-        ? formData.name && formData.employeeId && formData.email && formData.address && formData.phone && isEmailVerified
+        ? formData.name && formData.employeeId && formData.email && formData.address && formData.phone && isEmailVerified && isBlacklistChecked
         : formData.name && formData.employeeId && formData.email &&
         formData.password && formData.passwordConfirm &&
-        formData.address && formData.phone && isEmailVerified;
+        formData.address && formData.phone && isEmailVerified && isBlacklistChecked;
 
     const passwordMatch = isKakaoSignup || formData.password === formData.passwordConfirm;
 
@@ -176,8 +180,45 @@ const SignupPage = ({navigate}: NavigateProps) => {
         }
     };
 
+    // 블랙리스트 체크
+    const handleCheckBlacklist = async () => {
+        if (!formData.employeeId || !formData.email) {
+            alert('사번과 이메일을 먼저 입력해주세요.');
+            return;
+        }
+
+        setIsCheckingBlacklist(true);
+
+        try {
+            const response = await fetch(`https://jimo.world/api/employee/status/check?employee_id=${formData.employeeId}&email=${formData.email}`);
+            const data = await response.json();
+
+            if (response.ok) {
+                if (data.is_blacklisted) {
+                    alert('회원가입이 제한된 사용자입니다.\n자세한 내용은 관리자에게 문의해주세요.');
+                    setIsBlacklistChecked(false);
+                } else {
+                    alert('확인 완료! 이메일 인증을 진행해주세요.');
+                    setIsBlacklistChecked(true);
+                }
+            } else {
+                alert(data.message || '확인 중 오류가 발생했습니다.');
+            }
+        } catch (error) {
+            console.error('Blacklist check error:', error);
+            alert('확인 중 오류가 발생했습니다.');
+        } finally {
+            setIsCheckingBlacklist(false);
+        }
+    };
+
     // 인증번호 발송
     const handleSendVerificationCode = async () => {
+        if (!isBlacklistChecked) {
+            alert('먼저 사번과 이메일을 확인해주세요.');
+            return;
+        }
+
         if (!formData.employeeId || !formData.email) {
             alert('사번과 이메일을 먼저 입력해주세요.');
             return;
@@ -276,6 +317,11 @@ const SignupPage = ({navigate}: NavigateProps) => {
             return;
         }
 
+        if (!isBlacklistChecked) {
+            alert('사번과 이메일 확인을 완료해주세요.');
+            return;
+        }
+
         if (!isEmailVerified) {
             alert('이메일 인증을 완료해주세요.');
             return;
@@ -364,16 +410,18 @@ const SignupPage = ({navigate}: NavigateProps) => {
                         <h2 className="font-semibold text-gray-900 mb-4">기본 정보</h2>
 
                         <div className="space-y-4">
-
-
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">사번 *</label>
                                 <input
                                     type="text"
                                     placeholder="EMP2024001"
                                     value={formData.employeeId}
-                                    onChange={(e) => setFormData({...formData, employeeId: e.target.value})}
-                                    disabled={isEmailVerified}
+                                    onChange={(e) => {
+                                        setFormData({...formData, employeeId: e.target.value});
+                                        setIsBlacklistChecked(false);
+                                        setIsEmailVerified(false);
+                                    }}
+                                    disabled={isBlacklistChecked}
                                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
                                 />
                             </div>
@@ -384,10 +432,32 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     type="email"
                                     placeholder="hong@company.com"
                                     value={formData.email}
-                                    onChange={(e) => setFormData({...formData, email: e.target.value})}
-                                    disabled={(isKakaoSignup && !!kakaoEmail) || isEmailVerified}
+                                    onChange={(e) => {
+                                        setFormData({...formData, email: e.target.value});
+                                        setIsBlacklistChecked(false);
+                                        setIsEmailVerified(false);
+                                    }}
+                                    disabled={(isKakaoSignup && !!kakaoEmail) || isBlacklistChecked}
                                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
                                 />
+                            </div>
+
+                            {/* 블랙리스트 체크 */}
+                            <div>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">사번 및 이메일 확인 *</label>
+                                <button
+                                    type="button"
+                                    onClick={handleCheckBlacklist}
+                                    disabled={isCheckingBlacklist || isBlacklistChecked || !formData.employeeId || !formData.email}
+                                    className="w-full px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                >
+                                    {isCheckingBlacklist ? '확인 중...' : isBlacklistChecked ? '✅ 확인 완료' : '사번/이메일 확인'}
+                                </button>
+                                {isBlacklistChecked && (
+                                    <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
+                                        ✅ 확인이 완료되었습니다. 이메일 인증을 진행해주세요.
+                                    </p>
+                                )}
                             </div>
 
                             {/* 이메일 인증 */}
@@ -397,12 +467,18 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     <button
                                         type="button"
                                         onClick={handleSendVerificationCode}
-                                        disabled={isSendingCode || isEmailVerified || !formData.employeeId || !formData.email}
+                                        disabled={isSendingCode || isEmailVerified || !isBlacklistChecked}
                                         className="flex-1 px-4 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
                                     >
                                         {isSendingCode ? '발송 중...' : isEmailVerified ? '인증 완료' : isCodeSent ? '재발송' : '인증번호 발송'}
                                     </button>
                                 </div>
+
+                                {!isBlacklistChecked && (
+                                    <p className="text-sm text-gray-500">
+                                        ℹ️ 먼저 사번과 이메일 확인을 완료해주세요.
+                                    </p>
+                                )}
 
                                 {isCodeSent && !isEmailVerified && (
                                     <div className="space-y-2">
