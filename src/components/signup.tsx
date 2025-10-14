@@ -187,6 +187,13 @@ const SignupPage = ({navigate}: NavigateProps) => {
             return;
         }
 
+        // ✅ 이메일 형식 유효성 검사 추가
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@kr\.kpmg\.com$/;
+        if (!emailPattern.test(formData.email)) {
+            alert('이메일은 반드시 @kr.kpmg.com 형식이어야 합니다.');
+            return;
+        }
+
         setIsCheckingBlacklist(true);
 
         try {
