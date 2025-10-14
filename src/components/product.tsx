@@ -164,34 +164,36 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                         {/* ✅ 상태 배지 */}
                         <div className="mb-6">
                             {displayStatus === "before" && (
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-yellow-100 text-yellow-700 rounded-full text-sm font-medium">
-                                    <div className="w-2 h-2 bg-yellow-500 rounded-full"></div>
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                                     판매 대기중
                                 </div>
                             )}
                             {displayStatus === "active" && (
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-100 text-green-700 rounded-full text-sm font-medium">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-green-50 text-green-700 rounded-full text-sm font-medium">
                                     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
                                     판매 진행중
                                 </div>
                             )}
                             {displayStatus === "stopped" && (
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-700 rounded-full text-sm font-medium">
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-600 rounded-full text-sm font-medium">
+                                    <div className="w-2 h-2 bg-gray-400 rounded-full"></div>
                                     판매 중지됨
                                 </div>
                             )}
                             {product.status === "draft" && (
-                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-200 text-gray-600 rounded-full text-sm font-medium">
-                                    임시 저장 상태
+                                <div className="inline-flex items-center gap-2 px-4 py-2 bg-gray-100 text-gray-500 rounded-full text-sm font-medium">
+                                    <div className="w-2 h-2 bg-gray-300 rounded-full"></div>
+                                    임시 저장
                                 </div>
                             )}
                         </div>
 
                         {/* ✅ 출시일 표시 */}
                         {displayStatus === "before" && releaseDate && (
-                            <div className="mb-6 p-4 bg-yellow-50 rounded-lg border border-yellow-200">
-                                <p className="text-sm text-yellow-800">
-                                    출시 예정일:{" "}
+                            <div className="mb-6 p-4 bg-gray-50 rounded-lg border border-gray-200">
+                                <p className="text-sm text-gray-700">
+                                    출시 예정일:&nbsp;
                                     {releaseDate.toLocaleString("ko-KR", {
                                         year: "numeric",
                                         month: "long",
@@ -238,7 +240,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                 </div>
 
                 {/* ✅ 탭 메뉴 */}
-                <div className="bg-white border-b border-gray-200 sticky top-[55px] sm:top-[73px] z-10 -mx-4 px-4">
+                <div className="bg-white border-b border-gray-200 sticky top-[55px] z-10">
                     <div className="max-w-5xl mx-auto flex">
                         <button
                             onClick={() => setActiveTab("detail")}
@@ -276,7 +278,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
 
                 {/* ✅ 탭 콘텐츠 */}
                 <div className="bg-white overflow-hidden">
-                    {/* 구매정보 탭 */}
+                {/* 구매정보 탭 */}
                     {activeTab === "info" && (
                         <div className="animate-fadeIn">
                             <img
