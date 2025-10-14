@@ -458,7 +458,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     disabled={isCheckingBlacklist || isBlacklistChecked || !formData.employeeId || !formData.email}
                                     className="w-full px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
                                 >
-                                    {isCheckingBlacklist ? '확인 중...' : isBlacklistChecked ? '✅ 확인 완료' : '사번/이메일 확인'}
+                                    {isCheckingBlacklist ? '확인 중...' : isBlacklistChecked ? '확인 완료' : '사번/이메일 확인'}
                                 </button>
                                 {isBlacklistChecked && (
                                     <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
