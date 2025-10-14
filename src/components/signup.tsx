@@ -232,7 +232,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    employeeId: formData.employeeId,
+                    email : formData.email,
                     code: verificationCode
                 })
             });
