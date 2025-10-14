@@ -226,7 +226,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
         setIsVerifyingCode(true);
 
         try {
-            const response = await fetch('https://jimo.world/api/auth/verify-code', {
+            const response = await fetch('https://jimo.world/api/verify-code', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
