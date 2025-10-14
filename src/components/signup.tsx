@@ -131,8 +131,8 @@ const SignupPage = ({navigate}: NavigateProps) => {
             content: `
                 <h3 class="font-bold text-lg mb-4">수집하는 개인정보 항목</h3>
                 <p class="mb-2"><strong>필수 항목:</strong></p>
-                <p class="mb-2">- 성명, 사번, 이메일, 비밀번호</p>
-                <p class="mb-2">- 배송지 주소, 연락처</p>
+                <p class="mb-2">- 사번, 이메일, 비밀번호</p>
+                <p class="mb-2">- 배송지 주소, 연락처, 수령자</p>
                 <p class="mb-4">- 서비스 이용 기록, 접속 로그, 쿠키</p>
 
                 <p class="mb-2 mt-4"><strong>선택 항목:</strong></p>
@@ -305,12 +305,26 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
     // 카카오 주소 검색
     const handleAddressSearch = () => {
-        new window.daum.Postcode({
-            oncomplete: function(data: any) {
+        const element_layer = document.getElementById('postcode-layer');
+        if (!element_layer) return;
+
+        // 레이어 표시
+        element_layer.style.display = 'block';
+
+        const postcode = new window.daum.Postcode({
+            oncomplete: function (data: any) {
                 const fullAddress = data.roadAddress || data.jibunAddress;
                 setFormData(prev => ({ ...prev, address: fullAddress }));
-            }
-        }).open();
+
+                // 완료 시 레이어 닫기
+                element_layer.style.display = 'none';
+            },
+            width: '100%',
+            height: '100%',
+        });
+
+        // 페이지 내에 바로 삽입 (팝업X)
+        postcode.embed(element_layer);
     };
 
     const handleSignup = async (): Promise<void> => {
@@ -583,7 +597,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">연락처 *</label>
                                 <input
                                     type="tel"
-                                    placeholder="010-1234-5678"
+                                    placeholder="-없이 입력"
                                     value={formData.phone}
                                     onChange={(e) => setFormData({...formData, phone: e.target.value})}
                                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
@@ -608,13 +622,27 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                         주소 검색
                                     </button>
                                 </div>
+
+                                {/* 🔻 여기가 새로 추가되는 부분 */}
+                                <div
+                                    id="postcode-layer"
+                                    style={{
+                                        display: 'none',
+                                        width: '100%',
+                                        height: '400px',
+                                        border: '1px solid #ccc',
+                                        borderRadius: '12px',
+                                        marginTop: '8px',
+                                        overflow: 'hidden',
+                                    }}
+                                />
                             </div>
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">상세 주소</label>
                                 <input
                                     type="text"
-                                    placeholder="스타트업 캠퍼스 5층"
+                                    placeholder="상세주소"
                                     value={formData.detailAddress}
                                     onChange={(e) => setFormData({...formData, detailAddress: e.target.value})}
                                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
@@ -625,7 +653,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
                     {/* 약관 동의 */}
                     <div className="bg-white rounded-2xl p-6">
-                        <h2 className="font-semibold text-gray-900 mb-4">약관 동의</h2>
+                    <h2 className="font-semibold text-gray-900 mb-4">약관 동의</h2>
 
                         <div className="space-y-4">
                             {/* 이용약관 */}
