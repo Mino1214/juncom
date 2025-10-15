@@ -69,7 +69,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
     useEffect(() => {
         // Daum 우편번호 서비스 스크립트 로드
         const script = document.createElement('script');
-        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+        script.src = "/lib/postcode.v2.js"; // ← 로컬 경로로 교체
         script.async = true;
         document.head.appendChild(script);
 
@@ -304,28 +304,28 @@ const SignupPage = ({navigate}: NavigateProps) => {
     };
 
     // 카카오 주소 검색
-    const handleAddressSearch = () => {
-        const element_layer = document.getElementById('postcode-layer');
-        if (!element_layer) return;
-
-        // 레이어 표시
-        element_layer.style.display = 'block';
-
-        const postcode = new window.daum.Postcode({
-            oncomplete: function (data: any) {
-                const fullAddress = data.roadAddress || data.jibunAddress;
-                setFormData(prev => ({ ...prev, address: fullAddress }));
-
-                // 완료 시 레이어 닫기
-                element_layer.style.display = 'none';
-            },
-            width: '100%',
-            height: '100%',
-        });
-
-        // 페이지 내에 바로 삽입 (팝업X)
-        postcode.embed(element_layer);
-    };
+    // const handleAddressSearch = () => {
+    //     const element_layer = document.getElementById('postcode-layer');
+    //     if (!element_layer) return;
+    //
+    //     // 레이어 표시
+    //     element_layer.style.display = 'block';
+    //
+    //     const postcode = new window.daum.Postcode({
+    //         oncomplete: function (data: any) {
+    //             const fullAddress = data.roadAddress || data.jibunAddress;
+    //             setFormData(prev => ({ ...prev, address: fullAddress }));
+    //
+    //             // 완료 시 레이어 닫기
+    //             element_layer.style.display = 'none';
+    //         },
+    //         width: '100%',
+    //         height: '100%',
+    //     });
+    //
+    //     // 페이지 내에 바로 삽입 (팝업X)
+    //     postcode.embed(element_layer);
+    // };
 
     const handleSignup = async (): Promise<void> => {
         if (!isKakaoSignup && !passwordMatch) {
@@ -399,6 +399,47 @@ const SignupPage = ({navigate}: NavigateProps) => {
         const secs = seconds % 60;
         return `${mins}:${secs.toString().padStart(2, '0')}`;
     };
+
+    const [showAddressModal, setShowAddressModal] = useState(false);
+    const [addressResults, setAddressResults] = useState<any[]>([]);
+    const [addressKeyword, setAddressKeyword] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
+
+    const handleAddressSearch = async () => {
+        if (!addressKeyword.trim()) {
+            alert('검색어를 입력하세요');
+            return;
+        }
+
+        setIsSearching(true);
+        try {
+            const response = await fetch(
+                `https://jimo.world/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
+            );
+            const data = await response.json();
+
+            if (data.documents && data.documents.length > 0) {
+                setAddressResults(data.documents);
+            } else {
+                alert('검색 결과가 없습니다.');
+                setAddressResults([]);
+            }
+        } catch (error) {
+            console.error('Address search error:', error);
+            alert('주소 검색 중 오류가 발생했습니다.');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+    const selectAddress = (address: any) => {
+        const fullAddress = address.road_address?.address_name || address.address.address_name;
+        setFormData(prev => ({ ...prev, address: fullAddress }));
+        setShowAddressModal(false);
+        setAddressKeyword('');
+        setAddressResults([]);
+    };
+
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -609,34 +650,88 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
-                                        placeholder="주소 검색 버튼을 클릭하세요"
+                                        placeholder="선택된 주소"
                                         value={formData.address}
                                         readOnly
-                                        className="flex-1 px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition"
+                                        className="flex-1 px-4 py-3 bg-gray-50 border border-gray-200 rounded-xl"
                                     />
                                     <button
                                         type="button"
-                                        onClick={handleAddressSearch}
+                                        onClick={() => setShowAddressModal(true)}
                                         className="px-4 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium whitespace-nowrap"
                                     >
                                         주소 검색
                                     </button>
                                 </div>
-
-                                {/* 🔻 여기가 새로 추가되는 부분 */}
-                                <div
-                                    id="postcode-layer"
-                                    style={{
-                                        display: 'none',
-                                        width: '100%',
-                                        height: '400px',
-                                        border: '1px solid #ccc',
-                                        borderRadius: '12px',
-                                        marginTop: '8px',
-                                        overflow: 'hidden',
-                                    }}
-                                />
                             </div>
+
+                            {/* 주소 검색 모달 */}
+                            {showAddressModal && (
+                                <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                                    <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+                                        <div className="p-6 border-b">
+                                            <h2 className="text-xl font-bold mb-4">주소 검색</h2>
+                                            <div className="flex gap-2">
+                                                <input
+                                                    type="text"
+                                                    placeholder="도로명 또는 지번 주소 입력"
+                                                    value={addressKeyword}
+                                                    onChange={(e) => setAddressKeyword(e.target.value)}
+                                                    onKeyPress={(e) => e.key === 'Enter' && handleAddressSearch()}
+                                                    className="flex-1 px-4 py-3 border border-gray-200 rounded-xl"
+                                                />
+                                                <button
+                                                    onClick={handleAddressSearch}
+                                                    disabled={isSearching}
+                                                    className="px-6 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium disabled:bg-gray-300"
+                                                >
+                                                    {isSearching ? '검색중...' : '검색'}
+                                                </button>
+                                            </div>
+                                        </div>
+
+                                        <div className="p-6 overflow-y-auto flex-1">
+                                            {addressResults.length === 0 ? (
+                                                <p className="text-gray-500 text-center py-8">
+                                                    주소를 검색해주세요
+                                                </p>
+                                            ) : (
+                                                <div className="space-y-2">
+                                                    {addressResults.map((addr, index) => (
+                                                        <button
+                                                            key={index}
+                                                            onClick={() => selectAddress(addr)}
+                                                            className="w-full text-left p-4 border border-gray-200 rounded-xl hover:bg-brand-50 hover:border-brand-300 transition"
+                                                        >
+                                                            <div className="font-medium text-gray-900">
+                                                                {addr.road_address?.address_name || addr.address.address_name}
+                                                            </div>
+                                                            {addr.road_address && (
+                                                                <div className="text-sm text-gray-500 mt-1">
+                                                                    지번: {addr.address.address_name}
+                                                                </div>
+                                                            )}
+                                                        </button>
+                                                    ))}
+                                                </div>
+                                            )}
+                                        </div>
+
+                                        <div className="p-6 border-t">
+                                            <button
+                                                onClick={() => {
+                                                    setShowAddressModal(false);
+                                                    setAddressKeyword('');
+                                                    setAddressResults([]);
+                                                }}
+                                                className="w-full py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition"
+                                            >
+                                                닫기
+                                            </button>
+                                        </div>
+                                    </div>
+                                </div>
+                            )}
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">상세 주소</label>
