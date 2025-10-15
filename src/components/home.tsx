@@ -52,7 +52,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                         },
                     });
                 const data = await res.json();
-
+                console.log("Fetched products:", data);
                 setProduct(data[0] || null);
             } catch (error) {
                 console.error("상품 불러오기 실패:", error);
@@ -126,17 +126,20 @@ const HomePage = ({ navigate }: NavigateProps) => {
     const now = new Date();
     const releaseDate = product.release_date ? new Date(product.release_date) : null;
     const isBeforeRelease = releaseDate && releaseDate > now;
-    const isAfterRelease = releaseDate && releaseDate <= now;
+    const isAfterRelease = !releaseDate || (releaseDate && releaseDate <= now);
 
-    let saleStatus: "before" | "active" | "stopped" | "ended" = "before";
+    let saleStatus: "before" | "active" | "stopped" | "ended" = "active";
+
     if (product.status === "stopped") {
         saleStatus = "stopped";
     } else if (isBeforeRelease) {
         saleStatus = "before";
-    } else if (isAfterRelease && product.status === "active") {
+    } else if (isAfterRelease && product.status === "active" && product.stock > 0) {
         saleStatus = "active";
-    } else {
+    } else if (product.stock === 0) {
         saleStatus = "ended";
+    } else {
+        saleStatus = "active"; // 기본값
     }
 
     const Countdown = () => {
