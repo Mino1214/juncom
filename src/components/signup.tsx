@@ -705,8 +705,13 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                             ) : (
                                                 <div className="space-y-2">
                                                     {addressResults.map((addr, index) => {
-                                                        const mainAddress = addr.road_address?.address_name || addr.address_name || '주소 정보 없음';
+                                                        // 주소 정보 추출
+                                                        const isPlace = addr.address_type === 'PLACE';
+                                                        const mainAddress = addr.road_address?.address_name || addr.address_name || '';
                                                         const subAddress = addr.address?.address_name;
+                                                        const buildingName = addr.road_address?.building_name || '';
+                                                        const placeName = addr.place_name || '';
+                                                        const category = addr.category_name || '';
 
                                                         return (
                                                             <button
@@ -714,12 +719,30 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                                                 onClick={() => selectAddress(addr)}
                                                                 className="w-full text-left p-4 border border-gray-200 rounded-xl hover:bg-brand-50 hover:border-brand-300 transition"
                                                             >
+                                                                {/* 장소명 (있는 경우) */}
+                                                                {isPlace && placeName && (
+                                                                    <div className="font-semibold text-brand-600 text-sm mb-1">
+                                                                        📍 {placeName}
+                                                                    </div>
+                                                                )}
+
+                                                                {/* 메인 주소 */}
                                                                 <div className="font-medium text-gray-900">
                                                                     {mainAddress}
+                                                                    {buildingName && ` (${buildingName})`}
                                                                 </div>
+
+                                                                {/* 지번 주소 */}
                                                                 {subAddress && mainAddress !== subAddress && (
                                                                     <div className="text-sm text-gray-500 mt-1">
                                                                         지번: {subAddress}
+                                                                    </div>
+                                                                )}
+
+                                                                {/* 카테고리 (장소인 경우) */}
+                                                                {isPlace && category && (
+                                                                    <div className="text-xs text-gray-400 mt-1">
+                                                                        {category}
                                                                     </div>
                                                                 )}
                                                             </button>
