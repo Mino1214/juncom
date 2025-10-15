@@ -26,33 +26,81 @@ const PurchasePage = ({navigate}: NavigateProps) => {
     });
     const [showModal, setShowModal] = useState<string | null>(null);
 
-    useEffect(() => {
-        // Daum 우편번호 서비스 스크립트 로드
-        const script = document.createElement('script');
-        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-        script.async = true;
-        document.head.appendChild(script);
-
-        return () => {
-            document.head.removeChild(script);
-        };
-    }, []);
+    // useEffect(() => {
+    //     // Daum 우편번호 서비스 스크립트 로드
+    //     const script = document.createElement('script');
+    //     script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
+    //     script.async = true;
+    //     document.head.appendChild(script);
+    //
+    //     return () => {
+    //         document.head.removeChild(script);
+    //     };
+    // }, []);
 
     useEffect(() => {
         if (!user) navigate('/login');
     }, [user, navigate]);
 
     const allAgreed = agreements.terms && agreements.privacy && agreements.refund;
-
+// 기존 state들 아래에 추가
+    const [showAddressModal, setShowAddressModal] = useState(false);
+    const [addressResults, setAddressResults] = useState<any[]>([]);
+    const [addressKeyword, setAddressKeyword] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
     // 카카오 주소 검색
-    const handleAddressSearch = () => {
-        new window.daum.Postcode({
-            oncomplete: function(data: any) {
-                // 도로명 주소 우선, 없으면 지번 주소
-                const fullAddress = data.roadAddress || data.jibunAddress;
-                setDeliveryInfo(prev => ({ ...prev, address: fullAddress }));
+    // 기존 handleAddressSearch 함수를 아래로 교체
+    const handleAddressSearch = async () => {
+        if (!addressKeyword.trim()) {
+            alert('검색어를 입력하세요');
+            return;
+        }
+
+        setIsSearching(true);
+        try {
+            const response = await fetch(
+                `https://jimo.world/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
+            );
+            const data = await response.json();
+
+            if (data.documents && data.documents.length > 0) {
+                setAddressResults(data.documents);
+            } else {
+                alert('검색 결과가 없습니다.');
+                setAddressResults([]);
             }
-        }).open();
+        } catch (error) {
+            console.error('Address search error:', error);
+            alert('주소 검색 중 오류가 발생했습니다.');
+        } finally {
+            setIsSearching(false);
+        }
+    };
+
+// 새로운 함수 추가
+    const selectAddress = (addr: any) => {
+        let fullAddress = '';
+
+        if (addr.road_address?.address_name) {
+            fullAddress = addr.road_address.address_name;
+            if (addr.road_address.building_name) {
+                fullAddress += ` (${addr.road_address.building_name})`;
+            }
+        } else if (addr.address_name) {
+            fullAddress = addr.address_name;
+        } else if (addr.address?.address_name) {
+            fullAddress = addr.address.address_name;
+        }
+
+        if (!fullAddress) {
+            alert('주소 정보를 가져올 수 없습니다.');
+            return;
+        }
+
+        setDeliveryInfo(prev => ({ ...prev, address: fullAddress }));
+        setShowAddressModal(false);
+        setAddressKeyword('');
+        setAddressResults([]);
     };
 
     const handlePurchase = async (): Promise<void> => {
@@ -105,6 +153,8 @@ const PurchasePage = ({navigate}: NavigateProps) => {
 
                 <h3 class="font-bold text-lg mb-4 mt-6">거부권 및 불이익</h3>
                 <p class="mb-4">귀하는 개인정보 제3자 제공에 대한 동의를 거부할 권리가 있습니다. 단, 동의를 거부할 경우 상품 구매 및 배송이 불가능합니다.</p>
+                
+                
             `
         },
         refund: {
@@ -120,7 +170,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 <p class="mb-4">3. 회사의 귀책사유로 정상적인 배송이 불가능한 경우</p>
 
                 <h3 class="font-bold text-lg mb-4 mt-6">제3조 (환불 절차)</h3>
-                <p class="mb-2">1. 환불 사유 발생 시 고객센터(1588-XXXX)로 연락</p>
+                <p class="mb-2">1. 환불 사유 발생 시 고객센터(010-2385-4214)로 연락</p>
                 <p class="mb-2">2. 상품 반송 (택배비 회사 부담)</p>
                 <p class="mb-2">3. 상품 확인 후 3영업일 이내 환불 처리</p>
                 <p class="mb-4">4. 결제 수단에 따라 환불 완료까지 3-7영업일 소요</p>
@@ -232,6 +282,8 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 </div>
 
                 {/* 배송 정보 */}
+                {/*// 배송 정보 섹션의 주소 입력 부분*/}
+                {/* 배송 정보 */}
                 <div className="bg-white rounded-2xl p-6 mb-4">
                     <h2 className="font-semibold text-gray-900 mb-4">배송 정보</h2>
                     <div className="space-y-4">
@@ -243,11 +295,11 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                     value={deliveryInfo.address}
                                     readOnly
                                     placeholder="주소 검색 버튼을 클릭하세요"
-                                    className="flex-1 px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                    className="flex-1 px-4 py-3 rounded-lg border border-gray-200 bg-gray-50 focus:outline-none focus:ring-2 focus:ring-brand-500"
                                 />
                                 <button
                                     type="button"
-                                    onClick={handleAddressSearch}
+                                    onClick={() => setShowAddressModal(true)}
                                     className="px-4 py-3 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition font-medium whitespace-nowrap"
                                 >
                                     주소 검색
@@ -289,7 +341,93 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                         </div>
                     </div>
                 </div>
+                {/* 주소 검색 모달 */}
+                {showAddressModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+                            <div className="p-6 border-b">
+                                <h2 className="text-xl font-bold mb-4">주소 검색</h2>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="도로명 또는 지번 주소 입력"
+                                        value={addressKeyword}
+                                        onChange={(e) => setAddressKeyword(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleAddressSearch()}
+                                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl"
+                                    />
+                                    <button
+                                        onClick={handleAddressSearch}
+                                        disabled={isSearching}
+                                        className="px-6 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium disabled:bg-gray-300"
+                                    >
+                                        {isSearching ? '검색중...' : '검색'}
+                                    </button>
+                                </div>
+                            </div>
 
+                            <div className="p-6 overflow-y-auto flex-1">
+                                {addressResults.length === 0 ? (
+                                    <p className="text-gray-500 text-center py-8">
+                                        주소를 검색해주세요
+                                    </p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {addressResults.map((addr, index) => {
+                                            const isPlace = addr.address_type === 'PLACE';
+                                            const mainAddress = addr.road_address?.address_name || addr.address_name || '';
+                                            const subAddress = addr.address?.address_name;
+                                            const buildingName = addr.road_address?.building_name || '';
+                                            const placeName = addr.place_name || '';
+                                            const category = addr.category_name || '';
+
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => selectAddress(addr)}
+                                                    className="w-full text-left p-4 border border-gray-200 rounded-xl hover:bg-brand-50 hover:border-brand-300 transition"
+                                                >
+                                                    {isPlace && placeName && (
+                                                        <div className="font-semibold text-brand-600 text-sm mb-1">
+                                                            📍 {placeName}
+                                                        </div>
+                                                    )}
+                                                    <div className="font-medium text-gray-900">
+                                                        {mainAddress}
+                                                        {buildingName && ` (${buildingName})`}
+                                                    </div>
+                                                    {subAddress && mainAddress !== subAddress && (
+                                                        <div className="text-sm text-gray-500 mt-1">
+                                                            지번: {subAddress}
+                                                        </div>
+                                                    )}
+                                                    {isPlace && category && (
+                                                        <div className="text-xs text-gray-400 mt-1">
+                                                            {category}
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="p-6 border-t">
+                                <button
+                                    onClick={() => {
+                                        setShowAddressModal(false);
+                                        setAddressKeyword('');
+                                        setAddressResults([]);
+                                    }}
+                                    className="w-full py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition"
+                                >
+                                    닫기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
                 {/* 결제 정보 */}
                 <div className="bg-white rounded-2xl p-6 mb-4">
                     <h2 className="font-semibold text-gray-900 mb-4">결제 정보</h2>
