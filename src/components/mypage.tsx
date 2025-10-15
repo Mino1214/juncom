@@ -9,6 +9,7 @@ interface UserDetail {
     email: string;
     phone: string;
     address: string;
+    address_detail?: string;
     kakao_id?: string;
     marketing_agreed: boolean;
     created_at: string;
@@ -30,20 +31,11 @@ const MyPage = ({ navigate }: NavigateProps) => {
         name: '',
         email: '',
         phone: '',
-        address: ''
+        address: '',
+        address_detail: ''
     });
 
-    useEffect(() => {
-        // Daum 우편번호 서비스 스크립트 로드
-        const script = document.createElement('script');
-        script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-        script.async = true;
-        document.head.appendChild(script);
 
-        return () => {
-            document.head.removeChild(script);
-        };
-    }, []);
 
     useEffect(() => {
         if (!user) {
@@ -56,8 +48,8 @@ const MyPage = ({ navigate }: NavigateProps) => {
                 const token = localStorage.getItem("token");
                 const response = await fetch(`https://jimo.world/api/user/${user.employeeId}`,{
                     headers: {
-                        "Authorization": `Bearer ${token}`, // ✅ 토큰 첨부
-                            "Content-Type": "application/json",
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
                     },
                 });
                 const data = await response.json();
@@ -66,7 +58,8 @@ const MyPage = ({ navigate }: NavigateProps) => {
                     name: data.name,
                     email: data.email || '',
                     phone: data.phone || '',
-                    address: data.address || ''
+                    address: data.address || '',
+                    address_detail: data.address_detail || ''
                 });
                 setLoading(false);
             } catch (error) {
@@ -74,21 +67,66 @@ const MyPage = ({ navigate }: NavigateProps) => {
                 setLoading(false);
             }
         };
-
         fetchUserDetail();
     }, [user, navigate]);
-
+    const [showAddressModal, setShowAddressModal] = useState(false);
+    const [addressResults, setAddressResults] = useState<any[]>([]);
+    const [addressKeyword, setAddressKeyword] = useState('');
+    const [isSearching, setIsSearching] = useState(false);
     // 카카오 주소 검색
-    const handleAddressSearch = () => {
-        new window.daum.Postcode({
-            oncomplete: function(data: any) {
-                // 도로명 주소 우선, 없으면 지번 주소
-                const fullAddress = data.roadAddress || data.jibunAddress;
-                setEditForm(prev => ({ ...prev, address: fullAddress }));
+    // PurchasePage와 동일한 주소 검색 함수
+    const handleAddressSearch = async () => {
+        if (!addressKeyword.trim()) {
+            alert('검색어를 입력하세요');
+            return;
+        }
+
+        setIsSearching(true);
+        try {
+            const response = await fetch(
+                `https://jimo.world/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
+            );
+            const data = await response.json();
+
+            if (data.documents && data.documents.length > 0) {
+                setAddressResults(data.documents);
+            } else {
+                alert('검색 결과가 없습니다.');
+                setAddressResults([]);
             }
-        }).open();
+        } catch (error) {
+            console.error('Address search error:', error);
+            alert('주소 검색 중 오류가 발생했습니다.');
+        } finally {
+            setIsSearching(false);
+        }
     };
 
+
+    const selectAddress = (addr: any) => {
+        let fullAddress = '';
+
+        if (addr.road_address?.address_name) {
+            fullAddress = addr.road_address.address_name;
+            if (addr.road_address.building_name) {
+                fullAddress += ` (${addr.road_address.building_name})`;
+            }
+        } else if (addr.address_name) {
+            fullAddress = addr.address_name;
+        } else if (addr.address?.address_name) {
+            fullAddress = addr.address.address_name;
+        }
+
+        if (!fullAddress) {
+            alert('주소 정보를 가져올 수 없습니다.');
+            return;
+        }
+
+        setEditForm(prev => ({ ...prev, address: fullAddress }));
+        setShowAddressModal(false);
+        setAddressKeyword('');
+        setAddressResults([]);
+    };
     const handleSave = async () => {
         if (!user) return;
 
@@ -225,7 +263,8 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                             name: userDetail.name,
                                             email: userDetail.email || '',
                                             phone: userDetail.phone || '',
-                                            address: userDetail.address || ''
+                                            address: userDetail.address || '',
+                                            address_detail: userDetail.address_detail || ''
                                         });
                                     }}
                                     className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
@@ -245,14 +284,14 @@ const MyPage = ({ navigate }: NavigateProps) => {
                     <div className="space-y-4">
                         {/* 이름 */}
                         <div className="flex items-start gap-4">
-                            <User size={20} className="text-gray-400 mt-1" />
+                            <User size={20} className="text-gray-400 mt-1"/>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-500 mb-1">이름</p>
                                 {isEditing ? (
                                     <input
                                         type="text"
                                         value={editForm.name}
-                                        onChange={(e) => setEditForm({ ...editForm, name: e.target.value })}
+                                        onChange={(e) => setEditForm({...editForm, name: e.target.value})}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                     />
                                 ) : (
@@ -263,14 +302,14 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                         {/* 이메일 */}
                         <div className="flex items-start gap-4">
-                            <Mail size={20} className="text-gray-400 mt-1" />
+                            <Mail size={20} className="text-gray-400 mt-1"/>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-500 mb-1">이메일</p>
                                 {isEditing ? (
                                     <input
                                         type="email"
                                         value={editForm.email}
-                                        onChange={(e) => setEditForm({ ...editForm, email: e.target.value })}
+                                        onChange={(e) => setEditForm({...editForm, email: e.target.value})}
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                     />
                                 ) : (
@@ -281,14 +320,14 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                         {/* 연락처 */}
                         <div className="flex items-start gap-4">
-                            <Phone size={20} className="text-gray-400 mt-1" />
+                            <Phone size={20} className="text-gray-400 mt-1"/>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-500 mb-1">연락처</p>
                                 {isEditing ? (
                                     <input
                                         type="tel"
                                         value={editForm.phone}
-                                        onChange={(e) => setEditForm({ ...editForm, phone: e.target.value })}
+                                        onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
                                         placeholder="010-1234-5678"
                                         className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                     />
@@ -300,7 +339,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                         {/* 주소 */}
                         <div className="flex items-start gap-4">
-                            <MapPin size={20} className="text-gray-400 mt-1" />
+                            <MapPin size={20} className="text-gray-400 mt-1"/>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-500 mb-1">배송지 주소</p>
                                 {isEditing ? (
@@ -309,14 +348,13 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                             <input
                                                 type="text"
                                                 value={editForm.address}
-                                                onChange={(e) => setEditForm({ ...editForm, address: e.target.value })}
                                                 placeholder="주소 검색 버튼을 클릭하세요"
-                                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50"
                                                 readOnly
                                             />
                                             <button
                                                 type="button"
-                                                onClick={handleAddressSearch}
+                                                onClick={() => setShowAddressModal(true)}
                                                 className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-500 transition font-medium whitespace-nowrap"
                                             >
                                                 주소 검색
@@ -324,19 +362,26 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                         </div>
                                         <input
                                             type="text"
+                                            value={editForm.address_detail}
+                                            onChange={(e) => setEditForm({...editForm, address_detail: e.target.value})}
                                             placeholder="상세주소 입력"
                                             className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
                                         />
                                     </div>
                                 ) : (
-                                    <p className="text-gray-900 font-medium">{userDetail.address || '미입력'}</p>
+                                    <div>
+                                        <p className="text-gray-900 font-medium">{userDetail.address || '미입력'}</p>
+                                        {userDetail.address_detail && (
+                                            <p className="text-gray-600 text-sm mt-1">{userDetail.address_detail}</p>
+                                        )}
+                                    </div>
                                 )}
                             </div>
                         </div>
 
                         {/* 가입일 */}
                         <div className="flex items-start gap-4">
-                            <Calendar size={20} className="text-gray-400 mt-1" />
+                            <Calendar size={20} className="text-gray-400 mt-1"/>
                             <div className="flex-1">
                                 <p className="text-sm text-gray-500 mb-1">가입일</p>
                                 <p className="text-gray-900 font-medium">
@@ -350,6 +395,94 @@ const MyPage = ({ navigate }: NavigateProps) => {
                         </div>
                     </div>
                 </div>
+
+                {/* 주소 검색 모달 */}
+                {showAddressModal && (
+                    <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
+                        <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
+                            <div className="p-6 border-b">
+                                <h2 className="text-xl font-bold mb-4">주소 검색</h2>
+                                <div className="flex gap-2">
+                                    <input
+                                        type="text"
+                                        placeholder="도로명 또는 지번 주소 입력"
+                                        value={addressKeyword}
+                                        onChange={(e) => setAddressKeyword(e.target.value)}
+                                        onKeyPress={(e) => e.key === 'Enter' && handleAddressSearch()}
+                                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl"
+                                    />
+                                    <button
+                                        onClick={handleAddressSearch}
+                                        disabled={isSearching}
+                                        className="px-6 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium disabled:bg-gray-300"
+                                    >
+                                        {isSearching ? '검색중...' : '검색'}
+                                    </button>
+                                </div>
+                            </div>
+
+                            <div className="p-6 overflow-y-auto flex-1">
+                                {addressResults.length === 0 ? (
+                                    <p className="text-gray-500 text-center py-8">
+                                        주소를 검색해주세요
+                                    </p>
+                                ) : (
+                                    <div className="space-y-2">
+                                        {addressResults.map((addr, index) => {
+                                            const isPlace = addr.address_type === 'PLACE';
+                                            const mainAddress = addr.road_address?.address_name || addr.address_name || '';
+                                            const subAddress = addr.address?.address_name;
+                                            const buildingName = addr.road_address?.building_name || '';
+                                            const placeName = addr.place_name || '';
+                                            const category = addr.category_name || '';
+
+                                            return (
+                                                <button
+                                                    key={index}
+                                                    onClick={() => selectAddress(addr)}
+                                                    className="w-full text-left p-4 border border-gray-200 rounded-xl hover:bg-brand-50 hover:border-brand-300 transition"
+                                                >
+                                                    {isPlace && placeName && (
+                                                        <div className="font-semibold text-brand-600 text-sm mb-1">
+                                                            📍 {placeName}
+                                                        </div>
+                                                    )}
+                                                    <div className="font-medium text-gray-900">
+                                                        {mainAddress}
+                                                        {buildingName && ` (${buildingName})`}
+                                                    </div>
+                                                    {subAddress && mainAddress !== subAddress && (
+                                                        <div className="text-sm text-gray-500 mt-1">
+                                                            지번: {subAddress}
+                                                        </div>
+                                                    )}
+                                                    {isPlace && category && (
+                                                        <div className="text-xs text-gray-400 mt-1">
+                                                            {category}
+                                                        </div>
+                                                    )}
+                                                </button>
+                                            );
+                                        })}
+                                    </div>
+                                )}
+                            </div>
+
+                            <div className="p-6 border-t">
+                                <button
+                                    onClick={() => {
+                                        setShowAddressModal(false);
+                                        setAddressKeyword('');
+                                        setAddressResults([]);
+                                    }}
+                                    className="w-full py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition"
+                                >
+                                    닫기
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                )}
 
 
                 {/* 구매 내역 (추후 구현) */}

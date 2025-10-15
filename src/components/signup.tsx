@@ -362,10 +362,11 @@ const SignupPage = ({navigate}: NavigateProps) => {
                     name: formData.name,
                     email: formData.email,
                     phone: formData.phone,
-                    address: formData.address + (formData.detailAddress ? ' ' + formData.detailAddress : ''),
+                    address: formData.address,
                     kakaoId: kakaoId || undefined,
                     marketingAgreed: agreements.marketing,
-                    verificationToken: verificationToken
+                    verificationToken: verificationToken,
+                    address_detail: formData.detailAddress || undefined,
                 })
             });
 
@@ -435,14 +436,15 @@ const SignupPage = ({navigate}: NavigateProps) => {
     const selectAddress = (addr: any) => {
         // 주소 추출 우선순위
         let fullAddress = '';
+        let buildingName = '';
 
         if (addr.road_address?.address_name) {
             // 도로명 주소 우선
             fullAddress = addr.road_address.address_name;
 
-            // 건물명이 있으면 추가
+            // 건물명은 상세주소로 분리
             if (addr.road_address.building_name) {
-                fullAddress += ` (${addr.road_address.building_name})`;
+                buildingName = addr.road_address.building_name;
             }
         } else if (addr.address_name) {
             fullAddress = addr.address_name;
@@ -455,7 +457,11 @@ const SignupPage = ({navigate}: NavigateProps) => {
             return;
         }
 
-        setFormData(prev => ({ ...prev, address: fullAddress }));
+        setFormData(prev => ({
+            ...prev,
+            address: fullAddress,
+            detailAddress: buildingName // 건물명을 상세주소에 자동 입력
+        }));
         setShowAddressModal(false);
         setAddressKeyword('');
         setAddressResults([]);
@@ -532,7 +538,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                     type="button"
                                     onClick={handleCheckBlacklist}
                                     disabled={isCheckingBlacklist || isBlacklistChecked || !formData.employeeId || !formData.email}
-                                    className="w-full px-4 py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
+                                    className="w-full px-4 py-3 bg-brand-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
                                 >
                                     {isCheckingBlacklist ? '확인 중...' : isBlacklistChecked ? '확인 완료' : '사번/이메일 확인'}
                                 </button>

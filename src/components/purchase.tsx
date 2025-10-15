@@ -2,10 +2,9 @@ import {useEffect, useState} from "react";
 import {AlertCircle, Check} from "lucide-react";
 import {type NavigateProps, useApp} from "../App.tsx";
 
-// Daum 주소 검색 타입 정의
 declare global {
     interface Window {
-        daum: any;
+        AUTHNICE: any;
     }
 }
 
@@ -17,39 +16,103 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         refund: false
     });
     const [purchasing, setPurchasing] = useState<boolean>(false);
-    const [success, setSuccess] = useState<boolean>(false);
+    const [success] = useState<boolean>(false);
     const [deliveryInfo, setDeliveryInfo] = useState({
-        address: '서울특별시 강남구 테헤란로 123',
-        detailAddress: '스타트업 캠퍼스 5층',
-        phone: '010-1234-5678',
-        requestMessage: '부재 시 경비실에 맡겨주세요'
+        recipientName: '',
+        address: '',
+        detailAddress: '',
+        phone: '',
+        requestMessage: ''
     });
+    const [userEmail, setUserEmail] = useState<string>('');
     const [showModal, setShowModal] = useState<string | null>(null);
-
-    // useEffect(() => {
-    //     // Daum 우편번호 서비스 스크립트 로드
-    //     const script = document.createElement('script');
-    //     script.src = '//t1.daumcdn.net/mapjsapi/bundle/postcode/prod/postcode.v2.js';
-    //     script.async = true;
-    //     document.head.appendChild(script);
-    //
-    //     return () => {
-    //         document.head.removeChild(script);
-    //     };
-    // }, []);
-
+    const [product, setProduct] = useState<any>(null); // 상품 정보 state 추가
     useEffect(() => {
-        if (!user) navigate('/login');
+        if (!user) {
+            navigate('/login');
+            return;
+        }
+        // ✅ 해시 라우팅 대응
+        let productId: string | null = null;
+
+        // 해시가 있는 경우 (#/purchase?productId=1)
+        if (window.location.hash.includes('?')) {
+            const hashParams = new URLSearchParams(window.location.hash.split('?')[1]);
+            productId = hashParams.get('productId');
+        }
+        // 일반 쿼리 파라미터인 경우 (/purchase?productId=1)
+        else {
+            const params = new URLSearchParams(window.location.search);
+            productId = params.get('productId');
+        }
+        // 상품 정보 불러오기
+        const fetchProduct = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`https://jimo.world/api/products/${productId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const productData = await response.json();
+                setProduct(productData);
+            } catch (error) {
+                console.error('Failed to fetch product:', error);
+                alert('상품 정보를 불러올 수 없습니다.');
+                navigate('/home');
+            }
+        };
+
+        fetchProduct();
+
+
+        // 나이스페이 스크립트 로드
+        const script = document.createElement('script');
+        script.src = 'https://pay.nicepay.co.kr/v1/js/';
+        script.async = true;
+        document.head.appendChild(script);
+        // 사용자 정보 불러오기
+        const fetchUserInfo = async () => {
+            try {
+                const token = localStorage.getItem('token');
+                const response = await fetch(`https://jimo.world/api/user/${user.employeeId}`, {
+                    headers: {
+                        'Authorization': `Bearer ${token}`
+                    }
+                });
+                const userData = await response.json();
+
+                if (userData) {
+                    setDeliveryInfo({
+                        recipientName: userData.name || '',
+                        address: userData.address || '',
+                        detailAddress: userData.address_detail || '',
+                        phone: userData.phone || '',
+                        requestMessage: ''
+                    });
+                    setUserEmail(userData.email || '');
+                }
+            } catch (error) {
+                console.error('Failed to fetch user info:', error);
+            }
+        };
+
+        fetchUserInfo();
+
+        return () => {
+            // 컴포넌트 언마운트 시 스크립트 제거
+            const scripts = document.querySelectorAll('script[src="https://pay.nicepay.co.kr/v1/js/"]');
+            scripts.forEach(s => s.remove());
+        };
     }, [user, navigate]);
 
     const allAgreed = agreements.terms && agreements.privacy && agreements.refund;
-// 기존 state들 아래에 추가
+
     const [showAddressModal, setShowAddressModal] = useState(false);
     const [addressResults, setAddressResults] = useState<any[]>([]);
     const [addressKeyword, setAddressKeyword] = useState('');
     const [isSearching, setIsSearching] = useState(false);
-    // 카카오 주소 검색
-    // 기존 handleAddressSearch 함수를 아래로 교체
+
     const handleAddressSearch = async () => {
         if (!addressKeyword.trim()) {
             alert('검색어를 입력하세요');
@@ -77,7 +140,6 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         }
     };
 
-// 새로운 함수 추가
     const selectAddress = (addr: any) => {
         let fullAddress = '';
 
@@ -102,16 +164,83 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         setAddressKeyword('');
         setAddressResults([]);
     };
-
     const handlePurchase = async (): Promise<void> => {
-        setPurchasing(true);
-        // TODO: API 연동
+        if (!allAgreed) {
+            alert('약관에 모두 동의해야 결제 가능합니다.');
+            return;
+        }
 
-        setTimeout(() => {
+        // 배송 정보 유효성 검사
+        if (!deliveryInfo.recipientName || !deliveryInfo.address || !deliveryInfo.phone) {
+            alert('배송 정보를 모두 입력해주세요.');
+            return;
+        }
+
+        // ✅ 상품 정보가 없으면 에러 처리
+        if (!product) {
+            alert('상품 정보를 불러오는 중입니다. 잠시 후 다시 시도해주세요.');
+            return;
+        }
+
+        setPurchasing(true);
+
+        try {
+            // 백엔드에서 결제 정보 생성
+            const response = await fetch('https://jimo.world/api/payment/request', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify({
+                    orderId: `ORD-${Date.now()}`,
+                    amount: product.price,  // ✅ 하드코딩 제거
+                    buyerName: deliveryInfo.recipientName,
+                    buyerEmail: userEmail,
+                    buyerTel: deliveryInfo.phone,
+                    productName: product.name,  // ✅ 하드코딩 제거
+                    productId: product.id,  // ✅ 추가: 결제 완료 후 주문 내역에 사용
+                    returnUrl: `${window.location.origin}/payment/result`
+                })
+            });
+
+            const data = await response.json();
+
+            if (data.success && data.result) {
+                // 나이스페이 결제창 호출
+                if (window.AUTHNICE) {
+                    window.AUTHNICE.requestPay({
+                        clientId: data.result.clientId,
+                        method: 'card',
+                        orderId: data.result.orderId,
+                        amount: data.result.amount,
+                        goodsName: data.result.goodsName,
+                        returnUrl: data.result.returnUrl,
+                        fnError: function (result: any) {
+                            alert('결제 오류: ' + result.errorMsg);
+                            setPurchasing(false);
+                        }
+                    });
+                } else {
+                    alert('결제 모듈 로딩 중입니다. 잠시 후 다시 시도해주세요.');
+                    setPurchasing(false);
+                }
+            } else {
+                alert('결제 요청 실패');
+                setPurchasing(false);
+            }
+        } catch (error) {
+            console.error('결제 요청 오류:', error);
+            alert('결제 요청 중 오류가 발생했습니다.');
             setPurchasing(false);
-            setSuccess(true);
-        }, 1500);
+        }
     };
+    // const handlePurchase = async (): Promise<void> => {
+    //     setPurchasing(true);
+    //     // TODO: API 연동
+    //
+    //     setTimeout(() => {
+    //         setPurchasing(false);
+    //         setSuccess(true);
+    //     }, 1500);
+    // };
 
     const agreementContents = {
         terms: {
@@ -149,7 +278,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 <p class="mb-4">- 주문 상품 정보</p>
 
                 <h3 class="font-bold text-lg mb-4 mt-6">보유 및 이용기간</h3>
-                <p class="mb-4">배송 완료 후 3개월까지 보관하며, 전자상거래 등에서의 소비자보호에 관한 법률에 따라 5년간 보관됩니다.</p>
+                <p class="mb-2">- 배송 완료후 보증 기간 종료 후 삭제(또는 요청시 즉시 삭제)</p>
 
                 <h3 class="font-bold text-lg mb-4 mt-6">거부권 및 불이익</h3>
                 <p class="mb-4">귀하는 개인정보 제3자 제공에 대한 동의를 거부할 권리가 있습니다. 단, 동의를 거부할 경우 상품 구매 및 배송이 불가능합니다.</p>
@@ -219,10 +348,6 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                     <span className="text-gray-600">배송지</span>
                                     <span className="font-semibold text-right">{deliveryInfo.address}</span>
                                 </div>
-                                <div className="flex justify-between text-sm">
-                                    <span className="text-gray-600">예상 수령일</span>
-                                    <span className="font-semibold">2024년 10월 10일</span>
-                                </div>
                             </div>
                         </div>
                         <button
@@ -253,12 +378,21 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 <div className="bg-white rounded-2xl p-6 mb-4">
                     <h2 className="font-semibold text-gray-900 mb-4">선택 상품</h2>
                     <div className="flex items-center gap-4">
-                        <div className="text-5xl">💻</div>
+                        <img
+                            src={"https://jimo.world/api/uploads/product-1760186816270.png"}
+                            alt={product?.name}
+                            className="w-16 h-16 object-cover rounded-xl"
+                        />
                         <div className="flex-1">
-                            <h3 className="font-bold text-gray-900">MacBook Pro 14" M3</h3>
-                            <p className="text-sm text-gray-500 mt-1">M3 칩 • 16GB • 512GB</p>
+                            <h3 className="font-bold text-gray-900">{product?.name}</h3>
+                            {/*<p className="text-sm text-gray-500 mt-1">{product?.spec}</p>*/}
                         </div>
-                        <div className="text-xl font-bold text-gray-900">1,200,000원</div>
+                        <div className="text-right">
+                            <div className="text-xl font-bold text-gray-900">
+                                ₩{product?.price?.toLocaleString('ko-KR')}
+                            </div>
+                            <div className="text-sm text-gray-500 mt-1">수량: 1개</div>
+                        </div>
                     </div>
                 </div>
 
@@ -276,17 +410,25 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                         </div>
                         <div className="flex justify-between py-3">
                             <span className="text-gray-600">이메일</span>
-                            <span className="font-semibold text-sm">{user?.employeeId}@company.com</span>
+                            <span className="font-semibold text-sm">{userEmail}</span>
                         </div>
                     </div>
                 </div>
 
                 {/* 배송 정보 */}
-                {/*// 배송 정보 섹션의 주소 입력 부분*/}
-                {/* 배송 정보 */}
                 <div className="bg-white rounded-2xl p-6 mb-4">
                     <h2 className="font-semibold text-gray-900 mb-4">배송 정보</h2>
                     <div className="space-y-4">
+                        <div>
+                            <label className="text-sm text-gray-600 block mb-2">수령자</label>
+                            <input
+                                type="text"
+                                value={deliveryInfo.recipientName}
+                                onChange={(e) => setDeliveryInfo({...deliveryInfo, recipientName: e.target.value})}
+                                className="w-full px-4 py-3 rounded-lg border border-gray-200 focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                placeholder="수령자 이름"
+                            />
+                        </div>
                         <div>
                             <label className="text-sm text-gray-600 block mb-2">배송지 주소</label>
                             <div className="flex gap-2">
@@ -334,13 +476,14 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                 placeholder="예) 부재 시 경비실에 맡겨주세요"
                             />
                         </div>
-                        <div className="bg-brand-50 rounded-lg p-4 border border-brand-100">
-                            <p className="text-sm text-brand-800">
-                                <span className="font-semibold">예상 수령일:</span> 2024년 10월 10일 (목)
-                            </p>
-                        </div>
+                        {/*<div className="bg-brand-50 rounded-lg p-4 border border-brand-100">*/}
+                        {/*    <p className="text-sm text-brand-800">*/}
+                        {/*        <span className="font-semibold">예상 수령일:</span> 2024년 10월 10일 (목)*/}
+                        {/*    </p>*/}
+                        {/*</div>*/}
                     </div>
                 </div>
+
                 {/* 주소 검색 모달 */}
                 {showAddressModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
@@ -428,42 +571,57 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                         </div>
                     </div>
                 )}
+
                 {/* 결제 정보 */}
                 <div className="bg-white rounded-2xl p-6 mb-4">
                     <h2 className="font-semibold text-gray-900 mb-4">결제 정보</h2>
                     <div className="space-y-3">
                         <div className="flex justify-between py-2">
                             <span className="text-gray-600">상품 금액</span>
-                            <span className="font-semibold">1,200,000원</span>
+                            <span className="font-semibold">
+    {product?.price?.toLocaleString('ko-KR')}원
+  </span>
                         </div>
+
                         <div className="flex justify-between py-2">
                             <span className="text-gray-600">배송비</span>
                             <span className="font-semibold text-green-600">무료</span>
                         </div>
-                        {/*<div className="flex justify-between py-2">*/}
-                        {/*    <span className="text-gray-600">복리후생 할인</span>*/}
-                        {/*    <span className="font-semibold text-red-600">-200,000원</span>*/}
-                        {/*</div>*/}
+
                         <div className="border-t border-gray-200 pt-3 mt-3">
                             <div className="flex justify-between items-center">
                                 <span className="text-lg font-bold text-gray-900">최종 결제금액</span>
-                                <span className="text-2xl font-bold text-brand-600">1,200,000원</span>
+                                <span className="text-2xl font-bold text-black">
+      {product?.price?.toLocaleString('ko-KR')}원
+    </span>
                             </div>
                         </div>
                     </div>
                 </div>
 
                 {/* 주의사항 */}
-                <div className="bg-brand-50 rounded-2xl p-5 mb-6 border border-brand-100">
+                <div className="bg-gray-100 rounded-2xl p-5 mb-6 border border-gray-300">
                     <div className="flex gap-3">
-                        <AlertCircle className="text-brand-600 flex-shrink-0 mt-0.5" size={20} />
+                        <AlertCircle className="text-gray-600 flex-shrink-0 mt-0.5" size={20}/>
                         <div>
-                            <h3 className="font-semibold text-brand-900 mb-2">구매 전 확인사항</h3>
-                            <ul className="text-sm text-brand-800 space-y-1">
+                            <h3 className="font-semibold text-gray-900 mb-2">구매 전 확인사항</h3>
+                            <ul className="text-sm text-gray-700 space-y-1">
                                 <li>• 1인 1대 한정 구매 가능합니다</li>
                                 <li>• 구매 후 취소/환불이 불가능합니다</li>
                                 <li>• 수령은 구매일로부터 7일 이내 가능합니다</li>
                             </ul>
+
+                            {/* ✅ 추가된 환불 규정 */}
+                            <div className="mt-4 text-sm text-gray-700 space-y-1">
+                                <h4 className="font-semibold text-gray-900">환불 규정</h4>
+                                <p>교환/반품: 상품 수령 후 7일 이내 가능 (단순 변심 시 왕복 배송비 고객 부담)</p>
+                                <p>불량 제품: 수령 후 14일 이내 무상 교환 또는 환불 (배송비 판매자 부담)</p>
+                                <p>환불 기간: 반품 승인 후 3-5 영업일 내 환불 처리</p>
+                                <p className="text-xs text-gray-600 mt-2">
+                                    * 상세한 교환/환불 절차는 고객센터(010-2385-4214)로 문의해주세요.<br/>
+                                    * 전자상거래법 및 소비자보호법에 따라 소비자의 권리가 보호됩니다.
+                                </p>
+                            </div>
                         </div>
                     </div>
                 </div>

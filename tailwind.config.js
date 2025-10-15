@@ -23,7 +23,24 @@ export default {
           brandTo: "#2575fc",   // 끝
         },
       },
+
+      /** ✅ 폰트 추가 */
+      fontFamily: {
+        sans: [
+          'Inter',
+          '-apple-system',
+          'BlinkMacSystemFont',
+          'Segoe UI',
+          'Roboto',
+          'Oxygen',
+          'Ubuntu',
+          'Cantarell',
+          'Open Sans',
+          'Helvetica Neue',
+          'sans-serif',
+        ],
+      },
     },
   },
   plugins: [],
-}
+};

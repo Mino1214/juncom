@@ -174,8 +174,48 @@ const Router = () => {
     return <Component navigate={navigate} />;
 };
 // App 컴포넌트
+// App.tsx 맨 위에 추가
+// App.tsx 맨 위에 추가
 const App = () => {
     const [currentPath, setCurrentPath] = useState<string>(window.location.hash || '#/login');
+
+    // ✅ fetch 래핑 - 타입 에러 수정
+    useEffect(() => {
+        const originalFetch = window.fetch;
+
+        window.fetch = async (...args) => {
+            const response = await originalFetch(...args);
+
+            // 401 에러 감지 (토큰 만료)
+            if (response.status === 401) {
+                // URL 추출 (타입 안전하게)
+                let url = '';
+                if (typeof args[0] === 'string') {
+                    url = args[0];
+                } else if (args[0] instanceof URL) {
+                    url = args[0].href;
+                } else if (args[0] instanceof Request) {
+                    url = args[0].url;
+                }
+
+                // 로그인/회원가입 API는 제외
+                if (!url.includes('/login') && !url.includes('/signup')) {
+                    localStorage.removeItem('token');
+                    localStorage.removeItem('user');
+
+                    alert('로그인이 만료되었습니다. 다시 로그인해주세요.');
+                    window.location.hash = '#/login';
+                    window.location.reload();
+                }
+            }
+
+            return response;
+        };
+
+        return () => {
+            window.fetch = originalFetch;
+        };
+    }, []);
 
     useEffect(() => {
         const handleHashChange = () => {
@@ -189,7 +229,6 @@ const App = () => {
         return () => window.removeEventListener('hashchange', handleHashChange);
     }, []);
 
-    // Footer를 숨길 페이지 목록 (쿼리 파라미터 제거)
     const cleanPath = currentPath.split('?')[0];
     const hideFooterPaths = ['#/login', '#/signup'];
     const shouldShowFooter = !hideFooterPaths.includes(cleanPath);

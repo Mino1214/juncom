@@ -216,7 +216,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                         {/* ✅ 구매 버튼 */}
                         {/* ✅ 구매 버튼 - ended 케이스 추가 */}
                         <button
-                            onClick={() => displayStatus === "active" && navigate("/purchase")}
+                            onClick={() => displayStatus === "active" && navigate(`/purchase?productId=${product.id}`)}
                             disabled={displayStatus !== "active"}
                             className={`w-full py-4 rounded-xl font-bold text-lg transition ${
                                 displayStatus === "active"
