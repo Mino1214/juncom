@@ -289,9 +289,11 @@ const HomePage = ({ navigate }: NavigateProps) => {
                     </div>
 
                     {/* 상품 카드 (오른쪽 - 60%) */}
+                    {/* 상품 카드 (오른쪽 - 60%) */}
+                    {/* 상품 카드 (오른쪽 - 60%) */}
                     <div className="w-full lg:w-[60%]">
                         <div
-                            className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1">
+                            className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1 max-w-md mx-auto">
 
                             {/* ✅ 상단 고정, 하단만 자르기 */}
                             <div className="aspect-[4/4] overflow-hidden bg-gray-50">
@@ -305,12 +307,11 @@ const HomePage = ({ navigate }: NavigateProps) => {
                             {/* ✅ 여백 확대 + 시각적 강조 */}
                             <div className="p-6">
                                 <h3 className="font-bold text-2xl text-gray-900 mb-2">{product.name}</h3>
-                                {/*<p className="text-sm text-gray-500 mb-5">{product.description}</p>*/}
 
                                 <div className="flex justify-between items-baseline mb-2">
-            <span className="text-3xl font-bold text-gray-900">
-              {product.price.toLocaleString()}원
-            </span>
+                <span className="text-3xl font-bold text-gray-900">
+                    {product.price.toLocaleString()}원
+                </span>
                                 </div>
 
                                 <p className="text-xs text-gray-400 mb-4">재고 {product.stock}개</p>
