@@ -433,8 +433,22 @@ const SignupPage = ({navigate}: NavigateProps) => {
     };
 
     const selectAddress = (addr: any) => {
-        // 안전하게 주소 추출
-        const fullAddress = addr.road_address?.address_name || addr.address_name || addr.address?.address_name || '';
+        // 주소 추출 우선순위
+        let fullAddress = '';
+
+        if (addr.road_address?.address_name) {
+            // 도로명 주소 우선
+            fullAddress = addr.road_address.address_name;
+
+            // 건물명이 있으면 추가
+            if (addr.road_address.building_name) {
+                fullAddress += ` (${addr.road_address.building_name})`;
+            }
+        } else if (addr.address_name) {
+            fullAddress = addr.address_name;
+        } else if (addr.address?.address_name) {
+            fullAddress = addr.address.address_name;
+        }
 
         if (!fullAddress) {
             alert('주소 정보를 가져올 수 없습니다.');
