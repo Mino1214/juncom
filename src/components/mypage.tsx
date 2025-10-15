@@ -211,46 +211,40 @@ const MyPage = ({ navigate }: NavigateProps) => {
     return (
         <div className="min-h-screen bg-gray-50">
             {/* 헤더 */}
-            <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-                <div className="max-w-5xl mx-auto px-4 py-4">
+            <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
+                <div className="max-w-5xl mx-auto px-6 py-4">
                     <button
-                        onClick={() => navigate('/home')}
-                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition"
+                        onClick={() => console.log('홈으로')}
+                        className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
                     >
                         <ChevronLeft size={20} />
-                        <span className="font-medium">홈으로</span>
+                        <span className="font-medium text-sm">홈으로</span>
                     </button>
                 </div>
             </header>
 
-            <div className="max-w-3xl mx-auto p-4 py-8">
+            <div className="max-w-3xl mx-auto px-6 py-8">
                 {/* 프로필 헤더 */}
-                <div className="bg-white rounded-2xl p-8 mb-6">
-                    <div className="flex items-center gap-6 mb-6">
-                        <div className="w-20 h-20 bg-gradient-to-br from-brand-500 to-indigo-600 rounded-full flex items-center justify-center">
-                            <User size={40} className="text-white" />
+                <div className="bg-white rounded-2xl p-8 mb-6 border border-gray-100">
+                    <div className="flex items-center gap-6">
+                        <div className="w-20 h-20 bg-gradient-to-br from-brand-500 to-brand-600 rounded-full flex items-center justify-center flex-shrink-0">
+                            <User size={36} className="text-white" />
                         </div>
                         <div>
-                            <h1 className="text-3xl font-bold text-gray-900">{userDetail.name}</h1>
-                            <p className="text-gray-500">사번: {userDetail.employee_id}</p>
+                            <h1 className="text-2xl font-bold text-gray-900 mb-1">{userDetail.name}</h1>
+                            <p className="text-sm text-gray-500">사번: {userDetail.employee_id}</p>
                         </div>
                     </div>
-
-                    {/*{userDetail.kakao_id && (*/}
-                    {/*    <div className="inline-flex items-center gap-2 px-3 py-1 bg-yellow-100 text-yellow-700 rounded-full text-sm">*/}
-                    {/*        카카오 계정 연동됨*/}
-                    {/*    </div>*/}
-                    {/*)}*/}
                 </div>
 
                 {/* 개인 정보 */}
-                <div className="bg-white rounded-2xl p-8 mb-6">
-                    <div className="flex justify-between items-center mb-6">
-                        <h2 className="text-2xl font-bold text-gray-900">개인 정보</h2>
+                <div className="bg-white rounded-2xl p-8 mb-6 border border-gray-100">
+                    <div className="flex justify-between items-center mb-8">
+                        <h2 className="text-xl font-bold text-gray-900">개인 정보</h2>
                         {!isEditing ? (
                             <button
                                 onClick={() => setIsEditing(true)}
-                                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+                                className="px-5 py-2.5 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 transition-colors font-medium"
                             >
                                 수정하기
                             </button>
@@ -267,13 +261,13 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                             address_detail: userDetail.address_detail || ''
                                         });
                                     }}
-                                    className="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300 transition"
+                                    className="px-5 py-2.5 bg-gray-100 text-gray-700 text-sm rounded-lg hover:bg-gray-200 transition-colors font-medium"
                                 >
                                     취소
                                 </button>
                                 <button
                                     onClick={handleSave}
-                                    className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-700 transition"
+                                    className="px-5 py-2.5 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 transition-colors font-medium"
                                 >
                                     저장
                                 </button>
@@ -281,67 +275,67 @@ const MyPage = ({ navigate }: NavigateProps) => {
                         )}
                     </div>
 
-                    <div className="space-y-4">
+                    <div className="space-y-6">
                         {/* 이름 */}
                         <div className="flex items-start gap-4">
-                            <User size={20} className="text-gray-400 mt-1"/>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-500 mb-1">이름</p>
+                            <User size={20} className="text-gray-400 mt-0.5 flex-shrink-0"/>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs text-gray-500 mb-2 font-medium">이름</p>
                                 {isEditing ? (
                                     <input
                                         type="text"
                                         value={editForm.name}
                                         onChange={(e) => setEditForm({...editForm, name: e.target.value})}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                        className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                     />
                                 ) : (
-                                    <p className="text-gray-900 font-medium">{userDetail.name}</p>
+                                    <p className="text-gray-900 font-medium text-sm">{userDetail.name}</p>
                                 )}
                             </div>
                         </div>
 
                         {/* 이메일 */}
                         <div className="flex items-start gap-4">
-                            <Mail size={20} className="text-gray-400 mt-1"/>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-500 mb-1">이메일</p>
+                            <Mail size={20} className="text-gray-400 mt-0.5 flex-shrink-0"/>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs text-gray-500 mb-2 font-medium">이메일</p>
                                 {isEditing ? (
                                     <input
                                         type="email"
                                         value={editForm.email}
                                         onChange={(e) => setEditForm({...editForm, email: e.target.value})}
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                        className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                     />
                                 ) : (
-                                    <p className="text-gray-900 font-medium">{userDetail.email || '미입력'}</p>
+                                    <p className="text-gray-900 font-medium text-sm break-all">{userDetail.email || '미입력'}</p>
                                 )}
                             </div>
                         </div>
 
                         {/* 연락처 */}
                         <div className="flex items-start gap-4">
-                            <Phone size={20} className="text-gray-400 mt-1"/>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-500 mb-1">연락처</p>
+                            <Phone size={20} className="text-gray-400 mt-0.5 flex-shrink-0"/>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs text-gray-500 mb-2 font-medium">연락처</p>
                                 {isEditing ? (
                                     <input
                                         type="tel"
                                         value={editForm.phone}
                                         onChange={(e) => setEditForm({...editForm, phone: e.target.value})}
                                         placeholder="010-1234-5678"
-                                        className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                        className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                     />
                                 ) : (
-                                    <p className="text-gray-900 font-medium">{userDetail.phone || '미입력'}</p>
+                                    <p className="text-gray-900 font-medium text-sm">{userDetail.phone || '미입력'}</p>
                                 )}
                             </div>
                         </div>
 
                         {/* 주소 */}
                         <div className="flex items-start gap-4">
-                            <MapPin size={20} className="text-gray-400 mt-1"/>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-500 mb-1">배송지 주소</p>
+                            <MapPin size={20} className="text-gray-400 mt-0.5 flex-shrink-0"/>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs text-gray-500 mb-2 font-medium">배송지 주소</p>
                                 {isEditing ? (
                                     <div className="space-y-2">
                                         <div className="flex gap-2">
@@ -349,13 +343,13 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                                 type="text"
                                                 value={editForm.address}
                                                 placeholder="주소 검색 버튼을 클릭하세요"
-                                                className="flex-1 px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 bg-gray-50"
+                                                className="flex-1 px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent bg-gray-50"
                                                 readOnly
                                             />
                                             <button
                                                 type="button"
                                                 onClick={() => setShowAddressModal(true)}
-                                                className="px-4 py-2 bg-brand-600 text-white rounded-lg hover:bg-brand-500 transition font-medium whitespace-nowrap"
+                                                className="px-4 py-2.5 bg-brand-600 text-white text-sm rounded-lg hover:bg-brand-700 transition-colors font-medium whitespace-nowrap"
                                             >
                                                 주소 검색
                                             </button>
@@ -365,12 +359,12 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                             value={editForm.address_detail}
                                             onChange={(e) => setEditForm({...editForm, address_detail: e.target.value})}
                                             placeholder="상세주소 입력"
-                                            className="w-full px-4 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500"
+                                            className="w-full px-4 py-2.5 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                         />
                                     </div>
                                 ) : (
                                     <div>
-                                        <p className="text-gray-900 font-medium">{userDetail.address || '미입력'}</p>
+                                        <p className="text-gray-900 font-medium text-sm">{userDetail.address || '미입력'}</p>
                                         {userDetail.address_detail && (
                                             <p className="text-gray-600 text-sm mt-1">{userDetail.address_detail}</p>
                                         )}
@@ -381,10 +375,10 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                         {/* 가입일 */}
                         <div className="flex items-start gap-4">
-                            <Calendar size={20} className="text-gray-400 mt-1"/>
-                            <div className="flex-1">
-                                <p className="text-sm text-gray-500 mb-1">가입일</p>
-                                <p className="text-gray-900 font-medium">
+                            <Calendar size={20} className="text-gray-400 mt-0.5 flex-shrink-0"/>
+                            <div className="flex-1 min-w-0">
+                                <p className="text-xs text-gray-500 mb-2 font-medium">가입일</p>
+                                <p className="text-gray-900 font-medium text-sm">
                                     {new Date(userDetail.created_at).toLocaleDateString('ko-KR', {
                                         year: 'numeric',
                                         month: 'long',
@@ -399,9 +393,9 @@ const MyPage = ({ navigate }: NavigateProps) => {
                 {/* 주소 검색 모달 */}
                 {showAddressModal && (
                     <div className="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center p-4 z-50">
-                        <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col">
-                            <div className="p-6 border-b">
-                                <h2 className="text-xl font-bold mb-4">주소 검색</h2>
+                        <div className="bg-white rounded-2xl max-w-2xl w-full max-h-[80vh] flex flex-col shadow-xl">
+                            <div className="p-6 border-b border-gray-200">
+                                <h2 className="text-lg font-bold mb-4 text-gray-900">주소 검색</h2>
                                 <div className="flex gap-2">
                                     <input
                                         type="text"
@@ -409,12 +403,12 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                         value={addressKeyword}
                                         onChange={(e) => setAddressKeyword(e.target.value)}
                                         onKeyPress={(e) => e.key === 'Enter' && handleAddressSearch()}
-                                        className="flex-1 px-4 py-3 border border-gray-200 rounded-xl"
+                                        className="flex-1 px-4 py-3 text-sm border border-gray-300 rounded-xl focus:outline-none focus:ring-2 focus:ring-brand-500 focus:border-transparent"
                                     />
                                     <button
                                         onClick={handleAddressSearch}
                                         disabled={isSearching}
-                                        className="px-6 py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition font-medium disabled:bg-gray-300"
+                                        className="px-6 py-3 bg-brand-600 text-white text-sm rounded-xl hover:bg-brand-700 transition-colors font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
                                     >
                                         {isSearching ? '검색중...' : '검색'}
                                     </button>
@@ -423,7 +417,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                             <div className="p-6 overflow-y-auto flex-1">
                                 {addressResults.length === 0 ? (
-                                    <p className="text-gray-500 text-center py-8">
+                                    <p className="text-gray-500 text-center py-12 text-sm">
                                         주소를 검색해주세요
                                     </p>
                                 ) : (
@@ -440,19 +434,19 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                                 <button
                                                     key={index}
                                                     onClick={() => selectAddress(addr)}
-                                                    className="w-full text-left p-4 border border-gray-200 rounded-xl hover:bg-brand-50 hover:border-brand-300 transition"
+                                                    className="w-full text-left p-4 border border-gray-200 rounded-xl hover:bg-brand-50 hover:border-brand-300 transition-colors"
                                                 >
                                                     {isPlace && placeName && (
                                                         <div className="font-semibold text-brand-600 text-sm mb-1">
                                                             📍 {placeName}
                                                         </div>
                                                     )}
-                                                    <div className="font-medium text-gray-900">
+                                                    <div className="font-medium text-gray-900 text-sm">
                                                         {mainAddress}
                                                         {buildingName && ` (${buildingName})`}
                                                     </div>
                                                     {subAddress && mainAddress !== subAddress && (
-                                                        <div className="text-sm text-gray-500 mt-1">
+                                                        <div className="text-xs text-gray-500 mt-1">
                                                             지번: {subAddress}
                                                         </div>
                                                     )}
@@ -468,14 +462,14 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                 )}
                             </div>
 
-                            <div className="p-6 border-t">
+                            <div className="p-6 border-t border-gray-200">
                                 <button
                                     onClick={() => {
                                         setShowAddressModal(false);
                                         setAddressKeyword('');
                                         setAddressResults([]);
                                     }}
-                                    className="w-full py-3 bg-gray-600 text-white rounded-xl font-semibold hover:bg-gray-700 transition"
+                                    className="w-full py-3 bg-gray-600 text-white text-sm rounded-xl font-semibold hover:bg-gray-700 transition-colors"
                                 >
                                     닫기
                                 </button>
@@ -484,13 +478,12 @@ const MyPage = ({ navigate }: NavigateProps) => {
                     </div>
                 )}
 
-
-                {/* 구매 내역 (추후 구현) */}
-                <div className="bg-white rounded-2xl p-8">
-                    <h2 className="text-2xl font-bold text-gray-900 mb-4">구매 내역</h2>
+                {/* 구매 내역 */}
+                <div className="bg-white rounded-2xl p-8 border border-gray-100">
+                    <h2 className="text-xl font-bold text-gray-900 mb-6">구매 내역</h2>
                     <div className="text-center py-12">
                         <Package size={48} className="text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500">아직 구매 내역이 없습니다.</p>
+                        <p className="text-gray-500 text-sm">아직 구매 내역이 없습니다.</p>
                     </div>
                 </div>
 
@@ -498,11 +491,11 @@ const MyPage = ({ navigate }: NavigateProps) => {
                 <div className="mt-8">
                     <button
                         onClick={handleDelete}
-                        className="w-full py-4 bg-red-50 text-red-600 rounded-xl font-semibold hover:bg-red-100 transition border border-red-200"
+                        className="w-full py-4 bg-red-50 text-red-600 text-sm rounded-xl font-semibold hover:bg-red-100 transition-colors border border-red-200"
                     >
                         회원 탈퇴
                     </button>
-                    <p className="text-center text-xs text-gray-500 mt-2">
+                    <p className="text-center text-xs text-gray-500 mt-3">
                         탈퇴 시 모든 정보가 삭제되며 복구할 수 없습니다
                     </p>
                 </div>
