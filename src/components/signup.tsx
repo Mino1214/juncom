@@ -432,8 +432,15 @@ const SignupPage = ({navigate}: NavigateProps) => {
         }
     };
 
-    const selectAddress = (address: any) => {
-        const fullAddress = address.road_address?.address_name || address.address.address_name;
+    const selectAddress = (addr: any) => {
+        // 안전하게 주소 추출
+        const fullAddress = addr.road_address?.address_name || addr.address_name || addr.address?.address_name || '';
+
+        if (!fullAddress) {
+            alert('주소 정보를 가져올 수 없습니다.');
+            return;
+        }
+
         setFormData(prev => ({ ...prev, address: fullAddress }));
         setShowAddressModal(false);
         setAddressKeyword('');
@@ -697,22 +704,27 @@ const SignupPage = ({navigate}: NavigateProps) => {
                                                 </p>
                                             ) : (
                                                 <div className="space-y-2">
-                                                    {addressResults.map((addr, index) => (
-                                                        <button
-                                                            key={index}
-                                                            onClick={() => selectAddress(addr)}
-                                                            className="w-full text-left p-4 border border-gray-200 rounded-xl hover:bg-brand-50 hover:border-brand-300 transition"
-                                                        >
-                                                            <div className="font-medium text-gray-900">
-                                                                {addr.road_address?.address_name || addr.address.address_name}
-                                                            </div>
-                                                            {addr.road_address && (
-                                                                <div className="text-sm text-gray-500 mt-1">
-                                                                    지번: {addr.address.address_name}
+                                                    {addressResults.map((addr, index) => {
+                                                        const mainAddress = addr.road_address?.address_name || addr.address_name || '주소 정보 없음';
+                                                        const subAddress = addr.address?.address_name;
+
+                                                        return (
+                                                            <button
+                                                                key={index}
+                                                                onClick={() => selectAddress(addr)}
+                                                                className="w-full text-left p-4 border border-gray-200 rounded-xl hover:bg-brand-50 hover:border-brand-300 transition"
+                                                            >
+                                                                <div className="font-medium text-gray-900">
+                                                                    {mainAddress}
                                                                 </div>
-                                                            )}
-                                                        </button>
-                                                    ))}
+                                                                {subAddress && mainAddress !== subAddress && (
+                                                                    <div className="text-sm text-gray-500 mt-1">
+                                                                        지번: {subAddress}
+                                                                    </div>
+                                                                )}
+                                                            </button>
+                                                        );
+                                                    })}
                                                 </div>
                                             )}
                                         </div>
