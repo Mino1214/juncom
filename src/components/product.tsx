@@ -91,14 +91,22 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
     }
 
     // ✅ 상태 및 출시일 계산
+    // ✅ 상태 및 출시일 계산 (수정)
     const now = new Date();
     const releaseDate = product.release_date ? new Date(product.release_date) : null;
     const isBeforeRelease = releaseDate && releaseDate > now;
 
-    let displayStatus: "before" | "active" | "stopped" | "draft" = "draft";
-    if (isBeforeRelease) displayStatus = "before";
-    else if (product.status === "active") displayStatus = "active";
-    else if (product.status === "stopped") displayStatus = "stopped";
+    let displayStatus: "before" | "active" | "stopped" | "draft" | "ended" = "draft";
+
+    if (product.stock === 0) {
+        displayStatus = "ended";  // 재고 0이면 판매 종료
+    } else if (isBeforeRelease) {
+        displayStatus = "before";
+    } else if (product.status === "active") {
+        displayStatus = "active";
+    } else if (product.status === "stopped") {
+        displayStatus = "stopped";
+    }
 
     return (
         <div className="min-h-screen bg-gray-50">
@@ -206,6 +214,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                         )}
 
                         {/* ✅ 구매 버튼 */}
+                        {/* ✅ 구매 버튼 - ended 케이스 추가 */}
                         <button
                             onClick={() => displayStatus === "active" && navigate("/purchase")}
                             disabled={displayStatus !== "active"}
@@ -218,6 +227,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                             {displayStatus === "before" && "출시 전입니다"}
                             {displayStatus === "active" && "구매하기"}
                             {displayStatus === "stopped" && "판매 중지됨"}
+                            {displayStatus === "ended" && "품절"}
                             {product.status === "draft" && "임시 저장 상태"}
                         </button>
 

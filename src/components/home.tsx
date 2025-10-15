@@ -24,14 +24,8 @@ export interface Product {
 
 const HomePage = ({ navigate }: NavigateProps) => {
     const { user, setUser } = useApp();
-    const [product, setProduct] = useState<Product | null>(null);
+    const [products, setProducts] = useState<Product[]>([]); // 배열로 변경
     const [loading, setLoading] = useState(true);
-    const [timeLeft, setTimeLeft] = useState({
-        days: 0,
-        hours: 0,
-        minutes: 0,
-        seconds: 0,
-    });
     const [open, setOpen] = useState(false);
 
     // ✅ 상품 불러오기
@@ -41,7 +35,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
             return;
         }
 
-        const fetchProduct = async () => {
+        const fetchProducts = async () => {
             try {
                 const token = localStorage.getItem("token");
                 const res = await fetch("https://jimo.world/api/products/visible",
@@ -53,7 +47,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                     });
                 const data = await res.json();
                 console.log("Fetched products:", data);
-                setProduct(data[0] || null);
+                setProducts(data); // 전체 배열 저장
             } catch (error) {
                 console.error("상품 불러오기 실패:", error);
             } finally {
@@ -61,37 +55,10 @@ const HomePage = ({ navigate }: NavigateProps) => {
             }
         };
 
-        fetchProduct();
-        const interval = setInterval(fetchProduct, 10000);
+        fetchProducts();
+        const interval = setInterval(fetchProducts, 10000);
         return () => clearInterval(interval);
     }, [user, navigate]);
-
-    // ✅ 타이머 계산
-    useEffect(() => {
-        if (!product?.release_date) return;
-
-        const releaseDate = new Date(product.release_date);
-        const now = new Date();
-
-        if (releaseDate <= now) return;
-
-        const calculateTimeLeft = () => {
-            const diff = Math.max(0, releaseDate.getTime() - new Date().getTime());
-            const days = Math.floor(diff / (1000 * 60 * 60 * 24));
-            const hours = Math.floor((diff / (1000 * 60 * 60)) % 24);
-            const minutes = Math.floor((diff / (1000 * 60)) % 60);
-            const seconds = Math.floor((diff / 1000) % 60);
-            return { days, hours, minutes, seconds };
-        };
-
-        setTimeLeft(calculateTimeLeft());
-
-        const timer = setInterval(() => {
-            setTimeLeft(calculateTimeLeft());
-        }, 1000);
-
-        return () => clearInterval(timer);
-    }, [product]);
 
     const token = localStorage.getItem("token");
     let isAdmin = false;
@@ -115,7 +82,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
         );
     }
 
-    if (!product) {
+    if (products.length === 0) {
         return (
             <div className="min-h-screen bg-gray-50 flex items-center justify-center">
                 <p className="text-gray-600">현재 표시할 상품이 없습니다.</p>
@@ -123,98 +90,55 @@ const HomePage = ({ navigate }: NavigateProps) => {
         );
     }
 
-    const now = new Date();
-    const releaseDate = product.release_date ? new Date(product.release_date) : null;
-    const isBeforeRelease = releaseDate && releaseDate > now;
-    const isAfterRelease = !releaseDate || (releaseDate && releaseDate <= now);
+    // 상품별 판매 상태 계산 함수
+    const getSaleStatus = (product: Product) => {
+        const now = new Date();
+        const releaseDate = product.release_date ? new Date(product.release_date) : null;
+        const isBeforeRelease = releaseDate && releaseDate > now;
+        const isAfterRelease = !releaseDate || (releaseDate && releaseDate <= now);
 
-    let saleStatus: "before" | "active" | "stopped" | "ended" = "active";
+        if (product.status === "stopped") {
+            return "stopped";
+        } else if (isBeforeRelease) {
+            return "before";
+        } else if (isAfterRelease && product.status === "active" && product.stock > 0) {
+            return "active";
+        } else if (product.stock === 0) {
+            return "ended";
+        } else {
+            return "active";
+        }
+    };
 
-    if (product.status === "stopped") {
-        saleStatus = "stopped";
-    } else if (isBeforeRelease) {
-        saleStatus = "before";
-    } else if (isAfterRelease && product.status === "active" && product.stock > 0) {
-        saleStatus = "active";
-    } else if (product.stock === 0) {
-        saleStatus = "ended";
-    } else {
-        saleStatus = "active"; // 기본값
-    }
-
-    const Countdown = () => {
-        switch (saleStatus) {
+    // 상태 배지 컴포넌트
+    const StatusBadge = ({ status }: { status: string }) => {
+        switch (status) {
             case "before":
                 return (
-                    <div className="bg-gradient-to-br from-yellow-50 to-orange-50 border border-yellow-200 p-8 rounded-xl">
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-2 mb-6">
-                                <Clock className="text-yellow-600" size={24} />
-                                <p className="font-bold text-2xl text-yellow-900">출시까지 남은 시간</p>
-                            </div>
-                            <div className="flex justify-center gap-3 mb-4">
-                                {["일", "시간", "분", "초"].map((label, i) => {
-                                    const val = [timeLeft.days, timeLeft.hours, timeLeft.minutes, timeLeft.seconds][i];
-                                    return (
-                                        <div key={label} className="bg-white rounded-lg p-4 min-w-[80px] shadow-sm">
-                                            <div className="text-4xl font-bold text-gray-900">
-                                                {String(val).padStart(2, "0")}
-                                            </div>
-                                            <div className="text-sm text-gray-600 mt-1">{label}</div>
-                                        </div>
-                                    );
-                                })}
-                            </div>
-                            <p className="text-sm text-yellow-800">
-                                {releaseDate?.toLocaleString("ko-KR", {
-                                    year: "numeric",
-                                    month: "long",
-                                    day: "numeric",
-                                    hour: "2-digit",
-                                    minute: "2-digit",
-                                })}{" "}
-                                출시 예정
-                            </p>
-                        </div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
+                        <Clock size={12} />
+                        출시 대기
                     </div>
                 );
-
             case "active":
                 return (
-                    <div className="bg-gradient-to-br from-green-50 to-emerald-50 border border-green-200 p-8 rounded-xl">
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-3 mb-3">
-                                <div className="w-2.5 h-2.5 bg-green-500 rounded-full animate-pulse"></div>
-                                <p className="font-bold text-3xl text-green-900">판매 중</p>
-                            </div>
-                            <p className="text-lg text-green-800">현재 구매 가능합니다.</p>
-                        </div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                        판매중
                     </div>
                 );
-
             case "stopped":
                 return (
-                    <div className="bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200 p-8 rounded-xl">
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-3 mb-3">
-                                <PauseCircle className="text-gray-600" size={28} />
-                                <p className="font-bold text-3xl text-gray-900">판매 중지됨</p>
-                            </div>
-                            <p className="text-lg text-gray-700">관리자에 의해 일시 중단되었습니다.</p>
-                        </div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">
+                        <PauseCircle size={12} />
+                        판매 중지
                     </div>
                 );
-
             default:
                 return (
-                    <div className="bg-gradient-to-br from-gray-50 to-slate-50 border border-gray-200 p-8 rounded-xl">
-                        <div className="text-center">
-                            <div className="flex items-center justify-center gap-3 mb-3">
-                                <Check className="text-gray-600" size={28} />
-                                <p className="font-bold text-3xl text-gray-900">판매 종료</p>
-                            </div>
-                            <p className="text-lg text-gray-700">모든 상품이 품절되었습니다.</p>
-                        </div>
+                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">
+                        <Check size={12} />
+                        판매 종료
                     </div>
                 );
         }
@@ -224,7 +148,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
         <div className="min-h-screen bg-gray-50">
             {/* 헤더 */}
             <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
-                <div className="max-w-5xl mx-auto px-4 py-4 flex justify-between items-center">
+                <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <img src="/KPMG_logo.png" alt="KPMG Logo" className="h-10 object-contain" />
                         <span className="font-bold text-lg">임직원 복지몰</span>
@@ -282,72 +206,79 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 </div>
             </header>
 
-            <div className="max-w-5xl mx-auto p-4 py-8">
-                {/* 데스크톱: 좌우 레이아웃, 모바일: 세로 레이아웃 */}
-                <div className="flex flex-col lg:flex-row gap-6 items-start">
+            <div className="max-w-7xl mx-auto p-4 py-8">
+                <h1 className="text-2xl font-bold text-gray-900 mb-6">진행중인 혜택</h1>
 
-                    {/* 상태 배너 (왼쪽 - 40%) */}
-                    <div className="w-full lg:w-[40%]">
-                        <Countdown/>
-                    </div>
+                {/* 상품 그리드 */}
+                <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                    {products.map((product) => {
+                        const saleStatus = getSaleStatus(product);
 
-                    {/* 상품 카드 (오른쪽 - 60%) */}
-                    {/* 상품 카드 (오른쪽 - 60%) */}
-                    {/* 상품 카드 (오른쪽 - 60%) */}
-                    <div className="w-full lg:w-[60%]">
-                        <div
-                            className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1 max-w-md mx-auto">
-
-                            {/* ✅ 상단 고정, 하단만 자르기 */}
-                            <div className="aspect-[4/4] overflow-hidden bg-gray-50">
-                                <img
-                                    src={product.image_url}
-                                    alt={product.name}
-                                    className="w-full h-full object-cover object-top"
-                                />
-                            </div>
-
-                            {/* ✅ 여백 확대 + 시각적 강조 */}
-                            <div className="p-6">
-                                <h3 className="font-bold text-2xl text-gray-900 mb-2">{product.name}</h3>
-
-                                <div className="flex justify-between items-baseline mb-2">
-                <span className="text-3xl font-bold text-gray-900">
-                    {product.price.toLocaleString()}원
-                </span>
+                        return (
+                            <div
+                                key={product.id}
+                                className="bg-white rounded-2xl overflow-hidden border border-gray-100 hover:shadow-2xl transition-transform duration-300 hover:-translate-y-1"
+                            >
+                                {/* 상품 이미지 */}
+                                <div className="aspect-square overflow-hidden bg-gray-50 relative">
+                                    <img
+                                        src={product.image_url}
+                                        alt={product.name}
+                                        className="w-full h-full object-cover object-top"
+                                    />
+                                    {/* 상태 배지 */}
+                                    <div className="absolute top-3 right-3">
+                                        <StatusBadge status={saleStatus} />
+                                    </div>
                                 </div>
 
-                                <p className="text-xs text-gray-400 mb-4">재고 {product.stock}개</p>
+                                {/* 상품 정보 */}
+                                <div className="p-5">
+                                    <h3 className="font-bold text-lg text-gray-900 mb-2 line-clamp-2">
+                                        {product.name}
+                                    </h3>
 
-                                <div className="space-y-3">
-                                    <button
-                                        onClick={() => navigate(`/product/${product.id}`)}
-                                        className="w-full py-3.5 rounded-xl font-semibold transition bg-gray-100 text-gray-700 hover:bg-gray-200"
-                                    >
-                                        자세히 보기
-                                    </button>
+                                    <div className="flex justify-between items-baseline mb-3">
+                                        <span className="text-2xl font-bold text-gray-900">
+                                            {product.price.toLocaleString()}원
+                                        </span>
+                                    </div>
 
-                                    <button
-                                        disabled={saleStatus !== "active"}
-                                        onClick={() => navigate("/purchase")}
-                                        className={`w-full py-3.5 rounded-xl font-semibold transition ${
-                                            saleStatus === "active"
-                                                ? "bg-brand-600 text-white hover:bg-brand-700"
-                                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        }`}
-                                    >
-                                        {saleStatus === "before"
-                                            ? "출시 대기중"
-                                            : saleStatus === "active"
-                                                ? "구매하기"
-                                                : saleStatus === "stopped"
-                                                    ? "판매 중지"
-                                                    : "판매 종료"}
-                                    </button>
+                                    <p className="text-xs text-gray-400 mb-4">
+                                        재고 {product.stock}개
+                                    </p>
+
+                                    {/* 버튼 */}
+                                    <div className="space-y-2">
+                                        <button
+                                            onClick={() => navigate(`/product/${product.id}`)}
+                                            className="w-full py-2.5 rounded-xl font-semibold transition bg-gray-100 text-gray-700 hover:bg-gray-200 text-sm"
+                                        >
+                                            자세히 보기
+                                        </button>
+
+                                        <button
+                                            disabled={saleStatus !== "active"}
+                                            onClick={() => navigate(`/purchase?productId=${product.id}`)}
+                                            className={`w-full py-2.5 rounded-xl font-semibold transition text-sm ${
+                                                saleStatus === "active"
+                                                    ? "bg-brand-600 text-white hover:bg-brand-700"
+                                                    : "bg-gray-100 text-gray-400 cursor-not-allowed"
+                                            }`}
+                                        >
+                                            {saleStatus === "before"
+                                                ? "출시 대기중"
+                                                : saleStatus === "active"
+                                                    ? "구매하기"
+                                                    : saleStatus === "stopped"
+                                                        ? "판매 중지"
+                                                        : "판매 종료"}
+                                        </button>
+                                    </div>
                                 </div>
                             </div>
-                        </div>
-                    </div>
+                        );
+                    })}
                 </div>
             </div>
         </div>
