@@ -290,8 +290,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
             title: '결제 취소 및 환불 규정',
             content: `
                 <h3 class="font-bold text-lg mb-4">제1조 (취소 및 환불 정책)</h3>
-                <p class="mb-4">본 상품은 회사 복리후생 제도를 통한 특별 할인 상품으로, 구매 확정 후에는 취소 및 환불이 불가능합니다.</p>
-                
+               
                 <h3 class="font-bold text-lg mb-4 mt-6">제2조 (예외 사항)</h3>
                 <p class="mb-2">다음의 경우에는 환불 또는 교환이 가능합니다:</p>
                 <p class="mb-2">1. 상품에 하자가 있거나 주문한 상품과 다른 상품이 배송된 경우</p>
