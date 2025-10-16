@@ -214,7 +214,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
            <header className="bg-white border-b border-gray-200 sticky top-0 z-10">
     <div className="max-w-5xl mx-auto px-6 py-4">
         <button
-            onClick={() => navigate(-1)} // ✅ 이전 페이지로 이동
+            onClick={() => navigate('/home')} // ✅ 이전 페이지로 이동
             className="flex items-center gap-2 text-gray-600 hover:text-gray-900 transition-colors"
         >
             <ChevronLeft size={20} />
