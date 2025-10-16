@@ -306,7 +306,6 @@ const PurchasePage = ({navigate}: NavigateProps) => {
 
                 <h3 class="font-bold text-lg mb-4 mt-6">제4조 (유의사항)</h3>
                 <p class="mb-2">- 본 상품은 1인 1회 한정 구매 가능한 복리후생 혜택 상품입니다.</p>
-                <p class="mb-2">- 단순 변심에 의한 취소/환불은 불가합니다.</p>
                 <p class="mb-4">- 수령 후 7일 이내 하자 발견 시 즉시 신고해 주시기 바랍니다.</p>
             `
         }
