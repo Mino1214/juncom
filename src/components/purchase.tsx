@@ -606,7 +606,6 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                             <h3 className="font-semibold text-gray-900 mb-2">구매 전 확인사항</h3>
                             <ul className="text-sm text-gray-700 space-y-1">
                                 <li>• 1인 1대 한정 구매 가능합니다</li>
-                                <li>• 구매 후 취소/환불이 불가능합니다</li>
                                 <li>• 수령은 구매일로부터 7일 이내 가능합니다</li>
                             </ul>
 
