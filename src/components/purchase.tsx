@@ -290,7 +290,10 @@ const PurchasePage = ({navigate}: NavigateProps) => {
             title: '결제 취소 및 환불 규정',
             content: `
                 <h3 class="font-bold text-lg mb-4">제1조 (취소 및 환불 정책)</h3>
-               
+               <p className="mb-4">
+본 상품은 구매 후에도 결제 취소 및 환불이 가능합니다. 
+다만, 배송이 이미 시작된 경우에는 상품이 도착한 이후 반품 및 환불 절차가 진행됩니다.
+</p>
                 <h3 class="font-bold text-lg mb-4 mt-6">제2조 (예외 사항)</h3>
                 <p class="mb-2">다음의 경우에는 환불 또는 교환이 가능합니다:</p>
                 <p class="mb-2">1. 상품에 하자가 있거나 주문한 상품과 다른 상품이 배송된 경우</p>
