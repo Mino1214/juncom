@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>결제 처리 중...</title>
+    <script>
+        const params = new URLSearchParams(window.location.search);
+        const token = params.get('token');
+
+        if (token) {
+            // ✅ 토큰을 백엔드로 전달하여 승인요청
+            fetch(`https://jimo.world/api/payment/result`, {
+                method: "POST",
+                headers: {"Content-Type": "application/json"},
+                body: JSON.stringify({ token })
+            })
+                .then(r => r.json())
+                .then(res => {
+                    if (res.success) {
+                        // 결제 완료 → 주문 페이지로 이동
+                        window.location.href = `/order?orderId=${res.orderId}`;
+                    } else {
+                        alert("결제 승인 실패");
+                        window.location.href = "/home";
+                    }
+                })
+                .catch(() => {
+                    alert("결제 결과 확인 중 오류 발생");
+                    window.location.href = "/home";
+                });
+        } else {
+            window.location.href = "/home";
+        }
+    </script>
+</head>
+<body>
+<p>결제 결과 확인 중입니다...</p>
+</body>
+</html>
