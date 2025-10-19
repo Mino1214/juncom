@@ -191,7 +191,8 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     orderId: `ORD-${Date.now()}`,
-                    amount: product.price,  // ✅ 하드코딩 제거
+                    // amount: product.price,  // ✅ 하드코딩 제거
+                    amount: 1000,
                     buyerName: deliveryInfo.recipientName,
                     buyerEmail: userEmail,
                     buyerTel: deliveryInfo.phone,
@@ -203,25 +204,54 @@ const PurchasePage = ({navigate}: NavigateProps) => {
 
             const data = await response.json();
 
-            if (data.success && data.result) {
-                // 나이스페이 결제창 호출
-                if (window.AUTHNICE) {
-                    window.AUTHNICE.requestPay({
-                        clientId: data.result.clientId,
-                        method: 'card',
-                        orderId: data.result.orderId,
-                        amount: data.result.amount,
-                        goodsName: data.result.goodsName,
-                        returnUrl: data.result.returnUrl,
-                        fnError: function (result: any) {
-                            alert('결제 오류: ' + result.errorMsg);
+            if (window.AUTHNICE) {
+                window.AUTHNICE.requestPay({
+                    clientId: data.result.clientId,
+                    method: 'card',
+                    orderId: data.result.orderId,
+                    amount: data.result.amount,
+                    goodsName: data.result.goodsName,
+                    returnUrl: data.result.returnUrl,
+
+                    // ✅ 결제 완료 콜백 추가
+                    fnSuccess: async function (response: any) {
+                        console.log("결제 성공:", response);
+
+                        try {
+                            // 🔹 1. 서버에 결제 승인 요청 (나이스페이 → 백엔드)
+                            const approveRes = await fetch('https://jimo.world/api/payment/result', {
+                                method: 'POST',
+                                headers: { 'Content-Type': 'application/json' },
+                                body: JSON.stringify({
+                                    tid: response.tid,
+                                    orderId: response.orderId,
+                                    amount: response.amount
+                                })
+                            });
+
+                            const approveData = await approveRes.json();
+
+                            if (approveData.success) {
+                                alert("결제가 완료되었습니다!");
+                                navigate('/home'); // ✅ 성공 후 이동 (또는 구매완료 페이지)
+                            } else {
+                                alert("결제 승인 실패: " + approveData.error);
+                            }
+                        } catch (e) {
+                            console.error("승인 요청 오류:", e);
+                            alert("결제 승인 중 오류가 발생했습니다.");
+                        } finally {
                             setPurchasing(false);
                         }
-                    });
-                } else {
-                    alert('결제 모듈 로딩 중입니다. 잠시 후 다시 시도해주세요.');
-                    setPurchasing(false);
-                }
+                    },
+
+                    // 🔹 실패 콜백도 함께 추가
+                    fnError: function (error: any) {
+                        console.error("결제 실패:", error);
+                        alert("결제 실패: " + (error?.resultMsg || error?.errorMsg || "알 수 없는 오류"));
+                        setPurchasing(false);
+                    }
+                });
             } else {
                 alert('결제 요청 실패');
                 setPurchasing(false);
