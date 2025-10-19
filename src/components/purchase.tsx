@@ -198,7 +198,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     buyerTel: deliveryInfo.phone,
                     productName: product.name,  // ✅ 하드코딩 제거
                     productId: product.id,  // ✅ 추가: 결제 완료 후 주문 내역에 사용
-                    returnUrl: `${window.location.origin}/payment/result`
+                    returnUrl: `${window.location.origin}/payment/result.html`
                 })
             });
 
