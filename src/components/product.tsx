@@ -35,11 +35,11 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
     const handle403Error = () => {
         alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
         localStorage.removeItem("token");
-        window.location.href = "/"; // 맨 처음 도메인으로 이동
+        window.location.href = "#/login"; // 맨 처음 도메인으로 이동
     };
     useEffect(() => {
         if (!user) {
-            navigate('/login');
+            navigate('#/login');
             return;
         }
 
