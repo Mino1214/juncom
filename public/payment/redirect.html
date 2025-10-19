@@ -1,0 +1,17 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8" />
+    <title>결제 결과 처리중...</title>
+    <script>
+        // NICEPAY가 보낸 파라미터 추출
+        const query = window.location.search || '';
+        const hashRedirect = `/#/payment-result${query}`;
+        // React 라우터 페이지로 이동
+        window.location.href = hashRedirect;
+    </script>
+</head>
+<body>
+<p>결제 결과 확인 중입니다...</p>
+</body>
+</html>
