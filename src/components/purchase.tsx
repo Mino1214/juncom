@@ -233,7 +233,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
 
                             if (approveData.success) {
                                 alert("결제가 완료되었습니다!");
-                                navigate('/home'); // ✅ 성공 후 이동 (또는 구매완료 페이지)
+                                navigate(`/order?orderId=${response.orderId}`); // ✅ 성공 후 이동 (또는 구매완료 페이지)
                             } else {
                                 alert("결제 승인 실패: " + approveData.error);
                             }

@@ -35,8 +35,30 @@ const MyPage = ({ navigate }: NavigateProps) => {
         address_detail: ''
     });
 
+    // ✅ 구매 내역 관련 상태
+    const [orders, setOrders] = useState<any[]>([]);
+    // ✅ 구매 내역 불러오기
+    useEffect(() => {
+        if (!user) return;
 
+        const fetchOrders = async () => {
+            try {
+                const token = localStorage.getItem("token");
+                const res = await fetch(`https://jimo.world/api/orders?employeeId=${user.employeeId}`, {
+                    headers: {
+                        "Authorization": `Bearer ${token}`,
+                        "Content-Type": "application/json",
+                    },
+                });
+                const data = await res.json();
+                setOrders(data.orders || []);
+            } catch (err) {
+                console.error("Failed to fetch orders:", err);
+            }
+        };
 
+        fetchOrders();
+    }, [user]);
     useEffect(() => {
         if (!user) {
             navigate('/login');
@@ -481,10 +503,60 @@ const MyPage = ({ navigate }: NavigateProps) => {
                 {/* 구매 내역 */}
                 <div className="bg-white rounded-2xl p-8 border border-gray-100">
                     <h2 className="text-xl font-bold text-gray-900 mb-6">구매 내역</h2>
-                    <div className="text-center py-12">
-                        <Package size={48} className="text-gray-300 mx-auto mb-4" />
-                        <p className="text-gray-500 text-sm">아직 구매 내역이 없습니다.</p>
-                    </div>
+
+                    {/* ✅ 로딩 상태 */}
+                    {loading ? (
+                        <div className="text-center py-12">
+                            <div className="animate-spin rounded-full h-10 w-10 border-b-2 border-brand-600 mx-auto mb-4"></div>
+                            <p className="text-gray-500 text-sm">구매 내역을 불러오는 중입니다...</p>
+                        </div>
+                    ) : orders.length === 0 ? (
+                        <div className="text-center py-12">
+                            <Package size={48} className="text-gray-300 mx-auto mb-4" />
+                            <p className="text-gray-500 text-sm">아직 구매 내역이 없습니다.</p>
+                        </div>
+                    ) : (
+                        <div className="space-y-4">
+                            {orders.map((order) => (
+                                <div
+                                    key={order.order_id}
+                                    onClick={() => navigate(`/order?orderId=${order.order_id}`)}
+                                    className="p-5 border border-gray-200 rounded-xl hover:border-brand-400 hover:bg-brand-50 cursor-pointer transition"
+                                >
+                                    <div className="flex justify-between items-center mb-3">
+                                        <h3 className="font-semibold text-gray-900">{order.product_name}</h3>
+                                        <span
+                                            className={`px-2.5 py-1 text-xs rounded-full font-medium ${
+                                                order.status === "배송중"
+                                                    ? "bg-blue-100 text-blue-700"
+                                                    : order.status === "결제완료"
+                                                        ? "bg-green-100 text-green-700"
+                                                        : "bg-gray-100 text-gray-600"
+                                            }`}
+                                        >
+              {order.status}
+            </span>
+                                    </div>
+
+                                    <div className="flex justify-between items-end text-sm text-gray-600">
+                                        <div>
+                                            <p>주문번호: {order.order_id}</p>
+                                            <p className="text-xs mt-1">
+                                                {new Date(order.created_at).toLocaleDateString("ko-KR", {
+                                                    year: "numeric",
+                                                    month: "long",
+                                                    day: "numeric",
+                                                })}
+                                            </p>
+                                        </div>
+                                        <p className="font-bold text-gray-900 text-lg">
+                                            ₩{order.amount.toLocaleString("ko-KR")}
+                                        </p>
+                                    </div>
+                                </div>
+                            ))}
+                        </div>
+                    )}
                 </div>
 
                 {/* 회원 탈퇴 버튼 */}
