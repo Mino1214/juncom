@@ -28,6 +28,14 @@ const HomePage = ({ navigate }: NavigateProps) => {
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
 
+    // ✅ 403 에러 처리 함수
+    const handle403Error = () => {
+        alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
+        localStorage.removeItem("token");
+        setUser(null);
+        window.location.href = "/"; // 맨 처음 도메인으로 이동
+    };
+
     // ✅ 상품 불러오기
     useEffect(() => {
         if (!user) {
@@ -45,6 +53,17 @@ const HomePage = ({ navigate }: NavigateProps) => {
                             "Content-Type": "application/json",
                         },
                     });
+
+                // 403 에러 체크
+                if (res.status === 403) {
+                    handle403Error();
+                    return;
+                }
+
+                if (!res.ok) {
+                    throw new Error(`HTTP error! status: ${res.status}`);
+                }
+
                 const data = await res.json();
                 console.log("Fetched products:", data);
                 setProducts(data); // 전체 배열 저장

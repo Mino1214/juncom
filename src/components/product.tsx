@@ -31,8 +31,12 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<"info" | "detail" | "refund">("info");
-
-    // ✅ 데이터 로드
+    // ✅ 403 에러 처리 함수
+    const handle403Error = () => {
+        alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
+        localStorage.removeItem("token");
+        window.location.href = "/"; // 맨 처음 도메인으로 이동
+    };
     useEffect(() => {
         if (!user) {
             navigate('/login');
@@ -48,6 +52,12 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                         "Content-Type": "application/json",
                     },
                 });
+
+                // 403 에러 체크
+                if (res.status === 403) {
+                    handle403Error();
+                    return;
+                }
 
                 if (!res.ok) throw new Error("상품 조회 실패");
                 const data = await res.json();
