@@ -191,14 +191,14 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     orderId: `ORD-${Date.now()}`,
-                    // amount: product.price,  // ✅ 하드코딩 제거
-                    amount: 1000,
+                    amount: 1000, // ✅ 실제론 product.price 쓰면 됨
                     buyerName: deliveryInfo.recipientName,
                     buyerEmail: userEmail,
                     buyerTel: deliveryInfo.phone,
-                    productName: product.name,  // ✅ 하드코딩 제거
-                    productId: product.id,  // ✅ 추가: 결제 완료 후 주문 내역에 사용
-                    returnUrl: `${window.location.origin}/payment/result.html`
+                    productName: product.name,
+                    productId: product.id,
+                    // ✅ 여기 중요 — React 라우터용 해시 주소로 변경
+                    returnUrl: `${window.location.origin}/#/payment-result`
                 })
             });
 
