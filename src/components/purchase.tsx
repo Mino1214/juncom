@@ -198,7 +198,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     productName: product.name,
                     productId: product.id,
                     // ✅ 여기 중요 — React 라우터용 해시 주소로 변경
-                    returnUrl: `${window.location.origin}/payment/redirect.html`
+                    returnUrl: `${window.location.origin}/api/payment/results`
                 })
             });
 
