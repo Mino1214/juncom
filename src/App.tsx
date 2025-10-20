@@ -10,6 +10,7 @@ import AdminPage from "./components/admin.tsx";
 import {jwtDecode} from "jwt-decode";
 import PrivacyPolicyPage from "./components/privacypolicy.tsx";
 import PaymentResultPage from "./components/payment.result.tsx";
+import TermsOfServicePage from "./components/terms.of.use.tsx";
 
 // JWT Payload 타입 정의
 export interface JwtPayload {
@@ -168,6 +169,7 @@ const Router = () => {
         '#/purchase': PurchasePage,
         '#/mypage': MyPage,
         '#/privacy': PrivacyPolicyPage,
+        '#/terms' : TermsOfServicePage,
         '#/payment-result': PaymentResultPage, // ✅ 추가
     };
 

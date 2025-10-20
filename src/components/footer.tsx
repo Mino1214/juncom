@@ -65,7 +65,7 @@ const Footer = () => {
                             © 2025 준컴. All rights reserved.
                         </p>
                         <div className="flex gap-4 text-xs text-gray-500">
-                            <a href="/terms" className="hover:text-gray-800">이용약관</a>
+                            <a href="#/terms" className="hover:text-gray-800">이용약관</a>
                             <span>|</span>
                             <a href="#/privacy" className="hover:text-gray-800">개인정보처리방침</a>
                             <span>|</span>
