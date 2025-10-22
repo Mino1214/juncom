@@ -217,9 +217,17 @@ const SignupPage = ({navigate}: NavigateProps) => {
     //     }
     // };
     // 이메일 중복 + 블랙리스트 체크
+    // 이메일 중복 + 블랙리스트 체크
     const handleCheckEmailStatus = async () => {
         if (!formData.email) {
             alert('이메일을 입력해주세요.');
+            return;
+        }
+
+        // ✅ 이메일 형식 유효성 검사 추가
+        const emailPattern = /^[a-zA-Z0-9._%+-]+@kr\.kpmg\.com$/;
+        if (!emailPattern.test(formData.email)) {
+            alert('이메일은 반드시 @kr.kpmg.com 형식이어야 합니다.');
             return;
         }
 

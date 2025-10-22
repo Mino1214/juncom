@@ -257,13 +257,27 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                     {/*    {loading ? '로그인 중...' : '카카오 로그인'}*/}
                     {/*</button>*/}
 
-                    <div className="mt-6 text-center">
+                    <div className="mt-6 text-center flex items-center justify-center gap-4">
+                        {/* 회원가입 버튼 */}
                         <button
                             onClick={() => navigate('/signup')}
                             disabled={loading}
                             className="text-gray-600 text-sm hover:text-gray-900 disabled:opacity-50"
                         >
-                            처음이신가요? <span className="font-semibold text-brand-600">회원가입</span>
+                            처음이신가요?{" "}
+                            <span className="font-semibold text-brand-600">회원가입</span>
+                        </button>
+
+                        {/* 구분선 */}
+                        <span className="text-gray-300">|</span>
+
+                        {/* 비밀번호 찾기 버튼 */}
+                        <button
+                            onClick={() => navigate('#/reset-password')}
+                            disabled={loading}
+                            className="text-gray-600 text-sm hover:text-gray-900 disabled:opacity-50"
+                        >
+                            비밀번호 찾기
                         </button>
                     </div>
                 </div>

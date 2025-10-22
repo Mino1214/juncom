@@ -11,6 +11,7 @@ import {jwtDecode} from "jwt-decode";
 import PrivacyPolicyPage from "./components/privacypolicy.tsx";
 import PaymentResultPage from "./components/payment.result.tsx";
 import TermsOfServicePage from "./components/terms.of.use.tsx";
+import ResetPasswordPage from "./components/rest.password.tsx";
 
 // JWT Payload 타입 정의
 export interface JwtPayload {
@@ -126,11 +127,14 @@ const Router = () => {
     // ✅ 로그인 상태 제어
     useEffect(() => {
         const cleanPath = (currentPath.split('?')[0]).toLowerCase();
-        const isLoginPage = cleanPath === '#/login' || cleanPath === '#/signup';
 
-        if (!user && !isLoginPage) {
+        // ✅ 로그인 안 해도 접근 가능한 페이지 목록
+        const publicPages = ['#/login', '#/signup', '#/reset-password'];
+        const isPublicPage = publicPages.includes(cleanPath);
+
+        if (!user && !isPublicPage) {
             navigate('/login');
-        } else if (user && isLoginPage) {
+        } else if (user && isPublicPage) {
             navigate('/home');
         }
     }, [user, currentPath]);
@@ -172,6 +176,7 @@ const Router = () => {
         '#/privacy': PrivacyPolicyPage,
         '#/terms' : TermsOfServicePage,
         '#/payment-result': PaymentResultPage, // ✅ 추가
+        '#/reset-password': ResetPasswordPage,
     };
 
     const Component = routes[cleanPath] || LoginPage;
@@ -235,7 +240,7 @@ const App = () => {
     }, []);
 
     const cleanPath = currentPath.split('?')[0];
-    const hideFooterPaths = ['#/login', '#/signup'];
+    const hideFooterPaths = ['#/login', '#/signup','#/reset-password'];
     const shouldShowFooter = !hideFooterPaths.includes(cleanPath);
 
     return (
