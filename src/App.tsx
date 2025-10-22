@@ -22,6 +22,7 @@ export interface JwtPayload {
 // Types
 interface User {
     name: string;
+    email : string;
     employeeId: string;
 }
 

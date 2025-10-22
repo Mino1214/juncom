@@ -136,7 +136,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 return (
                     <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-yellow-100 text-yellow-800 rounded-full text-xs font-semibold">
                         <Clock size={12} />
-                        출시 대기
+                        판매 예정
                     </div>
                 );
             case "active":
@@ -286,7 +286,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                             }`}
                                         >
                                             {saleStatus === "before"
-                                                ? "출시 대기중"
+                                                ? "판매 대기중"
                                                 : saleStatus === "active"
                                                     ? "구매하기"
                                                     : saleStatus === "stopped"

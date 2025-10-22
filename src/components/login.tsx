@@ -11,7 +11,7 @@ declare global {
 
 const LoginPage = ({ navigate }: NavigateProps) => {
     const { setUser } = useApp();
-    const [employeeId, setEmployeeId] = useState<string>('');
+    const [email, setEmail] = useState('');
     const [password, setPassword] = useState<string>('');
     const [error, setError] = useState<string>('');
     const [loading, setLoading] = useState<boolean>(false);
@@ -50,7 +50,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify({
-                    employeeId,
+                    email,
                     password
                 })
             });
@@ -72,6 +72,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                 // ✅ 전역 상태(AppContext)에 반영
                 setUser({
                     name: user.name,
+                    email: user.email,
                     employeeId: user.employeeId
                 });
 
@@ -81,7 +82,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
             else if (response.status === 404) {
                 setError('등록되지 않은 사번입니다. 회원가입을 진행해주세요.');
                 setTimeout(() => {
-                    navigate(`/signup?employeeId=${employeeId}`);
+                    navigate(`/signup?email=${encodeURIComponent(email)}`);
                 }, 1500);
             }
             else {
@@ -205,10 +206,10 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                     <div className="space-y-4">
                         <div>
                             <input
-                                type="text"
-                                placeholder="사번"
-                                value={employeeId}
-                                onChange={(e) => setEmployeeId(e.target.value)}
+                                type="email"
+                                placeholder="이메일"
+                                value={email}
+                                onChange={(e) => setEmail(e.target.value)}
                                 onKeyPress={(e) => e.key === 'Enter' && !loading && handleLogin()}
                                 disabled={loading}
                                 className="w-full px-4 py-4 bg-gray-50 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:opacity-50"
@@ -227,7 +228,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                         </div>
                         <button
                             onClick={handleLogin}
-                            disabled={!employeeId || !password || loading}
+                            disabled={!email || !password || loading}
                             className="w-full py-4 bg-brand-600 text-white rounded-xl font-semibold text-base disabled:bg-gray-200 disabled:text-gray-400 transition hover:bg-brand-700"
                         >
                             {loading ? '로그인 중...' : '로그인'}
