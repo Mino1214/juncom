@@ -3,7 +3,6 @@ import {type NavigateProps} from "../App.tsx";
 
 interface FormData {
     name: string;
-    employeeId: string;
     email: string;
     password: string;
     passwordConfirm: string;
@@ -35,7 +34,6 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
     const [formData, setFormData] = useState<FormData>({
         name: kakaoName,
-        employeeId: '',
         email: kakaoEmail,
         password: '',
         passwordConfirm: '',
@@ -92,8 +90,8 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
     // 카카오 회원가입은 비밀번호 불필요, 이메일 인증 필수
     const allFieldsFilled = isKakaoSignup
-        ? formData.name && formData.employeeId && formData.email && formData.address && formData.phone && isEmailVerified && isBlacklistChecked
-        : formData.name && formData.employeeId && formData.email &&
+        ? formData.name && formData.email && formData.address && formData.phone && isEmailVerified && isBlacklistChecked
+        : formData.name && formData.email &&
         formData.password && formData.passwordConfirm &&
         formData.address && formData.phone && isEmailVerified && isBlacklistChecked;
 
@@ -181,53 +179,86 @@ const SignupPage = ({navigate}: NavigateProps) => {
     };
 
     // 블랙리스트 체크
-    const handleCheckBlacklist = async () => {
-        if (!formData.employeeId || !formData.email) {
-            alert('사번과 이메일을 먼저 입력해주세요.');
+    // const handleCheckBlacklist = async () => {
+    //     if ( !formData.email) {
+    //         alert('사번과 이메일을 먼저 입력해주세요.');
+    //         return;
+    //     }
+    //
+    //     // ✅ 이메일 형식 유효성 검사 추가
+    //     // const emailPattern = /^[a-zA-Z0-9._%+-]+@kr\.kpmg\.com$/;
+    //     // if (!emailPattern.test(formData.email)) {
+    //     //     alert('이메일은 반드시 @kr.kpmg.com 형식이어야 합니다.');
+    //     //     return;
+    //     // }
+    //
+    //     setIsCheckingBlacklist(true);
+    //
+    //     try {
+    //         const response = await fetch(`https://jimo.world/api/employee/status/check?email=${formData.email}`);
+    //         const data = await response.json();
+    //
+    //         if (response.ok) {
+    //             if (data.is_blacklisted) {
+    //                 alert('회원가입이 제한된 사용자입니다.\n자세한 내용은 관리자에게 문의해주세요.');
+    //                 setIsBlacklistChecked(false);
+    //             } else {
+    //                 alert('확인 완료! 이메일 인증을 진행해주세요.');
+    //                 setIsBlacklistChecked(true);
+    //             }
+    //         } else {
+    //             alert(data.message || '확인 중 오류가 발생했습니다.');
+    //         }
+    //     } catch (error) {
+    //         console.error('Blacklist check error:', error);
+    //         alert('확인 중 오류가 발생했습니다.');
+    //     } finally {
+    //         setIsCheckingBlacklist(false);
+    //     }
+    // };
+    // 이메일 중복 + 블랙리스트 체크
+    const handleCheckEmailStatus = async () => {
+        if (!formData.email) {
+            alert('이메일을 입력해주세요.');
             return;
         }
-
-        // ✅ 이메일 형식 유효성 검사 추가
-        // const emailPattern = /^[a-zA-Z0-9._%+-]+@kr\.kpmg\.com$/;
-        // if (!emailPattern.test(formData.email)) {
-        //     alert('이메일은 반드시 @kr.kpmg.com 형식이어야 합니다.');
-        //     return;
-        // }
 
         setIsCheckingBlacklist(true);
 
         try {
-            const response = await fetch(`https://jimo.world/api/employee/status/check?employee_id=${formData.employeeId}&email=${formData.email}`);
+            const response = await fetch(`https://jimo.world/api/employee/status/check?email=${formData.email}`);
             const data = await response.json();
 
             if (response.ok) {
                 if (data.is_blacklisted) {
-                    alert('회원가입이 제한된 사용자입니다.\n자세한 내용은 관리자에게 문의해주세요.');
+                    alert('해당 이메일은 블랙리스트에 등록되어 있습니다.\n관리자에게 문의해주세요.');
+                    setIsBlacklistChecked(false);
+                } else if (data.is_duplicate) {
+                    alert('이미 가입된 이메일입니다.');
                     setIsBlacklistChecked(false);
                 } else {
-                    alert('확인 완료! 이메일 인증을 진행해주세요.');
+                    alert('정상 이메일입니다. 이메일 인증을 진행해주세요.');
                     setIsBlacklistChecked(true);
                 }
             } else {
                 alert(data.message || '확인 중 오류가 발생했습니다.');
             }
         } catch (error) {
-            console.error('Blacklist check error:', error);
-            alert('확인 중 오류가 발생했습니다.');
+            console.error('Email status check error:', error);
+            alert('이메일 상태 확인 중 오류가 발생했습니다.');
         } finally {
             setIsCheckingBlacklist(false);
         }
     };
-
     // 인증번호 발송
     const handleSendVerificationCode = async () => {
         if (!isBlacklistChecked) {
-            alert('먼저 사번과 이메일을 확인해주세요.');
+            alert('먼저 이메일 상태 확인을 완료해주세요.');
             return;
         }
 
-        if (!formData.employeeId || !formData.email) {
-            alert('사번과 이메일을 먼저 입력해주세요.');
+        if (!formData.email) {
+            alert('이메일을 입력해주세요.');
             return;
         }
 
@@ -239,10 +270,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                 headers: {
                     'Content-Type': 'application/json',
                 },
-                body: JSON.stringify({
-                    employeeId: formData.employeeId,
-                    email: formData.email
-                })
+                body: JSON.stringify({ email: formData.email })
             });
 
             const data = await response.json();
@@ -250,7 +278,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
             if (response.ok) {
                 alert('인증번호가 이메일로 발송되었습니다.');
                 setIsCodeSent(true);
-                setTimer(300); // 5분
+                setTimer(300);
                 setVerificationCode('');
                 setIsEmailVerified(false);
             } else {
@@ -339,7 +367,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
         }
 
         if (!isBlacklistChecked) {
-            alert('사번과 이메일 확인을 완료해주세요.');
+            alert('이메일 확인을 완료해주세요.');
             return;
         }
 
@@ -353,11 +381,8 @@ const SignupPage = ({navigate}: NavigateProps) => {
         try {
             const response = await fetch('https://jimo.world/api/auth/signup', {
                 method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json',
-                },
+                headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    employeeId: formData.employeeId,
                     password: isKakaoSignup ? undefined : formData.password,
                     name: formData.name,
                     email: formData.email,
@@ -499,21 +524,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
                         <h2 className="font-semibold text-gray-900 mb-4">기본 정보</h2>
 
                         <div className="space-y-4">
-                            <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">사번 *</label>
-                                <input
-                                    type="text"
-                                    placeholder="82019999"
-                                    value={formData.employeeId}
-                                    onChange={(e) => {
-                                        setFormData({...formData, employeeId: e.target.value});
-                                        setIsBlacklistChecked(false);
-                                        setIsEmailVerified(false);
-                                    }}
-                                    disabled={isBlacklistChecked}
-                                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-base focus:outline-none focus:ring-2 focus:ring-brand-500 transition disabled:bg-gray-50 disabled:text-gray-500"
-                                />
-                            </div>
+
 
                             <div>
                                 <label className="block text-sm font-semibold text-gray-700 mb-2">이메일 *</label>
@@ -532,16 +543,21 @@ const SignupPage = ({navigate}: NavigateProps) => {
                             </div>
 
                             {/* 블랙리스트 체크 */}
+                            {/* 이메일 상태 확인 (중복 + 블랙리스트) */}
                             <div>
-                                <label className="block text-sm font-semibold text-gray-700 mb-2">사번 및 이메일 확인 *</label>
+                                <label className="block text-sm font-semibold text-gray-700 mb-2">
+                                    이메일 확인 <span className="text-red-500">*</span>
+                                </label>
+
                                 <button
                                     type="button"
-                                    onClick={handleCheckBlacklist}
-                                    disabled={isCheckingBlacklist || isBlacklistChecked || !formData.employeeId || !formData.email}
+                                    onClick={handleCheckEmailStatus}
+                                    disabled={isCheckingBlacklist || isBlacklistChecked || !formData.email}
                                     className="w-full px-4 py-3 bg-brand-600 text-white rounded-xl hover:bg-blue-700 transition font-medium disabled:bg-gray-300 disabled:cursor-not-allowed"
                                 >
-                                    {isCheckingBlacklist ? '확인 중...' : isBlacklistChecked ? '확인 완료' : '사번/이메일 확인'}
+                                    {isCheckingBlacklist ? '확인 중...' : isBlacklistChecked ? '확인 완료' : '이메일 중복 확인'}
                                 </button>
+
                                 {isBlacklistChecked && (
                                     <p className="text-sm text-green-600 mt-2 flex items-center gap-1">
                                         확인이 완료되었습니다. 이메일 인증을 진행해주세요.

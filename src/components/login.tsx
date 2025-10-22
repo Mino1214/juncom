@@ -80,7 +80,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                 navigate('/home');
             }
             else if (response.status === 404) {
-                setError('등록되지 않은 사번입니다. 회원가입을 진행해주세요.');
+                setError('등록되지 않은 이메일입니다. 회원가입을 진행해주세요.');
                 setTimeout(() => {
                     navigate(`/signup?email=${encodeURIComponent(email)}`);
                 }, 1500);
