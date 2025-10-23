@@ -436,10 +436,10 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                             <span className="text-gray-600">이름</span>
                             <span className="font-semibold">{user?.name}</span>
                         </div>
-                        <div className="flex justify-between py-3 border-b border-gray-100">
-                            <span className="text-gray-600">사번</span>
-                            <span className="font-semibold">{user?.employeeId}</span>
-                        </div>
+                        {/*<div className="flex justify-between py-3 border-b border-gray-100">*/}
+                        {/*    <span className="text-gray-600">사번</span>*/}
+                        {/*    <span className="font-semibold">{user?.employeeId}</span>*/}
+                        {/*</div>*/}
                         <div className="flex justify-between py-3">
                             <span className="text-gray-600">이메일</span>
                             <span className="font-semibold text-sm">{userEmail}</span>
