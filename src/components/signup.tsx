@@ -239,7 +239,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
             if (response.ok) {
                 if (data.is_blacklisted) {
-                    alert('해당 이메일은 블랙리스트에 등록되어 있습니다.\n관리자에게 문의해주세요.');
+                    alert('해당 이메일로는 현재 회원가입이 불가합니다.\n담당 관리자에게 문의해주세요.');
                     setIsBlacklistChecked(false);
                 } else if (data.is_duplicate) {
                     alert('이미 가입된 이메일입니다.');
