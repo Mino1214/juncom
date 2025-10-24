@@ -241,32 +241,36 @@ const SignupPage = ({navigate}: NavigateProps) => {
             if (response.ok) {
     if (data.is_blacklisted) {
         Swal.fire({
-            title: '안녕하세요.',
-            html: `노트북 교체 시 구매하신 인원께서는 이번 구매에 참여하실 수 없습니다.<br>
+            html: `<div style="text-align: right;">
+                   노트북 교체 시 구매하신 인원께서는 이번 구매에 참여하실 수 없습니다.<br>
                    이는 더 많은 분들께 공평한 기회를 드리기 위한 조치이오니 이해 부탁드립니다.<br><br>
-                   감사합니다.`,
+                   감사합니다.
+                   </div>`,
             confirmButtonText: '확인',
             customClass: {
                 popup: 'malgun-font'
-            }
+            },
+            confirmButtonColor: '#3085d6'
         });
         setIsBlacklistChecked(false);
     } else if (data.is_duplicate) {
         Swal.fire({
-            text: '이미 가입된 이메일입니다.',
+            html: '<div style="text-align: right;">이미 가입된 이메일입니다.</div>',
             confirmButtonText: '확인',
             customClass: {
                 popup: 'malgun-font'
-            }
+            },
+            confirmButtonColor: '#3085d6'
         });
         setIsBlacklistChecked(false);
     } else {
         Swal.fire({
-            text: '정상 이메일입니다. 이메일 인증을 진행해주세요.',
+            html: '<div style="text-align: right;">정상 이메일입니다. 이메일 인증을 진행해주세요.</div>',
             confirmButtonText: '확인',
             customClass: {
                 popup: 'malgun-font'
-            }
+            },
+            confirmButtonColor: '#3085d6'
         });
         setIsBlacklistChecked(true);
     }
