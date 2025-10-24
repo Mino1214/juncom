@@ -239,7 +239,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
             if (response.ok) {
                 if (data.is_blacklisted) {
-alert('해당 이메일로는 현재 회원가입이 불가합니다.\n담당 관리자에게 문의해주세요.');
+alert('노트북 교체 시 구매하신 인원께서는 이번 구매에 참여하실 수 없습니다.\n이는 더 많은 분들께 공평한 기회를 드리기 위한 조치이오니 너른 양해 부탁드립니다.\n감사합니다.');
                     setIsBlacklistChecked(false);
                 } else if (data.is_duplicate) {
                     alert('이미 가입된 이메일입니다.');
