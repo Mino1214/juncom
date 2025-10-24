@@ -1,5 +1,6 @@
 import {useEffect, useState} from "react";
 import {type NavigateProps} from "../App.tsx";
+import Swal from 'sweetalert2';
 
 interface FormData {
     name: string;
@@ -238,17 +239,38 @@ const SignupPage = ({navigate}: NavigateProps) => {
             const data = await response.json();
 
             if (response.ok) {
-                if (data.is_blacklisted) {
-alert('노트북 교체 시 구매하신 인원께서는 이번 구매에 참여하실 수 없습니다.\n이는 더 많은 분들께 공평한 기회를 드리기 위한 조치이오니 너른 양해 부탁드립니다.\n감사합니다.');
-                    setIsBlacklistChecked(false);
-                } else if (data.is_duplicate) {
-                    alert('이미 가입된 이메일입니다.');
-                    setIsBlacklistChecked(false);
-                } else {
-                    alert('정상 이메일입니다. 이메일 인증을 진행해주세요.');
-                    setIsBlacklistChecked(true);
-                }
-            } else {
+    if (data.is_blacklisted) {
+        Swal.fire({
+            title: '안녕하세요.',
+            html: `노트북 교체 시 구매하신 인원께서는 이번 구매에 참여하실 수 없습니다.<br>
+                   이는 더 많은 분들께 공평한 기회를 드리기 위한 조치이오니 이해 부탁드립니다.<br><br>
+                   감사합니다.`,
+            confirmButtonText: '확인',
+            customClass: {
+                popup: 'malgun-font'
+            }
+        });
+        setIsBlacklistChecked(false);
+    } else if (data.is_duplicate) {
+        Swal.fire({
+            text: '이미 가입된 이메일입니다.',
+            confirmButtonText: '확인',
+            customClass: {
+                popup: 'malgun-font'
+            }
+        });
+        setIsBlacklistChecked(false);
+    } else {
+        Swal.fire({
+            text: '정상 이메일입니다. 이메일 인증을 진행해주세요.',
+            confirmButtonText: '확인',
+            customClass: {
+                popup: 'malgun-font'
+            }
+        });
+        setIsBlacklistChecked(true);
+    }
+} else {
                 alert(data.message || '확인 중 오류가 발생했습니다.');
             }
         } catch (error) {
