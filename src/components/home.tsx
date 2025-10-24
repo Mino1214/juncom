@@ -286,7 +286,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                             }`}
                                         >
                                             {saleStatus === "before"
-                                                ? "판매 대기중"
+                                                ? "판매 예정"
                                                 : saleStatus === "active"
                                                     ? "구매하기"
                                                     : saleStatus === "stopped"
