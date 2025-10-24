@@ -615,7 +615,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
 
                                 {!isBlacklistChecked && (
                                     <p className="text-sm text-gray-500">
-                                        ℹ️ 먼저 사번과 이메일 확인을 완료해주세요.
+                                        ℹ️ 먼저 이메일 확인을 완료해주세요.
                                     </p>
                                 )}
 
