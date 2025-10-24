@@ -130,7 +130,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
             content: `
                 <h3 class="font-bold text-lg mb-4">수집하는 개인정보 항목</h3>
                 <p class="mb-2"><strong>필수 항목:</strong></p>
-                <p class="mb-2">- 사번, 이메일, 비밀번호</p>
+                <p class="mb-2">- 이메일, 비밀번호</p>
                 <p class="mb-2">- 배송지 주소, 연락처, 수령자</p>
                 <p class="mb-4">- 서비스 이용 기록, 접속 로그, 쿠키</p>
 
