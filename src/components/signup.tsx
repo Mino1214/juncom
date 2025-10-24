@@ -242,10 +242,10 @@ const SignupPage = ({navigate}: NavigateProps) => {
     if (data.is_blacklisted) {
         Swal.fire({
             html: `<div style="text-align: left;">
-                   노트북 교체 시 구매하신 인원께서는 이번 구매에 참여하실 수 없습니다.<br>
-                   이는 더 많은 분들께 공평한 기회를 드리기 위한 조치이오니 이해 부탁드립니다.<br><br>
-                   감사합니다.
-                   </div>`,
+  노트북 교체 시 본인이 사용하던 노트북을 구매하신 분은 이번 구매에 참여하실 수 없습니다.<br>
+  더 많은 분들께 공평한 기회를 드리기 위한 조치이오니 이해와 협조 부탁드립니다.<br><br>
+  감사합니다.
+</div>`,
             confirmButtonText: '확인',
             customClass: {
                 popup: 'malgun-font'
