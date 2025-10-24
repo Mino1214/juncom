@@ -193,7 +193,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
                         className="w-32 mx-auto mb-4"
                     />
                     <h1 className="text-3xl font-bold text-gray-900 mb-2">임직원 복지몰</h1>
-                    <p className="text-gray-600">사번으로 로그인해주세요</p>
+                    <p className="text-gray-600">이메일로 로그인해주세요</p>
                 </div>
 
                 <div className="bg-white rounded-2xl p-6 shadow-sm">
