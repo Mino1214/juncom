@@ -170,7 +170,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 <div className="max-w-7xl mx-auto px-4 py-4 flex justify-between items-center">
                     <div className="flex items-center gap-3">
                         <img src="/KPMG_logo.png" alt="KPMG Logo" className="h-10 object-contain" />
-                        <span className="font-bold text-lg">임직원 복지몰</span>
+                        <span className="font-bold text-lg">임직원 전용 판매 페이지</span>
                     </div>
                     <div className="relative">
                         {isAdmin && (

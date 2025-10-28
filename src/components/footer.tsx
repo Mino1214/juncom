@@ -5,7 +5,7 @@ const Footer = () => {
                 <div className="grid grid-cols-3 gap-12">
                     {/* 왼쪽: 회사 정보 */}
                     <div>
-                        <h2 className="text-lg font-bold text-gray-900 mb-4">임직원 복지몰</h2>
+                        <h2 className="text-lg font-bold text-gray-900 mb-4">임직원 전용 판매 페이지</h2>
                         <div className="space-y-2 text-gray-600">
                             <p className="font-semibold text-gray-800">고객센터</p>
                             <p>상담/주문: 010-2385-4214</p>

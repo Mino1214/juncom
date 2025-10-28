@@ -33,7 +33,7 @@ const Header = ({ user, setUser, navigate }: any) => {
                         alt="KPMG Logo"
                         className="h-10 object-contain"
                     />
-                    <span className="font-bold text-lg">임직원 복지몰</span>
+                    <span className="font-bold text-lg">임직원 전용 판매 페이지</span>
                 </div>
                 <div className="relative">
                     {/* 아이콘 버튼 */}
