@@ -3,7 +3,11 @@ import { type JwtPayload, type NavigateProps, useApp } from "../App.tsx";
 import { Check, Clock, User, PauseCircle, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
-
+// ✅ 수정된 admin 판별 부분
+interface CustomJwtPayload {
+    employeeId?: string;
+    role?: string;
+}
 export interface Product {
     id: number;
     name: string;
@@ -57,8 +61,8 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 let isAdmin = false;
                 if (token) {
                     try {
-                        const decoded = jwtDecode(token);
-                        isAdmin = decoded.employeeId === "admin";
+                        const decoded = jwtDecode<CustomJwtPayload>(token); // ✅ 명시적 타입 지정
+                        isAdmin = decoded.employeeId === "admin" || decoded.role === "admin";
                         console.log("decoded token:", decoded);
                     } catch (e) {
                         console.error("JWT decode error", e);
