@@ -83,7 +83,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                             stock: 500,
                             description:
                                 "Lenovo ThinkPad X1 Carbon Gen9(14인치)은 11세대 인텔 i7 프로세서와 16GB 메모리, 512GB NVMe SSD를 갖춘 경량 비즈니스 노트북입니다. Windows 11 정품이 탑재되어 있으며, 검수 및 클리닝을 완료한 A급 제품으로 출고됩니다. 무게가 약 1.14kg으로 휴대성이 우수합니다.",
-                            image_url: "https://jimo.world/api/uploads/product-1760186816270.png",
+                            image_url: "https://roomfiles.s3.ap-northeast-2.amazonaws.com/uploads/%E1%84%8F%E1%85%A1%E1%84%87%E1%85%A9%E1%86%ABX1%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF+(1).png",
                             status: "active",
                             is_visible: true,
                             release_date: "2025-11-03T14:59:59.617Z",
