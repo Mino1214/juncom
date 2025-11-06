@@ -191,7 +191,6 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     orderId: `ORD-${Date.now()}`,
- 
                     amount: product.price, // ✅ 실제론 product.price 쓰면 됨
                     buyerName: deliveryInfo.recipientName,
                     buyerEmail: userEmail,
