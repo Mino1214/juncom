@@ -410,7 +410,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     <h2 className="font-semibold text-gray-900 mb-4">선택 상품</h2>
                     <div className="flex items-center gap-4">
                         <img
-                            src={"https://jimo.world/api/uploads/product-1760186816270.png"}
+                            src={"https://roomfiles.s3.ap-northeast-2.amazonaws.com/uploads/%E1%84%8F%E1%85%A1%E1%84%87%E1%85%A9%E1%86%ABX1%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF+(1).png"}
                             alt={product?.name}
                             className="w-16 h-16 object-cover rounded-xl"
                         />
