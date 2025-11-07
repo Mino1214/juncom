@@ -129,7 +129,7 @@ const Router = () => {
         const cleanPath = (currentPath.split('?')[0]).toLowerCase();
 
         // ✅ 로그인 안 해도 접근 가능한 페이지 목록
-        const publicPages = ['#/login', '#/signup', '#/reset-password','#/payment-result'];
+        const publicPages = ['#/login', '#/signup', '#/reset-password','#/payment-result',"#/mypage","#/home"];
         const isPublicPage = publicPages.includes(cleanPath);
 
         if (!user && !isPublicPage) {

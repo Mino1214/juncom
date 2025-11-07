@@ -131,13 +131,13 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
                         <h1 className="text-2xl font-bold text-green-600 mb-2">결제 성공</h1>
                         <p className="text-gray-600 mb-4">{result.message}</p>
                         <p className="text-gray-700">주문번호: {result.orderId}</p>
-                        <p className="text-gray-700">상품명: {result.goodsName}</p>
+                        <p className="text-gray-700">상품명: {"Lenovo Thinkpad X1 Carbon Gen9 "}</p>
                         <p className="text-gray-700">금액: {result.amount?.toLocaleString()}원</p>
-                        <p className="text-gray-700">결제일: {result.paidAt}</p>
+                        <p className="text-gray-700">결제일: {formatDate(Date.now().toString())}</p>
 
                         <button
                             onClick={() => navigate("#/home")}
-                            className="mt-6 w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition"
+                            className="mt-6 w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-100 transition"
                         >
                             홈으로 돌아가기
                         </button>
