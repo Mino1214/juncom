@@ -6,6 +6,8 @@ interface VerifyResult {
     message: string;
     orderId?: string;
     amount?: number;
+    paidAt?: string;
+    goodsName?: string;
 }
 
 interface Props {
@@ -17,7 +19,18 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
     const [result, setResult] = useState<VerifyResult | null>(null);
     const [loading, setLoading] = useState(false); // false로 변경
 
-
+    // 날짜 포맷 함수
+    const formatDate = (dateString: string) => {
+        if (!dateString) return '-';
+        const date = new Date(dateString);
+        return date.toLocaleString('ko-KR', {
+            year: 'numeric',
+            month: '2-digit',
+            day: '2-digit',
+            hour: '2-digit',
+            minute: '2-digit'
+        });
+    };
     useEffect(() => {
         const hash = window.location.hash;
         const queryString = hash.split("?")[1];
@@ -58,7 +71,9 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
                             success: data.success,
                             message: '결제가 완료되었습니다',
                             orderId: orderId,
-                            amount: amount ? parseInt(amount) : undefined
+                            amount: amount ? parseInt(amount) : undefined,
+                            paidAt: data.paidAt ? formatDate(data.paidAt) : undefined,
+                            goodsName: data.goodsName
                         });
                     })
                     .catch(() => {
@@ -116,22 +131,31 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
                         <h1 className="text-2xl font-bold text-green-600 mb-2">결제 성공</h1>
                         <p className="text-gray-600 mb-4">{result.message}</p>
                         <p className="text-gray-700">주문번호: {result.orderId}</p>
+                        <p className="text-gray-700">상품명: {result.goodsName}</p>
                         <p className="text-gray-700">금액: {result.amount?.toLocaleString()}원</p>
+                        <p className="text-gray-700">결제일: {result.paidAt}</p>
 
                         <button
-                            onClick={() => navigate("/home")}
+                            onClick={() => navigate("#/home")}
                             className="mt-6 w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition"
                         >
                             홈으로 돌아가기
                         </button>
+
+                        <button
+                            onClick={() => navigate("#/mypage")}
+                            className="mt-6 w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-700 transition"
+                        >
+                            주문내역 보기
+                        </button>
                     </>
                 ) : (
                     <>
-                        <h1 className="text-2xl font-bold text-red-600 mb-2">결제 실패</h1>
+                    <h1 className="text-2xl font-bold text-red-600 mb-2">결제 실패</h1>
                         <p className="text-gray-600">{result.message}</p>
 
                         <button
-                            onClick={() => navigate("/purchase")}
+                            onClick={() => navigate("#/purchase?productId=3")}
                             className="mt-6 w-full py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition"
                         >
                             다시 구매하기
