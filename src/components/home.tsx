@@ -482,6 +482,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                                                 <button
                                                     disabled={saleStatus !== "active"}
+                                                    // onClick={() => navigate(`/purchase?productId=${product.id}`)}
                                                     onClick={() => navigate(`/purchase?productId=${product.id}`)}
                                                     className={`w-full py-2.5 rounded-xl font-semibold transition text-sm ${
                                                         saleStatus === "active"

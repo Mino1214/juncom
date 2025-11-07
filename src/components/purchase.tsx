@@ -33,37 +33,99 @@ const PurchasePage = ({navigate}: NavigateProps) => {
             return;
         }
         // ✅ 해시 라우팅 대응
+        // useEffect 맨 위
         let productId: string | null = null;
+        let orderId: string | null = null;
 
-        // 해시가 있는 경우 (#/purchase?productId=1)
+// ✅ Hash 라우팅 대응
         if (window.location.hash.includes('?')) {
             const hashParams = new URLSearchParams(window.location.hash.split('?')[1]);
             productId = hashParams.get('productId');
-        }
-        // 일반 쿼리 파라미터인 경우 (/purchase?productId=1)
-        else {
+            orderId = hashParams.get('orderId');
+        } else {
             const params = new URLSearchParams(window.location.search);
             productId = params.get('productId');
+            orderId = params.get('orderId');
         }
-        // 상품 정보 불러오기
-        const fetchProduct = async () => {
+        // ✅ 주문 기반 진입 (결제대기 내역에서 이동)
+        const fetchOrderInfo = async (orderId: string) => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`https://jimo.world/api/products/${productId}`, {
-                    headers: {
-                        'Authorization': `Bearer ${token}`
-                    }
+                const res = await fetch(`https://jimo.world/api/orders/${orderId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
                 });
-                const productData = await response.json();
-                setProduct(productData);
-            } catch (error) {
-                console.error('Failed to fetch product:', error);
-                alert('상품 정보를 불러올 수 없습니다.');
+                if (!res.ok) throw new Error('주문 정보 불러오기 실패');
+
+                const data = await res.json();
+                console.log('주문 정보:', data);
+
+                // ✅ 상품 정보 세팅 (서버에서 product 객체가 아닌 경우 직접 구성)
+                setProduct({
+                    id: 0, // 백엔드에서 product_id를 내려주면 여기 교체
+                    name: data.order.product_name,
+                    price: data.order.amount,
+                    // emoji: '📦',
+                    description: '',
+                });
+
+                // ✅ 배송 정보 세팅
+                setDeliveryInfo({
+                    recipientName: data.order.recipient_name || '',
+                    address: data.order.delivery_address || '',
+                    detailAddress: data.order.delivery_detail || '',
+                    phone: data.order.recipient_phone || '',
+                    requestMessage: data.order.request_message || ''
+                });
+
+                // ✅ 구매자 이메일 (혹시 없을 수도 있음)
+                setUserEmail(data.order.buyer_email || '');
+
+                // ✅ 콘솔로 확인
+                console.log('📦 세팅된 데이터:', {
+                    product: {
+                        name: data.order.product_name,
+                        price: data.order.amount,
+                    },
+                    deliveryInfo: {
+                        recipientName: data.order.recipient_name,
+                        address: data.order.delivery_address,
+                        detailAddress: data.order.delivery_detail,
+                        phone: data.order.recipient_phone,
+                    },
+                });
+            } catch (err) {
+                console.error(err);
+                alert('주문 정보를 불러올 수 없습니다.');
                 navigate('/home');
             }
         };
 
-        fetchProduct();
+// ✅ 상품 기반 진입 (상품 상세 > 구매하기 버튼)
+        const fetchProductInfo = async (productId: string) => {
+            try {
+                const token = localStorage.getItem('token');
+                const res = await fetch(`https://jimo.world/api/products/${productId}`, {
+                    headers: { Authorization: `Bearer ${token}` },
+                });
+                if (!res.ok) throw new Error('상품 정보 불러오기 실패');
+                const data = await res.json();
+                setProduct(data);
+            } catch (err) {
+                console.error(err);
+                alert('상품 정보를 불러올 수 없습니다.');
+                navigate('/home');
+            }
+        };
+        if (orderId) {
+            // ✅ 결제대기 내역에서 진입
+            fetchOrderInfo(orderId);
+        } else if (productId) {
+            // ✅ 일반 구매진입
+            fetchProductInfo(productId);
+        } else {
+            // alert('잘못된 접근입니다.');
+            navigate('/home');
+        }
 
 
         // 나이스페이 스크립트 로드
@@ -185,40 +247,59 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         setPurchasing(true);
 
         try {
+            // ✅ 기존 orderId가 있으면 그대로 사용
+            let orderId: string | null = null;
+            if (window.location.hash.includes('?')) {
+                const hashParams = new URLSearchParams(window.location.hash.split('?')[1]);
+                orderId = hashParams.get('orderId');
+            } else {
+                const params = new URLSearchParams(window.location.search);
+                orderId = params.get('orderId');
+            }
+            const finalOrderId = orderId || `ORD-${Date.now()}`;
             // 백엔드에서 결제 정보 생성
             const response = await fetch('https://jimo.world/api/payment/request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
-                    orderId: `ORD-${Date.now()}`,
-                    amount: product.price, // ✅ 실제론 product.price 쓰면 됨
+                    orderId: finalOrderId,
+                    amount: product.price,
+                    // amount: 1000,
                     buyerName: deliveryInfo.recipientName,
                     buyerEmail: userEmail,
                     buyerTel: deliveryInfo.phone,
                     productName: product.name,
                     productId: product.id,
-                    // ✅ 여기 중요 — React 라우터용 해시 주소로 변경
-                    returnUrl: `${window.location.origin}/api/payment/results`
+                    employeeId: user?.employeeId,
+                    // ✅ 서버 엔드포인트로 설정
+                    returnUrl: `https://jimo.world/api/payment/complete`,
+
+                    // ✅ 배송 정보 추가
+                    recipientName: deliveryInfo.recipientName,
+                    deliveryAddress: deliveryInfo.address,
+                    deliveryDetailAddress: deliveryInfo.detailAddress,
+                    deliveryPhone: deliveryInfo.phone,
+                    deliveryRequest: deliveryInfo.requestMessage
                 })
             });
 
-            const data = await response.json();
 
+            const data = await response.json();
+            console.log('💳 결제 요청 응답:', data);
+            // ✅ result 중첩 유무 자동 감지
+            const paymentData = data.result ? data.result : data;
+            // ✅ AUTHNICE 결제 요청
             if (window.AUTHNICE) {
                 window.AUTHNICE.requestPay({
-                    clientId: data.result.clientId,
+                    clientId: paymentData.clientId,
                     method: 'card',
-                    orderId: data.result.orderId,
-                    amount: data.result.amount,
-                    goodsName: data.result.goodsName,
-                    returnUrl: data.result.returnUrl,
-
-                    // ✅ 결제 완료 콜백 추가
+                    orderId: paymentData.orderId,
+                    amount: paymentData.amount,
+                    goodsName: paymentData.goodsName,
+                    returnUrl: paymentData.returnUrl,
                     fnSuccess: async function (response: any) {
                         console.log("결제 성공:", response);
-
                         try {
-                            // 🔹 1. 서버에 결제 승인 요청 (나이스페이 → 백엔드)
                             const approveRes = await fetch('https://jimo.world/api/payment/result', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
@@ -228,12 +309,11 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                                     amount: response.amount
                                 })
                             });
-
                             const approveData = await approveRes.json();
 
                             if (approveData.success) {
                                 alert("결제가 완료되었습니다!");
-                                navigate(`/order?orderId=${response.orderId}`); // ✅ 성공 후 이동 (또는 구매완료 페이지)
+                                navigate(`/order?orderId=${response.orderId}`);
                             } else {
                                 alert("결제 승인 실패: " + approveData.error);
                             }
@@ -244,8 +324,6 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                             setPurchasing(false);
                         }
                     },
-
-                    // 🔹 실패 콜백도 함께 추가
                     fnError: function (error: any) {
                         console.error("결제 실패:", error);
                         alert("결제 실패: " + (error?.resultMsg || error?.errorMsg || "알 수 없는 오류"));
@@ -253,7 +331,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     }
                 });
             } else {
-                alert('결제 요청 실패');
+                alert('결제 요청 실패 (AUTHNICE 객체 없음)');
                 setPurchasing(false);
             }
         } catch (error) {
@@ -415,12 +493,12 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                             className="w-16 h-16 object-cover rounded-xl"
                         />
                         <div className="flex-1">
-                            <h3 className="font-bold text-gray-900">{product?.name}</h3>
+                            <h3 className="font-bold text-gray-900">{product?.name || "Lenovo Thinkpad X1 Carbon Gen9"}</h3>
                             {/*<p className="text-sm text-gray-500 mt-1">{product?.spec}</p>*/}
                         </div>
                         <div className="text-right">
                             <div className="text-xl font-bold text-gray-900">
-                                ₩{product?.price?.toLocaleString('ko-KR')}
+                                ₩{product?.price?.toLocaleString('ko-KR') || '330,000'}
                             </div>
                             <div className="text-sm text-gray-500 mt-1">수량: 1개</div>
                         </div>
@@ -439,10 +517,12 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                         {/*    <span className="text-gray-600">사번</span>*/}
                         {/*    <span className="font-semibold">{user?.employeeId}</span>*/}
                         {/*</div>*/}
-                        <div className="flex justify-between py-3">
-                            <span className="text-gray-600">이메일</span>
-                            <span className="font-semibold text-sm">{userEmail}</span>
-                        </div>
+                        {userEmail && (
+                            <div className="flex justify-between py-3">
+                                <span className="text-gray-600">이메일</span>
+                                <span className="font-semibold text-sm">{userEmail}</span>
+                            </div>
+                        )}
                     </div>
                 </div>
 
@@ -610,7 +690,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                         <div className="flex justify-between py-2">
                             <span className="text-gray-600">상품 금액</span>
                             <span className="font-semibold">
-    {product?.price?.toLocaleString('ko-KR')}원
+    {product?.price?.toLocaleString('ko-KR') || '330,000'}원
   </span>
                         </div>
 
@@ -623,7 +703,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                             <div className="flex justify-between items-center">
                                 <span className="text-lg font-bold text-gray-900">최종 결제금액</span>
                                 <span className="text-2xl font-bold text-black">
-      {product?.price?.toLocaleString('ko-KR')}원
+      {product?.price?.toLocaleString('ko-KR')|| '330,000'}원
     </span>
                             </div>
                         </div>

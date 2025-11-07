@@ -12,6 +12,7 @@ import PrivacyPolicyPage from "./components/privacypolicy.tsx";
 import PaymentResultPage from "./components/payment.result.tsx";
 import TermsOfServicePage from "./components/terms.of.use.tsx";
 import ResetPasswordPage from "./components/rest.password.tsx";
+import OrderDetailPage from "./components/order.detail.tsx";
 
 // JWT Payload 타입 정의
 export interface JwtPayload {
@@ -131,7 +132,7 @@ const Router = () => {
         const publicPages = ['#/login', '#/signup', '#/reset-password', '#/payment-result'];
         const isPublicPage = publicPages.includes(cleanPath);
 
-        if (!user && !isPublicPage) {
+        if (!user && !isPublicPage && cleanPath !== '#/payment-result') {
             navigate('/login');
         }
         // ✅ 결제 결과 페이지는 로그인해도 redirect 금지
@@ -178,6 +179,7 @@ const Router = () => {
         '#/terms' : TermsOfServicePage,
         '#/payment-result': PaymentResultPage, // ✅ 추가
         '#/reset-password': ResetPasswordPage,
+        '#/order-detail': OrderDetailPage, // 임시로 결제 결과 페이지 사용
     };
 
     const Component = routes[cleanPath] || LoginPage;
