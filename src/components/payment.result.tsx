@@ -35,7 +35,15 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
         const tid = params.get("tid") || undefined;
         const resultCode = params.get("resultCode");
         const resultMsg = params.get("resultMsg") || undefined;
-
+        const success = params.get('success');
+        // tid가 있으면 성공으로 판단 (resultCode 대신)
+        if (tid || success === 'true') {
+            // 결제 성공 처리
+            console.log('결제 성공:', { tid, orderId });
+        } else {
+            // 결제 실패 처리
+            console.log('결제 실패 또는 취소');
+        }
         // 결제 성공 여부 확인
         if (resultCode === '0000' && tid) {
             // 결제 승인 API 호출
