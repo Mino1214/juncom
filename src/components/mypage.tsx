@@ -74,26 +74,27 @@ const MyPage = ({ navigate }: NavigateProps) => {
         delivery_detail_address: selectedOrder?.delivery_detail_address || "",
         delivery_request: selectedOrder?.delivery_request || "",
     });
+    const fetchOrders = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch(`https://jimo.world/api/orders?employeeId=${user?.employeeId}`, {
+                headers: {
+                    "Authorization": `Bearer ${token}`,
+                    "Content-Type": "application/json",
+                },
+            });
+            const data = await res.json();
+
+            setOrders(data.orders || []);
+        } catch (err) {
+            console.error("Failed to fetch orders:", err);
+        }
+    };
     // ✅ 구매 내역 불러오기
     useEffect(() => {
         if (!user) return;
 
-        const fetchOrders = async () => {
-            try {
-                const token = localStorage.getItem("token");
-                const res = await fetch(`https://jimo.world/api/orders?employeeId=${user.employeeId}`, {
-                    headers: {
-                        "Authorization": `Bearer ${token}`,
-                        "Content-Type": "application/json",
-                    },
-                });
-                const data = await res.json();
 
-                setOrders(data.orders || []);
-            } catch (err) {
-                console.error("Failed to fetch orders:", err);
-            }
-        };
 
         fetchOrders();
     }, [user]);
@@ -677,7 +678,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
             </span>
                                         </p>
                                         <p>
-                                        <span className="text-gray-500">주문일:</span>{" "}
+                                            <span className="text-gray-500">주문일:</span>{" "}
                                             <span className="font-medium text-gray-900">
               {new Date(selectedOrder.created_at).toLocaleString("ko-KR")}
             </span>
@@ -766,14 +767,20 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                                 <input
                                                     type="text"
                                                     value={editDelivery.recipient_name}
-                                                    onChange={(e) => setEditDelivery({ ...editDelivery, recipient_name: e.target.value })}
+                                                    onChange={(e) => setEditDelivery({
+                                                        ...editDelivery,
+                                                        recipient_name: e.target.value
+                                                    })}
                                                     placeholder="수령자 이름"
                                                     className="w-full px-3 py-2 text-sm border rounded-lg"
                                                 />
                                                 <input
                                                     type="text"
                                                     value={editDelivery.delivery_phone}
-                                                    onChange={(e) => setEditDelivery({ ...editDelivery, delivery_phone: e.target.value })}
+                                                    onChange={(e) => setEditDelivery({
+                                                        ...editDelivery,
+                                                        delivery_phone: e.target.value
+                                                    })}
                                                     placeholder="연락처"
                                                     className="w-full px-3 py-2 text-sm border rounded-lg"
                                                 />
@@ -798,14 +805,20 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                                 <input
                                                     type="text"
                                                     value={editDelivery.delivery_detail_address}
-                                                    onChange={(e) => setEditDelivery({ ...editDelivery, delivery_detail_address: e.target.value })}
+                                                    onChange={(e) => setEditDelivery({
+                                                        ...editDelivery,
+                                                        delivery_detail_address: e.target.value
+                                                    })}
                                                     placeholder="상세주소"
                                                     className="w-full px-3 py-2 text-sm border rounded-lg"
                                                 />
                                                 <input
                                                     type="text"
                                                     value={editDelivery.delivery_request}
-                                                    onChange={(e) => setEditDelivery({ ...editDelivery, delivery_request: e.target.value })}
+                                                    onChange={(e) => setEditDelivery({
+                                                        ...editDelivery,
+                                                        delivery_request: e.target.value
+                                                    })}
                                                     placeholder="요청사항 (선택)"
                                                     className="w-full px-3 py-2 text-sm border rounded-lg"
                                                 />
@@ -815,16 +828,27 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                                     {/* 송장 / 배송 상태 */}
                                     {/*{selectedOrder.tracking_number && (*/}
-                                        <div className="pt-4 border-t border-gray-100 space-y-1">
-                                            <h3 className="font-semibold text-gray-800 text-sm mb-1">배송 현황</h3>
-                                            <div className="text-gray-700 text-sm space-y-0.5">
-                                                <p>배송회사: 우체국</p>
-                                                <p>123
-                                                    송장번호:{" "}
-                                                    <span className="font-medium text-blue-600">{'123123123'}</span>
-                                                </p>
-                                            </div>
+                                    <div className="pt-4 border-t border-gray-100 space-y-1">
+                                        <h3 className="font-semibold text-gray-800 text-sm mb-1">배송 현황</h3>
+                                        <div className="text-gray-700 text-sm space-y-0.5">
+                                            <p>배송회사: 우체국</p>
+                                            <p>
+                                                송장번호:{" "}
+                                                {selectedOrder.tracking_number ? (
+                                                    <a
+                                                        href={`https://service.epost.go.kr/trace.RetrieveDomRigiTraceList.comm?sid1=${selectedOrder.tracking_number}&displayHeader=`}
+                                                        target="_blank"
+                                                        rel="noopener noreferrer"
+                                                        className="font-medium text-blue-600 hover:underline"
+                                                    >
+                                                        {selectedOrder.tracking_number}
+                                                    </a>
+                                                ) : (
+                                                    <span className="text-gray-500">출고대기</span>
+                                                )}
+                                            </p>
                                         </div>
+                                    </div>
                                     {/*// )}*/}
                                 </div>
 
@@ -835,7 +859,6 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                         <>
                                             <button
                                                 onClick={() => {
-                                                    // ✅ 결제 다시 시도 로직 (예시)
                                                     navigate(`#/purchase?orderId=${selectedOrder.order_id}`);
                                                 }}
                                                 className="flex-1 py-2 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition"
@@ -857,6 +880,49 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                             >
                                                 배송조회
                                             </button>
+
+                                            {/* ✅ 결제취소 버튼 */}
+                                            <button
+                                                onClick={async () => {
+                                                    if (!confirm("결제를 취소하시겠습니까?")) return;
+
+                                                    try {
+                                                        const token = localStorage.getItem("token");
+                                                        const res = await fetch("https://jimo.world/api/payment/cancel", {
+                                                            method: "POST",
+                                                            headers: {
+                                                                "Content-Type": "application/json",
+                                                                Authorization: `Bearer ${token}`,
+                                                            },
+                                                            body: JSON.stringify({
+                                                                orderId: selectedOrder.order_id,
+                                                                amount: selectedOrder.amount,
+                                                                reason: "사용자 요청",
+                                                            }),
+                                                        });
+
+                                                        const data = await res.json();
+                                                        if (data.success) {
+                                                            alert("결제가 취소되었습니다.");
+                                                            // ✅ 상태 갱신
+                                                            setSelectedOrder((prev: any) => ({
+                                                                ...prev,
+                                                                status: "cancelled",
+                                                            }));
+                                                            fetchOrders();
+                                                        } else {
+                                                            alert("결제 취소 실패: " + (data.error || "서버 오류"));
+                                                        }
+                                                    } catch (err) {
+                                                        console.error("결제취소 오류:", err);
+                                                        alert("서버 오류로 결제를 취소하지 못했습니다.");
+                                                    }
+                                                }}
+                                                className="flex-1 py-2 bg-red-100 text-red-700 rounded-xl font-semibold hover:bg-red-200 transition"
+                                            >
+                                                결제취소
+                                            </button>
+
                                             <button
                                                 onClick={() => setShowModal(false)}
                                                 className="flex-1 py-2 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition"
@@ -865,7 +931,6 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                             </button>
                                         </>
                                     ) : (
-                                        // cancelled or others
                                         <button
                                             onClick={() => setShowModal(false)}
                                             className="w-full py-2 bg-gray-100 text-gray-700 rounded-xl font-semibold hover:bg-gray-200 transition"
