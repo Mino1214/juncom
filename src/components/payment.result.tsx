@@ -133,11 +133,11 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
                         <p className="text-gray-700">주문번호: {result.orderId}</p>
                         <p className="text-gray-700">상품명: {"Lenovo Thinkpad X1 Carbon Gen9 "}</p>
                         <p className="text-gray-700">금액: {result.amount?.toLocaleString()}원</p>
-                        <p className="text-gray-700">결제일: {formatDate(Date.now().toString())}</p>
+                        <p className="text-gray-700">결제일: {formatDate(new Date().toISOString())}</p>
 
                         <button
                             onClick={() => navigate("#/home")}
-                            className="mt-6 w-full py-3 bg-brand-600 text-white rounded-xl hover:bg-brand-100 transition"
+                            className="mt-6 w-full py-3 bg-brand-100 text-white rounded-xl hover:bg-brand-100 transition"
                         >
                             홈으로 돌아가기
                         </button>

@@ -128,7 +128,7 @@ const Router = () => {
     useEffect(() => {
         const cleanPath = (currentPath.split('?')[0]).toLowerCase();
 
-        const publicPages = ['#/login', '#/signup', '#/reset-password', '#/payment-result', '#/mypage', '#/home'];
+        const publicPages = ['#/login', '#/signup', '#/reset-password', '#/payment-result'];
         const isPublicPage = publicPages.includes(cleanPath);
 
         if (!user && !isPublicPage) {
