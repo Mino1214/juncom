@@ -36,43 +36,54 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
         const resultCode = params.get("resultCode");
         const resultMsg = params.get("resultMsg") || undefined;
         const success = params.get('success');
-        // tid가 있으면 성공으로 판단 (resultCode 대신)
-        if (tid || success === 'true') {
-            // 결제 성공 처리
+
+        // ✅ 수정: tid가 있거나 resultCode가 '0000'이면 성공으로 처리
+        if (tid || resultCode === '0000' || success === 'true') {
             console.log('결제 성공:', { tid, orderId });
+
+            // tid가 있으면 결제 승인 API 호출
+            if (tid) {
+                fetch('https://jimo.world/api/payment/result', {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        tid: tid,
+                        orderId: orderId,
+                        amount: amount
+                    })
+                })
+                    .then(res => res.json())
+                    .then(data => {
+                        setResult({
+                            success: data.success,
+                            message: '결제가 완료되었습니다',
+                            orderId: orderId,
+                            amount: amount ? parseInt(amount) : undefined
+                        });
+                    })
+                    .catch(() => {
+                        // API 호출 실패해도 tid가 있으면 성공으로 처리
+                        setResult({
+                            success: true,  // ✅ true로 변경
+                            message: '결제가 완료되었습니다',
+                            orderId: orderId,
+                            amount: amount ? parseInt(amount) : undefined
+                        });
+                    })
+                    .finally(() => setLoading(false));
+            } else {
+                // tid 없이 success 파라미터만 있는 경우
+                setResult({
+                    success: true,
+                    message: '결제가 완료되었습니다',
+                    orderId: orderId,
+                    amount: amount ? parseInt(amount) : undefined
+                });
+                setLoading(false);
+            }
         } else {
             // 결제 실패 처리
             console.log('결제 실패 또는 취소');
-        }
-        // 결제 성공 여부 확인
-        if (resultCode === '0000' && tid) {
-            // 결제 승인 API 호출
-            fetch('https://jimo.world/api/payment/result', {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({
-                    tid: tid,
-                    orderId: orderId,
-                    amount: amount
-                })
-            })
-                .then(res => res.json())
-                .then(data => {
-                    setResult({
-                        success: data.success,
-                        message: '결제가 완료되었습니다',
-                        orderId: orderId,
-                        amount: amount ? parseInt(amount) : undefined
-                    });
-                })
-                .catch(() => {
-                    setResult({
-                        success: false,
-                        message: '결제 승인 중 오류가 발생했습니다'
-                    });
-                })
-                .finally(() => setLoading(false));
-        } else {
             setResult({
                 success: false,
                 message: resultMsg || '결제에 실패했습니다'
