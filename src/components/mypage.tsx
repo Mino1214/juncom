@@ -601,10 +601,13 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                         <div>
                                             <p>주문번호: {order.order_id}</p>
                                             <p className="text-xs mt-1">
-                                                {new Date(order.created_at).toLocaleDateString("ko-KR", {
+                                                {new Date(order.created_at).toLocaleString("ko-KR", {
                                                     year: "numeric",
                                                     month: "long",
                                                     day: "numeric",
+                                                    hour: "2-digit",
+                                                    minute: "2-digit",
+                                                    second: "2-digit",
                                                 })}
                                             </p>
                                         </div>
