@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from "react";
 import type { NavigateProps } from "../App.tsx";
+import { Package, Eye, EyeOff, AlertCircle } from "lucide-react";
 
 export interface AdminProduct {
     id: number;
@@ -9,18 +10,26 @@ export interface AdminProduct {
     emoji?: string;
     description?: string;
     image_url?: string;
-    status?: string;
-    release_date?: string;
     is_visible?: boolean;
+}
+
+export interface AdminOrder {
+    no: number;
+    결제수단: string;
+    거래상태: string;
+    승인일자: string;
+    취소일자?: string;
+    거래금액: number;
+    구매자: string;
+    상품명: string;
+    주문번호: string;
 }
 
 const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
     const [products, setProducts] = useState<AdminProduct[]>([]);
+    const [orders, setOrders] = useState<AdminOrder[]>([]);
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState("");
-    const [editingId, setEditingId] = useState<number | null>(null);
-    const [editData, setEditData] = useState<Partial<AdminProduct>>({});
-    const [newImage, setNewImage] = useState<File | null>(null);
 
     const token = localStorage.getItem("token");
 
@@ -40,234 +49,216 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
         }
     };
 
-    useEffect(() => {
-        fetchProducts();
-    }, []);
-
-    // ✅ 상품 수정 저장 (파일 포함)
-    const handleSaveEdit = async (id: number) => {
-        const formData = new FormData();
-        formData.append("name", editData.name || "");
-        formData.append("price", String(editData.price || 0));
-        formData.append("stock", String(editData.stock || 0));
-        formData.append("description", editData.description || "");
-        formData.append("release_date", editData.release_date || "");
-        formData.append("is_visible", String(editData.is_visible || false));
-        if (newImage) formData.append("image", newImage);
-
+    const fetchOrders = async () => {
         try {
-            const res = await fetch(`https://jimo.world/api/admin/products/${id}`, {
-                method: "PUT",
+            const res = await fetch("https://jimo.world/api/all/orders", {
                 headers: { Authorization: `Bearer ${token}` },
-                body: formData,
             });
-            if (!res.ok) throw new Error("상품 수정 실패");
-            alert("상품이 수정되었습니다!");
-            setEditingId(null);
-            setEditData({});
-            setNewImage(null);
-            fetchProducts();
-        } catch (e) {
-            console.error(e);
-            alert("상품 수정 중 오류 발생");
+            const data = await res.json();
+            console.log("주문 내역:", data);
+            if (data.success) setOrders(data.orders);
+        } catch (err) {
+            console.error("주문 내역 불러오기 실패:", err);
         }
     };
 
-    if (loading) return <div className="p-4">로딩 중...</div>;
-    if (error) return <div className="p-4 text-red-500">{error}</div>;
+    useEffect(() => {
+        fetchProducts();
+        fetchOrders();
+    }, []);
+
+    if (loading) return <div className="p-6 text-gray-600 text-center">로딩 중...</div>;
+    if (error) return <div className="p-6 text-red-500 text-center">{error}</div>;
+
+    const totalProducts = products.length;
+    const visibleProducts = products.filter((p) => p.is_visible).length;
+    const totalStock = products.reduce((sum, p) => sum + p.stock, 0);
+    const lowStock = products.filter((p) => p.stock <= 5).length;
 
     return (
-        <div className="p-4 md:p-6">
-            <h1 className="text-xl md:text-2xl font-bold mb-4">🛠 관리자 리모컨</h1>
+        <div className="min-h-screen bg-gradient-to-br from-gray-50 to-gray-100 p-6 md:p-10 space-y-12">
+            {/* ======================= 상품 현황 ======================= */}
+            <section>
+                <h1 className="text-2xl md:text-3xl font-extrabold mb-8 text-gray-900">
+                    관리자 페이지
+                </h1>
 
-            {/* 모바일: 카드 뷰 / 데스크톱: 테이블 */}
-            <div className="hidden md:block overflow-x-auto">
-                <table className="min-w-full border border-gray-300 text-sm">
-                    <thead>
-                    <tr className="bg-gray-100">
-                        <th className="p-2 border">ID</th>
-                        <th className="p-2 border">이미지</th>
-                        <th className="p-2 border">이름</th>
-                        <th className="p-2 border">가격</th>
-                        <th className="p-2 border">재고</th>
-                        <th className="p-2 border">설명</th>
-                        <th className="p-2 border">출시일</th>
-                        <th className="p-2 border">홈노출</th>
-                        <th className="p-2 border">관리</th>
-                    </tr>
-                    </thead>
-                    <tbody>
+                {/* ✅ 상단 요약 카드 */}
+                <div className="grid grid-cols-2 md:grid-cols-4 gap-4 mb-10">
+                    <SummaryCard title="총 상품 수" value={totalProducts} color="text-brand-600" />
+                    <SummaryCard title="노출 중" value={visibleProducts} color="text-green-600" />
+                    <SummaryCard title="총 재고" value={totalStock.toLocaleString()} color="text-blue-600" />
+                    <SummaryCard title="재고 부족" value={lowStock} color="text-red-500" />
+                </div>
+
+                {/* ✅ 상품 목록 */}
+                <div className="grid gap-6 grid-cols-1 md:grid-cols-2 lg:grid-cols-3">
                     {products.map((p) => (
-                        <tr key={p.id}>
-                            <td className="p-2 border text-center">{p.id}</td>
-                            <td className="p-2 border text-center">
-                                {editingId === p.id ? (
-                                    <div className="flex flex-col items-center">
-                                        {newImage ? (
-                                            <img src={URL.createObjectURL(newImage)} alt="preview" className="w-16 h-16 object-cover rounded mb-1"/>
-                                        ) : p.image_url ? (
-                                            <img src={p.image_url} alt={p.name} className="w-16 h-16 object-cover rounded mb-1"/>
-                                        ) : (
-                                            <span className="text-gray-400">없음</span>
-                                        )}
-                                        <input type="file" accept="image/*" onChange={(e) => setNewImage(e.target.files ? e.target.files[0] : null)}/>
-                                    </div>
-                                ) : p.image_url ? (
-                                    <img src={p.image_url} alt={p.name} className="w-16 h-16 object-cover rounded mx-auto"/>
-                                ) : ("-")}
-                            </td>
-                            <td className="p-2 border">
-                                {editingId === p.id ? (
-                                    <input value={editData.name ?? p.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })} className="border rounded px-2 py-1 w-full"/>
-                                ) : (p.name)}
-                            </td>
-                            <td className="p-2 border text-right">
-                                {editingId === p.id ? (
-                                    <input type="number" value={editData.price ?? p.price} onChange={(e) => setEditData({ ...editData, price: Number(e.target.value) })} className="border rounded px-2 py-1 w-full text-right"/>
-                                ) : (`${p.price.toLocaleString()}원`)}
-                            </td>
-                            <td className="p-2 border text-center">
-                                {editingId === p.id ? (
-                                    <input type="number" value={editData.stock ?? p.stock} onChange={(e) => setEditData({ ...editData, stock: Number(e.target.value) })} className="border rounded px-2 py-1 w-20 text-center"/>
-                                ) : (p.stock)}
-                            </td>
-                            <td className="p-2 border text-center">
-                                {editingId === p.id ? (
-                                    <textarea value={editData.description ?? p.description ?? ""} onChange={(e) => setEditData({ ...editData, description: e.target.value })} className="border rounded px-2 py-1 w-60 h-20"/>
-                                ) : (
-                                    <div className="max-w-[200px] truncate">{p.description || "-"}</div>
-                                )}
-                            </td>
-                            <td className="p-2 border text-center">
-                                {editingId === p.id ? (
-                                    <input type="datetime-local" value={editData.release_date ?? p.release_date ?? ""} onChange={(e) => setEditData({ ...editData, release_date: e.target.value })} className="border rounded px-2 py-1"/>
-                                ) : p.release_date ? (new Date(p.release_date).toLocaleString("ko-KR")) : ("-")}
-                            </td>
-                            <td className="p-2 border text-center">
-                                {editingId === p.id ? (
-                                    <input type="checkbox" checked={editData.is_visible ?? p.is_visible ?? false} onChange={(e) => setEditData({ ...editData, is_visible: e.target.checked })}/>
-                                ) : p.is_visible ? ("✅") : ("❌")}
-                            </td>
-                            <td className="p-2 border text-center">
-                                {editingId === p.id ? (
-                                    <>
-                                        <button onClick={() => handleSaveEdit(p.id)} className="text-green-600 hover:underline mr-2">💾 저장</button>
-                                        <button onClick={() => { setEditingId(null); setEditData({}); setNewImage(null); }} className="text-gray-500 hover:underline">취소</button>
-                                    </>
-                                ) : (
-                                    <button onClick={() => { setEditingId(p.id); setEditData(p); }} className="text-brand-600 hover:underline">✏️ 수정</button>
-                                )}
-                            </td>
-                        </tr>
+                        <ProductCard key={p.id} product={p} />
                     ))}
-                    </tbody>
-                </table>
+                </div>
+            </section>
+
+            {/* ======================= 주문 내역 ======================= */}
+            <section>
+                <h2 className="text-xl md:text-2xl font-bold mb-6 text-gray-900">
+                    결제 / 주문 내역
+                </h2>
+
+                <div className="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
+                    <table className="min-w-full text-sm text-center">
+                        <thead className="bg-gray-100 text-gray-600">
+                        <tr>
+                            <th className="p-2">No</th>
+                            <th className="p-2">결제수단</th>
+                            <th className="p-2">거래상태</th>
+                            <th className="p-2">승인일자</th>
+                            <th className="p-2">취소일자</th>
+                            <th className="p-2">거래금액</th>
+                            <th className="p-2">구매자</th>
+                            <th className="p-2">상품명</th>
+                            <th className="p-2">주문번호</th>
+                        </tr>
+                        </thead>
+                        <tbody>
+                        {orders.length === 0 ? (
+                            <tr>
+                                <td colSpan={9} className="p-4 text-gray-400">
+                                    주문 내역이 없습니다.
+                                </td>
+                            </tr>
+                        ) : (
+                            orders.map((o) => (
+                                <tr key={o.주문번호} className="border-t hover:bg-gray-50">
+                                    <td className="p-2">{o.no}</td>
+                                    <td className="p-2">{o.결제수단}</td>
+                                    <td
+                                        className={`p-2 font-semibold ${
+                                            o.거래상태.includes("취소")
+                                                ? "text-red-600"
+                                                : o.거래상태 === "대기중"
+                                                    ? "text-gray-500"
+                                                    : "text-green-600"
+                                        }`}
+                                    >
+                                        {o.거래상태}
+                                    </td>
+                                    <td className="p-2">
+                                        {new Date(o.승인일자).toLocaleString("ko-KR")}
+                                    </td>
+                                    <td className="p-2">
+                                        {o.취소일자
+                                            ? new Date(o.취소일자).toLocaleString("ko-KR")
+                                            : "-"}
+                                    </td>
+                                    <td
+                                        className={`p-2 font-semibold ${
+                                            o.거래금액 < 0 ? "text-red-500" : "text-gray-800"
+                                        }`}
+                                    >
+                                        {o.거래금액.toLocaleString("ko-KR")}원
+                                    </td>
+                                    <td className="p-2">{"***"}</td>
+                                    <td className="p-2">{o.상품명}</td>
+                                    <td className="p-2 font-mono text-xs">{o.주문번호}</td>
+                                </tr>
+                            ))
+                        )}
+                        </tbody>
+                    </table>
+                </div>
+            </section>
+
+            {/* 홈으로 버튼 */}
+            <div className="text-center mt-10">
+                <button
+                    onClick={() => navigate("/home")}
+                    className="bg-gray-800 text-white px-6 py-2 rounded-lg hover:bg-gray-900 transition"
+                >
+                    ← 홈으로
+                </button>
             </div>
-
-            {/* 모바일 카드 뷰 */}
-            <div className="md:hidden space-y-4">
-                {products.map((p) => (
-                    <div key={p.id} className="border rounded-lg p-4 bg-white shadow-sm">
-                        <div className="flex justify-between items-start mb-3">
-                            <span className="text-xs text-gray-500">ID: {p.id}</span>
-                            {editingId === p.id ? (
-                                <div className="flex gap-2">
-                                    <button onClick={() => handleSaveEdit(p.id)} className="text-green-600 text-sm">💾 저장</button>
-                                    <button onClick={() => { setEditingId(null); setEditData({}); setNewImage(null); }} className="text-gray-500 text-sm">취소</button>
-                                </div>
-                            ) : (
-                                <button onClick={() => { setEditingId(p.id); setEditData(p); }} className="text-brand-600 text-sm">✏️ 수정</button>
-                            )}
-                        </div>
-
-                        {/* 이미지 */}
-                        <div className="mb-3">
-                            {editingId === p.id ? (
-                                <div className="flex flex-col">
-                                    {newImage ? (
-                                        <img src={URL.createObjectURL(newImage)} alt="preview" className="w-full h-48 object-cover rounded mb-2"/>
-                                    ) : p.image_url ? (
-                                        <img src={p.image_url} alt={p.name} className="w-full h-48 object-cover rounded mb-2"/>
-                                    ) : (
-                                        <div className="w-full h-48 bg-gray-100 rounded mb-2 flex items-center justify-center text-gray-400">이미지 없음</div>
-                                    )}
-                                    <input type="file" accept="image/*" onChange={(e) => setNewImage(e.target.files ? e.target.files[0] : null)} className="text-sm"/>
-                                </div>
-                            ) : p.image_url ? (
-                                <img src={p.image_url} alt={p.name} className="w-full h-48 object-cover rounded"/>
-                            ) : (
-                                <div className="w-full h-48 bg-gray-100 rounded flex items-center justify-center text-gray-400">이미지 없음</div>
-                            )}
-                        </div>
-
-                        {/* 이름 */}
-                        <div className="mb-2">
-                            <label className="text-xs text-gray-600 block mb-1">상품명</label>
-                            {editingId === p.id ? (
-                                <input value={editData.name ?? p.name} onChange={(e) => setEditData({ ...editData, name: e.target.value })} className="border rounded px-3 py-2 w-full"/>
-                            ) : (
-                                <div className="font-semibold">{p.name}</div>
-                            )}
-                        </div>
-
-                        {/* 가격 & 재고 */}
-                        <div className="grid grid-cols-2 gap-2 mb-2">
-                            <div>
-                                <label className="text-xs text-gray-600 block mb-1">가격</label>
-                                {editingId === p.id ? (
-                                    <input type="number" value={editData.price ?? p.price} onChange={(e) => setEditData({ ...editData, price: Number(e.target.value) })} className="border rounded px-3 py-2 w-full"/>
-                                ) : (
-                                    <div className="font-medium">{p.price.toLocaleString()}원</div>
-                                )}
-                            </div>
-                            <div>
-                                <label className="text-xs text-gray-600 block mb-1">재고</label>
-                                {editingId === p.id ? (
-                                    <input type="number" value={editData.stock ?? p.stock} onChange={(e) => setEditData({ ...editData, stock: Number(e.target.value) })} className="border rounded px-3 py-2 w-full"/>
-                                ) : (
-                                    <div className="font-medium">{p.stock}개</div>
-                                )}
-                            </div>
-                        </div>
-
-                        {/* 설명 */}
-                        <div className="mb-2">
-                            <label className="text-xs text-gray-600 block mb-1">설명</label>
-                            {editingId === p.id ? (
-                                <textarea value={editData.description ?? p.description ?? ""} onChange={(e) => setEditData({ ...editData, description: e.target.value })} className="border rounded px-3 py-2 w-full h-20"/>
-                            ) : (
-                                <div className="text-sm text-gray-700">{p.description || "-"}</div>
-                            )}
-                        </div>
-
-                        {/* 출시일 */}
-                        <div className="mb-2">
-                            <label className="text-xs text-gray-600 block mb-1">출시일</label>
-                            {editingId === p.id ? (
-                                <input type="datetime-local" value={editData.release_date ?? p.release_date ?? ""} onChange={(e) => setEditData({ ...editData, release_date: e.target.value })} className="border rounded px-3 py-2 w-full"/>
-                            ) : (
-                                <div className="text-sm">{p.release_date ? new Date(p.release_date).toLocaleString("ko-KR") : "-"}</div>
-                            )}
-                        </div>
-
-                        {/* 홈노출 */}
-                        <div className="flex items-center gap-2">
-                            <label className="text-xs text-gray-600">홈노출</label>
-                            {editingId === p.id ? (
-                                <input type="checkbox" checked={editData.is_visible ?? p.is_visible ?? false} onChange={(e) => setEditData({ ...editData, is_visible: e.target.checked })} className="w-5 h-5"/>
-                            ) : (
-                                <span>{p.is_visible ? "✅" : "❌"}</span>
-                            )}
-                        </div>
-                    </div>
-                ))}
-            </div>
-
-            <button onClick={() => navigate("/home")} className="mt-6 bg-gray-600 text-white px-4 py-2 rounded w-full md:w-auto">
-                ← 홈으로
-            </button>
         </div>
     );
 };
+
+/* 🔹 재사용 카드 컴포넌트 */
+const SummaryCard = ({
+                         title,
+                         value,
+                         color,
+                     }: {
+    title: string;
+    value: string | number;
+    color: string;
+}) => (
+    <div className="backdrop-blur-md bg-white/70 border border-gray-200 p-4 rounded-2xl shadow-sm text-center">
+        <p className="text-gray-500 text-sm mb-1">{title}</p>
+        <p className={`text-2xl font-bold ${color}`}>{value}</p>
+    </div>
+);
+
+/* 🔹 상품 카드 */
+const ProductCard = ({product}: { product: AdminProduct }) => (
+    <div
+        className="backdrop-blur-md bg-white/80 border border-gray-200 shadow-md rounded-2xl p-5 hover:shadow-lg transition">
+        <div className="flex items-center gap-4 mb-4">
+            <div className="w-20 h-20 rounded-xl overflow-hidden bg-gray-100 flex items-center justify-center">
+                {product.image_url ? (
+                    <img
+                        src={product.image_url}
+                        alt={product.name}
+                        className="object-cover w-full h-full"
+                    />
+                ) : (
+                    <Package className="w-8 h-8 text-gray-400"/>
+                )}
+            </div>
+            <div>
+                <h2 className="font-semibold text-gray-900 text-lg">{product.name}</h2>
+                <p className="text-gray-500 text-sm">{product.description || "설명 없음"}</p>
+            </div>
+        </div>
+
+        <div className="flex justify-between items-center text-sm border-t pt-3">
+            <div className="flex flex-col">
+                <span className="text-gray-400">가격</span>
+                <span className="font-medium text-gray-800">
+                    {product.price.toLocaleString()}원
+                </span>
+            </div>
+            <div className="flex flex-col text-right">
+                <span className="text-gray-400">재고</span>
+                <span
+                    className={`font-semibold ${
+                        product.stock <= 5 ? "text-red-500" : "text-gray-800"
+                    }`}
+                >
+                    {product.stock}개
+                </span>
+            </div>
+        </div>
+
+        <div className="mt-3 flex justify-between items-center">
+            <div className="flex items-center gap-1 text-sm text-gray-500">
+            {product.is_visible ? (
+                    <>
+                        <Eye className="w-4 h-4 text-green-600" /> <span>노출 중</span>
+                    </>
+                ) : (
+                    <>
+                        <EyeOff className="w-4 h-4 text-gray-400" /> <span>비노출</span>
+                    </>
+                )}
+            </div>
+
+            {product.stock <= 5 && (
+                <div className="flex items-center text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
+                    <AlertCircle className="w-3 h-3 mr-1" /> 재고 부족
+                </div>
+            )}
+        </div>
+    </div>
+);
 
 export default AdminPage;
