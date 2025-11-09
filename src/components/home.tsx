@@ -3,6 +3,7 @@ import { type JwtPayload, type NavigateProps, useApp } from "../App.tsx";
 import { Check, Clock, User, PauseCircle, Calendar } from "lucide-react";
 import { useEffect, useState } from "react";
 import { jwtDecode } from "jwt-decode";
+import QueueModal from "./QueueModal.tsx";
 // ✅ 수정된 admin 판별 부분
 interface CustomJwtPayload {
     employeeId?: string;
@@ -31,6 +32,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
     const [products, setProducts] = useState<Product[]>([]); // 배열로 변경
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
+    const [showQueue, setShowQueue] = useState(false);
     const [timeLeft, setTimeLeft] = useState({
         days: 0,
         hours: 0,
@@ -73,24 +75,17 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                 // ✅ admin 계정이면 테스트용 더미데이터 바로 표시
                 if (isAdmin) {
-                    console.log("관리자 테스트 모드 실행됨");
-                    setProducts([
-                        {
-                            id: 3,
-                            name: "Lenovo Thinkpad X1 Carbon Gen9",
-                            spec: "M4 칩 • 128GB • Wi-Fi",
-                            price: 330000,
-                            stock: 500,
-                            description:
-                                "Lenovo ThinkPad X1 Carbon Gen9(14인치)은 11세대 인텔 i7 프로세서와 16GB 메모리, 512GB NVMe SSD를 갖춘 경량 비즈니스 노트북입니다. Windows 11 정품이 탑재되어 있으며, 검수 및 클리닝을 완료한 A급 제품으로 출고됩니다. 무게가 약 1.14kg으로 휴대성이 우수합니다.",
-                            image_url: "https://roomfiles.s3.ap-northeast-2.amazonaws.com/uploads/%E1%84%8F%E1%85%A1%E1%84%87%E1%85%A9%E1%86%ABX1%E1%84%8A%E1%85%A5%E1%86%B7%E1%84%82%E1%85%A6%E1%84%8B%E1%85%B5%E1%86%AF+(1).png",
-                            status: "active",
-                            is_visible: true,
-                            release_date: "2025-11-03T14:59:59.617Z",
-                            created_at: "2025-10-14T23:47:16.565Z",
-                            updated_at: "2025-10-14T23:47:16.565Z",
+                    const response = await fetch("https://jimo.world/api/products/test", {
+                        headers: {
+                            "Authorization": `Bearer ${token}`,
+                            "Content-Type": "application/json",
                         },
-                    ]);
+                    });
+
+                    const testData = await response.json();
+                    console.log("관리자 테스트 모드 실행됨",testData);
+                    setProducts(
+                        testData);
                     setLoading(false);
                     return;
                 }
@@ -406,23 +401,34 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                     >
                                         자세히 보기
                                     </button>
-                                    <button
-                                        disabled={mainSaleStatus !== "active"}
-                                        onClick={() => navigate(`/purchase?productId=${mainProduct.id}`)}
-                                        className={`py-2.5 rounded-xl font-semibold transition ${
-                                            mainSaleStatus === "active"
-                                                ? "bg-brand-600 text-white hover:bg-brand-700"
-                                                : "bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        }`}
-                                    >
-                                        {mainSaleStatus === "before"
-                                            ? "판매 예정"
-                                            : mainSaleStatus === "active"
-                                                ? "구매하기"
+
+                                    {mainSaleStatus === "active" ? (
+                                        <button
+                                            onClick={() => setShowQueue(true)}
+                                            className="py-2.5 rounded-xl font-semibold bg-brand-600 text-white hover:bg-brand-700 transition"
+                                        >
+                                            구매하기
+                                        </button>
+                                    ) : (
+                                        <button
+                                            disabled
+                                            className="py-2.5 rounded-xl font-semibold bg-gray-100 text-gray-400 cursor-not-allowed"
+                                        >
+                                            {mainSaleStatus === "before"
+                                                ? "판매 예정"
                                                 : mainSaleStatus === "stopped"
                                                     ? "판매 중지"
                                                     : "판매 종료"}
-                                    </button>
+                                        </button>
+                                    )}
+
+                                    {showQueue && (
+                                        <QueueModal
+                                            productId={mainProduct.id}
+                                            onReady={(orderId) => navigate(`/purchase?orderId=${orderId}`)}
+                                            onClose={() => setShowQueue(false)}
+                                        />
+                                    )}
                                 </div>
                             </div>
                         </div>

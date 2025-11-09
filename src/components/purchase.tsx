@@ -257,14 +257,16 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 orderId = params.get('orderId');
             }
             const finalOrderId = orderId || `ORD-${Date.now()}`;
+
+            console.log('🛒 최종 주문 ID:', finalOrderId);
             // 백엔드에서 결제 정보 생성
             const response = await fetch('https://jimo.world/api/payment/request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     orderId: finalOrderId,
-                    amount: product.price,
-                    // amount: 1000,
+                    // amount: product.price,
+                    amount: 1000,
                     buyerName: deliveryInfo.recipientName,
                     buyerEmail: userEmail,
                     buyerTel: deliveryInfo.phone,

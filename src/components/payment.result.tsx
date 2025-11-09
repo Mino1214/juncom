@@ -170,8 +170,27 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
                         </p>
 
                         {/* 마이페이지 버튼 */}
+                        {/* 마이페이지 버튼 */}
                         <button
-                            onClick={() => navigate("#/mypage")}
+                            onClick={async () => {
+                                if (result?.orderId) {
+                                    try {
+                                        await fetch("https://jimo.world/api/payment/verify", {
+                                            method: "POST",
+                                            headers: { "Content-Type": "application/json" },
+                                            body: JSON.stringify({
+                                                orderId: result.orderId,
+                                                tid: new URLSearchParams(window.location.hash.split("?")[1]).get("tid"),
+                                                amount: result.amount,
+                                            }),
+                                        });
+                                        console.log(`✅ ${result.orderId} 결제 상태 검증 및 업데이트 완료`);
+                                    } catch (err) {
+                                        console.error("결제 상태 확인 실패:", err);
+                                    }
+                                }
+                                navigate("#/mypage");
+                            }}
                             className="w-full py-3 bg-blue-600 text-white rounded-xl hover:bg-blue-700 transition-all duration-200 font-medium"
                         >
                             마이페이지에서 주문내역 확인
@@ -202,10 +221,10 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
                         <p className="text-gray-600 mb-6">{result.message}</p>
 
                         <button
-                            onClick={() => navigate("#/purchase?productId=3")}
+                            onClick={() => navigate("#/mypage")}
                             className="w-full py-3 bg-gray-600 text-white rounded-xl hover:bg-gray-700 transition-all duration-200 font-medium"
                         >
-                            다시 구매하기
+                            다시시도
                         </button>
                     </>
                 )}

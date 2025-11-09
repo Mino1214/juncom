@@ -664,15 +664,20 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                                         ? "bg-green-100 text-green-700"
                                                         : selectedOrder.status === "cancelled"
                                                             ? "bg-red-100 text-red-700"
-                                                            : "hidden" // pending은 숨김
+                                                            : selectedOrder.status === "pending"
+                                                                ? "bg-yellow-100 text-yellow-700"
+                                                                : "bg-gray-100 text-gray-600"
                                                 }`}
+
                                             >
   {selectedOrder.status === "paid"
       ? "결제완료"
       : selectedOrder.status === "cancelled"
           ? "결제취소"
-          : ""}
-</span>
+          : selectedOrder.status === "pending"
+              ? "결제대기"
+              : selectedOrder   .status}
+                                        </span>
                                         </p>
                                         <p>
                                             <span className="text-gray-500">결제금액:</span>{" "}

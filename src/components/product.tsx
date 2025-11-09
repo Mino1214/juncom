@@ -1,5 +1,6 @@
 import { ChevronLeft, Package, Truck, Shield } from 'lucide-react';
 import { useEffect, useState } from "react";
+import QueueModal from "./QueueModal.tsx";
 
 interface Product {
     id: number;
@@ -31,6 +32,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
     const [isDetailOpen, setIsDetailOpen] = useState(false);
     const [previewImage, setPreviewImage] = useState<string | null>(null);
     const [activeTab, setActiveTab] = useState<"info" | "detail" | "refund">("info");
+    const [showQueueModal, setShowQueueModal] = useState(false);
     // ✅ 403 에러 처리 함수
     const handle403Error = () => {
         alert("토큰이 만료되었습니다. 다시 로그인해주세요.");
@@ -225,8 +227,11 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
 
                         {/* ✅ 구매 버튼 */}
                         {/* ✅ 구매 버튼 - ended 케이스 추가 */}
+                        {/* ✅ 구매 버튼 */}
                         <button
-                            onClick={() => displayStatus === "active" && navigate(`/purchase?productId=${product.id}`)}
+                            onClick={() => {
+                                if (displayStatus === "active") setShowQueueModal(true);
+                            }}
                             disabled={displayStatus !== "active"}
                             className={`w-full py-4 rounded-xl font-bold text-lg transition ${
                                 displayStatus === "active"
@@ -240,6 +245,18 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                             {displayStatus === "ended" && "품절"}
                             {product.status === "draft" && "임시 저장 상태"}
                         </button>
+
+                        {/* ✅ 대기열 모달 */}
+                        {showQueueModal && (
+                            <QueueModal
+                                productId={product.id}
+                                onReady={(orderId) => {
+                                    setShowQueueModal(false);
+                                    navigate(`/purchase?orderId=${orderId}`);
+                                }}
+                                onClose={() => setShowQueueModal(false)}
+                            />
+                        )}
 
                         {/* ✅ 혜택 안내 */}
                         <div className="mt-6 space-y-3">
