@@ -265,8 +265,8 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
                     orderId: finalOrderId,
-                    // amount: product.price,
-                    amount: 1000,
+                    amount: product.price,
+                    // amount: 1000,
                     buyerName: deliveryInfo.recipientName,
                     buyerEmail: userEmail,
                     buyerTel: deliveryInfo.phone,
