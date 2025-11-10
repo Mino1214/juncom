@@ -41,6 +41,14 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
     const token = localStorage.getItem("token");
+    // 상단에 추가 (컴포넌트 밖, import 아래)
+    function maskName(name?: string) {
+        if (!name) return "-";
+        if (name.length <= 1) return name;
+        if (name.length === 2) return name[0] + "*";
+        // 이름이 3글자 이상이면 가운데만 *
+        return name[0] + "*".repeat(name.length - 2) + name[name.length - 1];
+    }
     const fetchUsers = async () => {
         try {
             const res = await fetch(`https://jimo.world/api/users?page=${page}&limit=50`, {
@@ -153,7 +161,7 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
                         ) : (
                             users.map((u) => (
                                 <tr key={u.id} className="border-t hover:bg-gray-50">
-                                    <td className="p-2">{u.name || "-"}</td>
+                                    <td className="p-2">{maskName(u.name)}</td>
                                     <td className="p-2">{u.email}</td>
                                     <td className="p-2">
                                         {new Date(u.created_at).toLocaleString("ko-KR")}
