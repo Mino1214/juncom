@@ -1,6 +1,6 @@
-import React, { useEffect, useState } from "react";
-import type { NavigateProps } from "../App.tsx";
-import { Package, Eye, EyeOff, AlertCircle } from "lucide-react";
+import React, {useEffect, useState} from "react";
+import type {NavigateProps} from "../App.tsx";
+import {Package, Eye, EyeOff, AlertCircle} from "lucide-react";
 
 export interface AdminProduct {
     id: number;
@@ -32,7 +32,7 @@ export interface AdminUser {
     created_at: string;
 }
 
-const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
+const AdminPage: React.FC<NavigateProps> = ({navigate}) => {
     const [products, setProducts] = useState<AdminProduct[]>([]);
     const [orders, setOrders] = useState<AdminOrder[]>([]);
     const [users, setUsers] = useState<AdminUser[]>([]);
@@ -40,7 +40,9 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
     const [error, setError] = useState("");
     const [page, setPage] = useState(1);
     const [hasMore, setHasMore] = useState(true);
+    const [totalCount, setTotalCount] = useState(0);
     const token = localStorage.getItem("token");
+
     // 상단에 추가 (컴포넌트 밖, import 아래)
     function maskName(name?: string) {
         if (!name) return "-";
@@ -49,15 +51,17 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
         // 이름이 3글자 이상이면 가운데만 *
         return name[0] + "*".repeat(name.length - 2) + name[name.length - 1];
     }
+
     const fetchUsers = async () => {
         try {
             const res = await fetch(`https://jimo.world/api/users?page=${page}&limit=50`, {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
             const data = await res.json();
             if (data.success) {
                 setUsers(data.users);
-                setHasMore(data.hasMore); // 백엔드에서 다음 페이지 존재 여부 전달
+                setHasMore(data.hasMore);
+                setTotalCount(data.totalCount); // ✅ 총 회원 수 상태 추가
             }
         } catch (err) {
             console.error("회원 목록 불러오기 실패:", err);
@@ -66,7 +70,7 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
     const fetchProducts = async () => {
         try {
             const response = await fetch("https://jimo.world/api/admin/products", {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
             if (!response.ok) throw new Error(`서버 오류: ${response.status}`);
             const data = await response.json();
@@ -82,7 +86,7 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
     const fetchOrders = async () => {
         try {
             const res = await fetch("https://jimo.world/api/all/orders", {
-                headers: { Authorization: `Bearer ${token}` },
+                headers: {Authorization: `Bearer ${token}`},
             });
             const data = await res.json();
             if (data.success) setOrders(data.orders);
@@ -90,7 +94,6 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
             console.error("주문 내역 불러오기 실패:", err);
         }
     };
-
 
 
     useEffect(() => {
@@ -138,8 +141,8 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
                         회원 가입 내역
                     </h2>
                     <span className="text-gray-600 text-sm">
-            총 회원 수: {users.length.toLocaleString()}명
-        </span>
+  총 회원 수: {totalCount.toLocaleString()}명
+</span>
                 </div>
 
                 <div className="overflow-x-auto bg-white border border-gray-200 rounded-xl shadow-sm">
@@ -269,7 +272,6 @@ const AdminPage: React.FC<NavigateProps> = ({ navigate }) => {
             </section>
 
 
-
             <div className="text-center mt-10">
                 <button
                     onClick={() => navigate("/home")}
@@ -336,7 +338,7 @@ const ProductCard = ({product}: { product: AdminProduct }) => (
 
             {product.stock <= 5 && (
                 <div className="flex items-center text-xs bg-red-100 text-red-700 px-2 py-0.5 rounded-full">
-                    <AlertCircle className="w-3 h-3 mr-1" /> 재고 부족
+                    <AlertCircle className="w-3 h-3 mr-1"/> 재고 부족
                 </div>
             )}
         </div>
