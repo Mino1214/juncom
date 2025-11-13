@@ -125,6 +125,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
             {/* ✅ 대기열 모달 */}
             {showQueueModal && (
                 <QueueModal
+                    visible={showQueueModal}
                     productId={product.id}
                     onReady={(orderId) => {
                         setShowQueueModal(false);
