@@ -18,7 +18,7 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
     const pollIntervalRef = useRef<number | null>(null);
     // const [step, setStep] = useState(0);
 
-    const actualWaitingNumber = position ? Math.max(0, position - 500) : null;
+    // const actualWaitingNumber = position ? Math.max(0, position - 500) : null;
 
     useEffect(() => {
         if (joinedRef.current) return;
@@ -156,7 +156,7 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                         <div className="mb-4">
                             <p className="text-gray-600 text-base mb-2">현재 대기 번호</p>
                             <p className="text-blue-600 text-3xl font-bold">
-                                {actualWaitingNumber !== null ? actualWaitingNumber + 1 : "-"}번
+                                {position !== null ? position : "-"}번
                             </p>
                         </div>
 
