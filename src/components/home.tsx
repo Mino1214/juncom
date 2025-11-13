@@ -185,23 +185,41 @@ const HomePage = ({ navigate }: NavigateProps) => {
     }
 
     // 상품별 판매 상태 계산 함수
+    // const getSaleStatus = (product: Product) => {
+    //     const now = new Date();
+    //     const releaseDate = product.release_date ? new Date(product.release_date) : null;
+    //     const isBeforeRelease = releaseDate && releaseDate > now;
+    //     const isAfterRelease = !releaseDate || (releaseDate && releaseDate <= now);
+    //
+    //     if (product.status === "stopped") {
+    //         return "stopped";
+    //     } else if (isBeforeRelease) {
+    //         return "before";
+    //     } else if (isAfterRelease && product.status === "active" && product.stock > 0) {
+    //         return "active";
+    //     } else if (product.stock === 0) {
+    //         return "ended";
+    //     } else {
+    //         return "active";
+    //     }
+    // };
     const getSaleStatus = (product: Product) => {
         const now = new Date();
         const releaseDate = product.release_date ? new Date(product.release_date) : null;
-        const isBeforeRelease = releaseDate && releaseDate > now;
-        const isAfterRelease = !releaseDate || (releaseDate && releaseDate <= now);
 
-        if (product.status === "stopped") {
-            return "stopped";
-        } else if (isBeforeRelease) {
-            return "before";
-        } else if (isAfterRelease && product.status === "active" && product.stock > 0) {
-            return "active";
-        } else if (product.stock === 0) {
+        // 재고 없으면 무조건 판매 종료
+        if (product.stock === 0) {
             return "ended";
-        } else {
-            return "active";
         }
+
+        // 출시일이 있음 → 날짜 비교
+        if (releaseDate) {
+            if (releaseDate > now) return "before";  // 출시 전
+            else return "active";                    // 출시 후
+        }
+
+        // 출시일 없으면 무조건 active 취급
+        return "active";
     };
 
     // 상태 배지 컴포넌트
@@ -483,8 +501,11 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                                                 <button
                                                     disabled={saleStatus !== "active"}
-                                                    // onClick={() => navigate(`/purchase?productId=${product.id}`)}
-                                                    onClick={() => navigate(`/purchase?productId=${product.id}`)}
+                                                    onClick={() => {
+                                                        if (saleStatus !== "active") return; // 클릭 차단
+                                                        setSelectedProductId(product.id);
+                                                        setShowQueue(true);
+                                                    }}
                                                     className={`w-full py-2.5 rounded-xl font-semibold transition text-sm ${
                                                         saleStatus === "active"
                                                             ? "bg-brand-600 text-white hover:bg-brand-700"
@@ -495,9 +516,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                                         ? "판매 예정"
                                                         : saleStatus === "active"
                                                             ? "구매하기"
-                                                            : saleStatus === "stopped"
-                                                                ? "판매 중지"
-                                                                : "판매 종료"}
+                                                            : "판매 종료"}
                                                 </button>
                                             </div>
                                         </div>
