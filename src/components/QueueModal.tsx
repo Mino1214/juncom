@@ -14,85 +14,60 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
     const [jobId, setJobId] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>("");
     const joinedRef = useRef(false);
+
     const pollIntervalRef = useRef<number | null>(null);
+    // const [step, setStep] = useState(0);
 
-    // 단계 애니메이션
-    const [step, setStep] = useState(0);
-
-    // 실제 대기 번호 계산 (position - 500)
     const actualWaitingNumber = position ? Math.max(0, position - 500) : null;
 
     useEffect(() => {
         if (joinedRef.current) return;
         joinedRef.current = true;
 
-        const initQueueProcess = async () => {
+        const init = async () => {
             try {
                 if (!user?.email) {
                     throw new Error("로그인 정보가 없습니다.");
                 }
 
-                console.log("👤 사용자 정보:", user);
-
                 // 1) 기존 주문 여부 확인
-                const checkRes = await fetch(`https://jimo.world/api/payment/order/check/${user.email}`);
+                const chk = await fetch(`/api/payment/order/check/${user.email}`);
+                const chkJson = await chk.json();
 
-                if (!checkRes.ok) {
-                    throw new Error("주문 확인 중 오류가 발생했습니다.");
-                }
-
-                const checkData = await checkRes.json();
-
-                if (checkData.hasActiveOrder) {
+                if (chkJson.hasActiveOrder) {
                     setStatus("blocked");
                     setErrorMessage("이미 진행 중인 주문이 있습니다.");
                     return;
                 }
 
                 // 2) 재고 확인
-                const stockRes = await fetch(`https://jimo.world/api/payment/product/${productId}/stock`);
-
-                if (!stockRes.ok) {
-                    throw new Error("재고 확인 중 오류가 발생했습니다.");
-                }
-
+                const stockRes = await fetch(`/api/payment/product/${productId}/stock`);
                 const stockData = await stockRes.json();
 
-                console.log("📦 재고 상태:", stockData);
-
-                // 3) 재고 있으면 바로 주문 생성
+                // 3) 재고 있음 → 바로 주문 생성 (queue X)
                 if (stockData.stock > 0) {
-                    console.log("✅ 재고 있음 → 바로 주문 생성");
-
-                    const orderRes = await fetch("https://jimo.world/api/payment/order/create", {
+                    const buyRes = await fetch(`/api/payment/product/${productId}/quick-purchase`, {
                         method: "POST",
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
-                            productId,
                             userName: user.name || "미입력",
                             userEmail: user.email,
                         }),
                     });
 
-                    if (!orderRes.ok) {
-                        throw new Error("주문 생성 실패");
-                    }
+                    const buyJson = await buyRes.json();
 
-                    const orderData = await orderRes.json();
-
-                    if (!orderData.success || !orderData.orderId) {
-                        throw new Error(orderData.message || "주문 생성 실패");
+                    if (!buyJson.success) {
+                        throw new Error(buyJson.message || "주문 생성 실패");
                     }
 
                     setStatus("done");
-                    onReady(orderData.orderId);
+                    onReady(buyJson.orderId);
                     return;
                 }
 
-                // 4) 재고 없으면 대기열 등록
-                console.log("⏳ 재고 없음 → 대기열 등록");
-
-                const res = await fetch("https://jimo.world/api/payment/queue/init", {
+                // 4) 재고 없음 → queue 등록
+                const qRes = await fetch(`/api/payment/queue/init`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
@@ -102,107 +77,62 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                     }),
                 });
 
-                if (!res.ok) {
-                    throw new Error("대기열 등록 요청 실패");
-                }
+                const qJson = await qRes.json();
+                if (!qJson.success) throw new Error(qJson.message);
 
-                const data = await res.json();
-
-                if (!data.success) {
-                    throw new Error(data.message || "대기열 등록 실패");
-                }
-
-                console.log("✅ 대기열 등록 성공:", data);
-
-                setJobId(data.jobId);
-                setPosition(data.position);
+                setJobId(qJson.jobId);
+                setPosition(qJson.position);
                 setStatus("waiting");
+
             } catch (err) {
-                console.error("❌ 큐 등록 실패:", err);
                 setStatus("failed");
-                setErrorMessage(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
+                setErrorMessage(err instanceof Error ? err.message : "오류 발생");
             }
         };
 
-        initQueueProcess();
+        init();
     }, [productId, user, onReady]);
 
-    // 폴링 함수
+    // 폴링 (대기열일 때만)
     useEffect(() => {
         if (!jobId || status !== "waiting") return;
 
-        console.log("🔄 폴링 시작:", jobId);
-
         const interval = setInterval(async () => {
             try {
-                const res = await fetch(`https://jimo.world/api/payment/queue/status/${jobId}`);
-
-                if (!res.ok) {
-                    throw new Error("상태 조회 실패");
-                }
-
+                const res = await fetch(`/api/payment/queue/status/${jobId}`);
                 const data = await res.json();
-
-                console.log("📊 폴링 응답:", data);
 
                 if (data.status === "waiting") {
                     setPosition(data.position);
                 } else if (data.status === "completed") {
                     clearInterval(interval);
+
                     setStatus("done");
 
-                    if (data.result?.orderId) {
-                        console.log("✅ 주문 생성 완료:", data.result.orderId);
-                        onReady(data.result.orderId);
-                    } else {
-                        throw new Error("주문 ID를 받지 못했습니다.");
-                    }
+                    if (data.result?.orderId) onReady(data.result.orderId);
+                    else throw new Error("주문 ID 없음");
                 } else if (data.status === "failed") {
                     clearInterval(interval);
                     setStatus("failed");
-                    setErrorMessage(data.error || "주문 생성에 실패했습니다.");
+                    setErrorMessage(data.error || "오류 발생");
                 }
             } catch (err) {
-                console.error("❌ 폴링 오류:", err);
                 clearInterval(interval);
                 setStatus("failed");
-                setErrorMessage(err instanceof Error ? err.message : "상태 조회 중 오류가 발생했습니다.");
+                setErrorMessage("상태 조회 오류");
             }
-        }, 2500);
+        }, 2000);
 
         pollIntervalRef.current = interval;
 
         return () => {
-            if (pollIntervalRef.current) {
-                clearInterval(pollIntervalRef.current);
-                pollIntervalRef.current = null;
-            }
+            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         };
     }, [jobId, status, onReady]);
 
-    // 단계별 텍스트 애니메이션
-    useEffect(() => {
-        if (status !== "waiting") {
-            setStep(0);
-            return;
-        }
-
-        const timeouts = [
-            setTimeout(() => setStep(1), 0),
-            setTimeout(() => setStep(2), 400),
-            setTimeout(() => setStep(3), 800),
-            setTimeout(() => setStep(4), 1200),
-        ];
-
-        return () => {
-            timeouts.forEach(clearTimeout);
-        };
-    }, [status]);
-
+    // UI
     const handleClose = () => {
-        if (pollIntervalRef.current) {
-            clearInterval(pollIntervalRef.current);
-        }
+        if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         onClose();
     };
 
@@ -210,6 +140,7 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
             <div className="bg-white p-6 rounded-2xl w-[90%] max-w-md text-center shadow-lg">
 
+                {/* 로딩 */}
                 {status === "loading" && (
                     <>
                         <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
@@ -217,92 +148,66 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                     </>
                 )}
 
+                {/* 대기열 */}
                 {status === "waiting" && (
                     <>
-                        {step >= 1 && (
-                            <>
-                                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-500 mx-auto mb-4"></div>
-                            </>
-                        )}
+                        <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-500 mx-auto mb-4"></div>
 
-                        {step >= 2 && (
-                            <div className="mb-4">
-                                <p className="text-gray-600 text-base mb-2">
-                                    현재 대기 번호
-                                </p>
-                                <p className="text-blue-600 text-3xl font-bold">
-                                    {actualWaitingNumber !== null ? actualWaitingNumber + 1 : "-"}번
-                                </p>
-                            </div>
-                        )}
+                        <div className="mb-4">
+                            <p className="text-gray-600 text-base mb-2">현재 대기 번호</p>
+                            <p className="text-blue-600 text-3xl font-bold">
+                                {actualWaitingNumber !== null ? actualWaitingNumber + 1 : "-"}번
+                            </p>
+                        </div>
 
-                        {step >= 3 && (
-                            <div className="text-gray-600 text-sm space-y-2 mb-4">
-                                <p>
-                                    순서가 되면 자동으로 결제 화면으로 이동합니다.
-                                </p>
-                                <p>
-                                    재고 소진 시 즉시 판매가 종료됩니다.
-                                </p>
-                                <p className="text-red-500 font-semibold mt-3">
-                                    ⚠️ 페이지를 새로고침하면 대기열이 초기화되니 주의해 주세요.
-                                </p>
-                            </div>
-                        )}
+                        <div className="text-gray-600 text-sm space-y-2 mb-4">
+                            <p>순서가 되면 자동으로 구매 화면으로 이동합니다.</p>
+                            <p>재고 소진 시 즉시 종료됩니다.</p>
+                            <p className="text-red-500 font-semibold mt-3">⚠️ 새로고침하면 대기열 초기화</p>
+                        </div>
 
-                        {step >= 4 && (
-                            <button
-                                onClick={handleClose}
-                                className="mt-2 w-full bg-gray-200 text-gray-700 py-2 rounded-xl hover:bg-gray-300 transition-colors"
-                            >
-                                취소
-                            </button>
-                        )}
+                        <button
+                            onClick={handleClose}
+                            className="mt-2 w-full bg-gray-200 text-gray-700 py-2 rounded-xl"
+                        >
+                            취소
+                        </button>
                     </>
                 )}
 
+                {/* 완료 */}
                 {status === "done" && (
                     <>
                         <div className="text-green-500 text-5xl mb-4">✅</div>
-                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                            주문 생성 완료!
-                        </h3>
-                        <p className="text-gray-600 text-sm">
-                            결제 화면으로 이동합니다...
-                        </p>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-2">주문 생성 완료!</h3>
+                        <p className="text-gray-600 text-sm">구매 화면으로 이동합니다...</p>
                     </>
                 )}
 
+                {/* 오류 */}
                 {status === "failed" && (
                     <>
                         <div className="text-red-500 text-5xl mb-4">❌</div>
-                        <h3 className="text-lg font-semibold text-red-600 mb-2">
-                            오류 발생
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-4">
-                            {errorMessage || "알 수 없는 오류가 발생했습니다."}
-                        </p>
+                        <h3 className="text-lg font-semibold text-red-600 mb-2">오류 발생</h3>
+                        <p className="text-gray-600 text-sm mb-4">{errorMessage}</p>
                         <button
                             onClick={handleClose}
-                            className="w-full bg-red-500 text-white py-2 rounded-xl hover:bg-red-600 transition-colors"
+                            className="w-full bg-red-500 text-white py-2 rounded-xl"
                         >
                             닫기
                         </button>
                     </>
                 )}
 
+                {/* 차단됨 */}
                 {status === "blocked" && (
                     <>
                         <div className="text-yellow-500 text-5xl mb-4">⚠️</div>
-                        <h3 className="text-lg font-semibold text-yellow-600 mb-2">
-                            진행 중인 주문이 있습니다
-                        </h3>
-                        <p className="text-gray-600 text-sm mb-4">
-                            {errorMessage || "기존 주문을 완료하거나 취소한 후 다시 시도해주세요."}
-                        </p>
+                        <h3 className="text-lg font-semibold text-yellow-600 mb-2">진행 중인 주문이 있습니다</h3>
+                        <p className="text-gray-600 text-sm mb-4">{errorMessage}</p>
                         <button
                             onClick={handleClose}
-                            className="w-full bg-yellow-500 text-white py-2 rounded-xl hover:bg-yellow-600 transition-colors"
+                            className="w-full bg-yellow-500 text-white py-2 rounded-xl"
                         >
                             확인
                         </button>
