@@ -23,7 +23,7 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
         const initQueueProcess = async () => {
             try {
-                if (!user?.employeeId) throw new Error("로그인 정보가 없습니다.");
+                if (!user?.email) throw new Error("로그인 정보가 없습니다.");
 
                 // 1) 기존 주문 여부 확인
                 const checkRes = await fetch(`https://jimo.world/api/payment/order/check/${user.email}`);
