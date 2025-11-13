@@ -9,42 +9,13 @@ const ResetPasswordPage = ({ navigate }: NavigateProps) => {
     const [isVerified, setIsVerified] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [timer, setTimer] = useState(0);
+    const [verificationToken, setVerificationToken] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
 
     // 이메일 유효성 (회사 이메일만)
     const emailPattern = /^[a-zA-Z0-9._%+-]+@kr\.kpmg\.com$/;
-// 인증번호 확인
-const handleVerifyCode = async () => {
-    if (!verificationCode) {
-        alert("인증번호를 입력해주세요.");
-        return;
-    }
-
-    setIsVerifying(true);
-    try {
-        const response = await fetch("https://jimo.world/api/verify-code", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ email, code: verificationCode })
-        });
-        const data = await response.json();
-
-        if (response.ok) {
-            alert("이메일 인증이 완료되었습니다!");
-            setIsVerified(true);
-            setTimer(0);  // 시간 종료
-        } else {
-            alert(data.message || "인증번호가 일치하지 않습니다.");
-        }
-    } catch (err) {
-        console.error(err);
-        alert("인증 확인 중 오류가 발생했습니다.");
-    } finally {
-        setIsVerifying(false);
-    }
-};
 
     // 타이머
     useEffect(() => {
@@ -62,10 +33,10 @@ const handleVerifyCode = async () => {
 
     // 인증번호 발송
     const handleSendCode = async () => {
-        // if (!emailPattern.test(email)) {
-        //     alert("이메일은 @kr.kpmg.com 형식만 가능합니다.");
-        //     return;
-        // }
+        if (!emailPattern.test(email)) {
+            alert("이메일은 @kr.kpmg.com 형식만 가능합니다.");
+            return;
+        }
 
         setIsSending(true);
         try {
@@ -141,6 +112,7 @@ const handleVerifyCode = async () => {
                 body: JSON.stringify({
                     email,
                     newPassword,
+                    verificationToken
                 })
             });
             const data = await response.json();
