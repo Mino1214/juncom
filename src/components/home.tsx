@@ -61,7 +61,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 const token = localStorage.getItem("token");
 
                 // ✅ 여기서 직접 admin 판별
-                let isAdmin = false;
+                // let isAdmin = false;
                 if (token) {
                     try {
                         const decoded = jwtDecode<CustomJwtPayload>(token); // ✅ 명시적 타입 지정
@@ -109,7 +109,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                     }
 
                     const data = await res.json();
-                    // console.log("Fetched products:", data);
+                    console.log("Fetched products:", data);
                     setProducts(data);
                 // }
 
