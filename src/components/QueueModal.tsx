@@ -237,9 +237,14 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                         )}
 
                         {step >= 3 && (
-                            <p className="text-gray-500 text-sm mb-4">
-                                재고가 들어오면 자동으로 결제 화면으로 이동합니다.
-                            </p>
+                            <div className="text-gray-500 text-sm mb-4">
+                                <p className="mb-2">
+                                    재고가 들어오면 자동으로 결제 화면으로 이동합니다.
+                                </p>
+                                <p className="text-red-500 font-semibold">
+                                    ⚠️ 페이지를 나가면 대기열이 초기화됩니다.
+                                </p>
+                            </div>
                         )}
 
                         {step >= 4 && (
