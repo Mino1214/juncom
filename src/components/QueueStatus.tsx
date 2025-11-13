@@ -28,7 +28,7 @@ export default function QueueStatus({ productId, onReady }: QueueStatusProps) {
         } catch (err) {
             console.error(err);
             setStatus("failed");
-            alert("대기열 등록 실패");
+            alert("대기열 등록에 실패했습니다. 다시 시도해주세요.");
         }
     };
 
@@ -57,23 +57,58 @@ export default function QueueStatus({ productId, onReady }: QueueStatusProps) {
                     onClick={joinQueue}
                     className="w-full py-3 rounded-xl bg-brand text-white font-bold hover:bg-brand/90 transition"
                 >
-                    구매 대기열 등록
+                    구매하기
                 </button>
             )}
             {status === "waiting" && (
-                <div className="w-full py-4 bg-gray-50 border border-gray-200 rounded-xl text-center">
-                    <p className="text-gray-800 font-medium">현재 {position ?? "-"}번째 대기 중...</p>
-                    <p className="text-gray-500 text-sm">잠시만 기다려주세요</p>
+                <div className="w-full py-4 bg-amber-50 border border-amber-200 rounded-xl">
+                    <div className="text-center">
+                        <p className="text-2xl font-bold text-gray-900 mb-2">
+                            현재 대기 번호: {position ?? "-"}번
+                        </p>
+                        <p className="text-gray-700 font-medium mb-3">
+                            순서가 되면 자동으로 결제 화면으로 이동합니다
+                        </p>
+                        <div className="px-4">
+                            <p className="text-sm text-red-600 font-medium mb-1">
+                                ⚠️ 페이지를 새로고침하면 대기열이 초기화되니 주의해 주세요
+                            </p>
+                            <p className="text-sm text-gray-600">
+                                제품은 선착순으로 판매되며, 재고 소진 시 즉시 판매가 종료됩니다
+                            </p>
+                        </div>
+                        <div className="mt-3">
+                            <div className="inline-flex items-center gap-1">
+                                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse"></div>
+                                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse delay-150"></div>
+                                <div className="w-2 h-2 bg-amber-500 rounded-full animate-pulse delay-300"></div>
+                            </div>
+                        </div>
+                    </div>
                 </div>
             )}
             {status === "done" && (
-                <div className="w-full py-4 bg-green-50 border border-green-300 rounded-xl text-green-700 font-semibold text-center">
-                    ✅ 순서가 도착했습니다! 결제 진행 가능
+                <div className="w-full py-4 bg-green-50 border border-green-300 rounded-xl">
+                    <div className="text-center">
+                        <p className="text-lg font-bold text-green-700 mb-1">
+                            ✅ 대기가 완료되었습니다!
+                        </p>
+                        <p className="text-sm text-green-600">
+                            지금 바로 결제를 진행해주세요
+                        </p>
+                    </div>
                 </div>
             )}
             {status === "failed" && (
-                <div className="w-full py-4 bg-red-50 border border-red-200 rounded-xl text-red-600 font-medium text-center">
-                    ❌ 대기열 처리 중 오류가 발생했습니다.
+                <div className="w-full py-4 bg-red-50 border border-red-200 rounded-xl">
+                    <div className="text-center">
+                        <p className="text-lg font-bold text-red-600 mb-1">
+                            ❌ 오류가 발생했습니다
+                        </p>
+                        <p className="text-sm text-red-500">
+                            대기열 처리 중 문제가 발생했습니다. 다시 시도해주세요.
+                        </p>
+                    </div>
                 </div>
             )}
         </div>
