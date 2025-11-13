@@ -97,17 +97,25 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
     useEffect(() => {
         if (!jobId || status !== "waiting") return;
 
+        console.log("🔁 큐 폴링 시작", { jobId, status });
+
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`/api/payment/queue/status/${jobId}`);
                 const data = await res.json();
 
+                console.log("📡 queue/status 응답:", data);
+
+                // 대기 상태 → 번호만 업데이트
                 if (data.status === "waiting") {
                     setPosition(data.position);
+                    return;
                 }
 
-                // 🔥🔥 핵심: ready 상태면 자동 구매 실행
-                else if (data.status === "ready") {
+                // ✅ ready 또는 completed 면 자동 구매 시도
+                if (data.status === "ready" || data.status === "completed") {
+                    console.log("✅ 차례 도착, 자동 구매 시도");
+
                     clearInterval(interval);
 
                     try {
@@ -121,6 +129,7 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                         });
 
                         const buyJson = await buyRes.json();
+                        console.log("🧾 quick-purchase 응답:", buyJson);
 
                         if (!buyJson.success) {
                             throw new Error(buyJson.message || "구매 실패");
@@ -128,32 +137,40 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
                         setStatus("done");
                         onReady(buyJson.orderId);
-
                     } catch (err) {
+                        console.error("💥 자동 구매 실패:", err);
                         setStatus("failed");
                         setErrorMessage("자동 구매 실패");
                     }
+
+                    return;
                 }
 
-                else if (data.status === "failed") {
+                // 실패 상태 처리
+                if (data.status === "failed") {
+                    console.error("⚠️ queue 실패:", data);
                     clearInterval(interval);
                     setStatus("failed");
                     setErrorMessage(data.error || "오류 발생");
+                    return;
                 }
 
+                // 정의 안 된 status 디버깅
+                console.warn("🤔 알 수 없는 status:", data.status);
             } catch (err) {
+                console.error("💥 상태 조회 오류:", err);
                 clearInterval(interval);
                 setStatus("failed");
                 setErrorMessage("상태 조회 오류");
             }
         }, 2000);
 
-        pollIntervalRef.current = interval;
+        pollIntervalRef.current = interval as unknown as number;
 
         return () => {
             if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
         };
-    }, [jobId, status, onReady]);
+    }, [jobId, status, onReady, productId, user]);
 
     // UI
     const handleClose = () => {
