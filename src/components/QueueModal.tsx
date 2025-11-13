@@ -217,10 +217,25 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
     }, [jobId]); // status는 의존성에서 제외
 
     // UI
-    const handleClose = () => {
+    const handleClose = async () => {
+        // 폴링 중단
         if (abortControllerRef.current) {
             abortControllerRef.current.abort();
         }
+
+        // 대기열 취소 처리
+        if (jobId) {
+            try {
+                await fetch(`https://jimo.world/api/payment/queue/cancel`, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ jobId }),
+                });
+            } catch (err) {
+                console.error("❌ 대기열 취소 요청 실패:", err);
+            }
+        }
+
         onClose();
     };
 
@@ -250,8 +265,8 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
 
                         <div className="text-gray-600 text-sm space-y-2 mb-4">
                             <p>순서가 되면 자동으로 구매 화면으로 이동합니다.</p>
-                            <p>재고 소진 시 즉시 종료됩니다.</p>
-                            <p className="text-red-500 font-semibold mt-3">⚠️ 새로고침하면 대기열 초기화</p>
+                            <p>재고 소진 시 즉시 판매가 종료됩니다.</p>
+                            <p className="text-red-500 font-semibold mt-3">⚠️ 페이지를 새로고침하면 대기열이 초기화되니 주의해 주세요.</p>
                         </div>
 
                         <button
