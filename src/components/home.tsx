@@ -33,6 +33,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
     const [loading, setLoading] = useState(true);
     const [open, setOpen] = useState(false);
     const [showQueue, setShowQueue] = useState(false);
+    const [selectedProductId, setSelectedProductId] = useState<number | null>(null);
     const [timeLeft, setTimeLeft] = useState({
         days: 0,
         hours: 0,
@@ -403,16 +404,22 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                     </button>
 
                                     <button
-                                        onClick={() => setShowQueue(true)}
-                                        className="py-2.5 rounded-xl font-semibold bg-brand-600 text-white hover:bg-brand-700 transition"
+                                        onClick={() => {
+                                            setSelectedProductId(mainProduct.id);
+                                            setShowQueue(true);
+                                        }}
+                                        className="py-2.5 rounded-xl font-semibold bg-brand-600 text-white"
                                     >
                                         구매하기
                                     </button>
 
-                                    {showQueue && (
+                                    {showQueue && selectedProductId !== null && (
                                         <QueueModal
-                                            productId={mainProduct.id}
-                                            onReady={(orderId) => navigate(`/purchase?orderId=${orderId}`)}
+                                            productId={selectedProductId}
+                                            onReady={(orderId) => {
+                                                setShowQueue(false);
+                                                navigate(`/purchase?orderId=${orderId}`);
+                                            }}
                                             onClose={() => setShowQueue(false)}
                                         />
                                     )}

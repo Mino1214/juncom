@@ -122,6 +122,17 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
 
     return (
         <div className="min-h-screen bg-gray-50">
+            {/* ✅ 대기열 모달 */}
+            {showQueueModal && (
+                <QueueModal
+                    productId={product.id}
+                    onReady={(orderId) => {
+                        setShowQueueModal(false);
+                        navigate(`/purchase?orderId=${orderId}`);
+                    }}
+                    onClose={() => setShowQueueModal(false)}
+                />
+            )}
             {/* 헤더 */}
             <header className="bg-white border-b border-gray-100 sticky top-0 z-10">
                 <div className="max-w-5xl mx-auto px-4 py-4">
@@ -246,17 +257,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                             {product.status === "draft" && "임시 저장 상태"}
                         </button>
 
-                        {/* ✅ 대기열 모달 */}
-                        {showQueueModal && (
-                            <QueueModal
-                                productId={product.id}
-                                onReady={(orderId) => {
-                                    setShowQueueModal(false);
-                                    navigate(`/purchase?orderId=${orderId}`);
-                                }}
-                                onClose={() => setShowQueueModal(false)}
-                            />
-                        )}
+
 
                         {/* ✅ 혜택 안내 */}
                         <div className="mt-6 space-y-3">
