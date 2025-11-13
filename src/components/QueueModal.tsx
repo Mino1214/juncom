@@ -14,7 +14,7 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
     const [jobId, setJobId] = useState<string | null>(null);
     const [errorMessage, setErrorMessage] = useState<string>("");
     const joinedRef = useRef(false);
-    const pollIntervalRef = useRef<any>(null); // 🔥 any로 변경
+    const pollIntervalRef = useRef<number | null>(null); // 🔥 number 타입 지정
 
     // 단계 애니메이션
     const [step, setStep] = useState(0);
@@ -66,10 +66,10 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                         headers: { "Content-Type": "application/json" },
                         body: JSON.stringify({
                             productId,
-                            employeeId: user.employeeId || user.id || "GUEST",
+                            // employeeId: user.employeeId || user.id || "GUEST",
                             userName: user.name || "미입력",
                             userEmail: user.email,
-                            userPhone: user.phone || null,
+                            // userPhone: user.phone || null,
                         }),
                     });
 
@@ -96,10 +96,10 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({
                         productId,
-                        employeeId: user.employeeId || user.id || "GUEST",
+                        // employeeId: user.employeeId || user.id || "GUEST",
                         userName: user.name || "미입력",
                         userEmail: user.email,
-                        userPhone: user.phone || null,
+                        // userPhone: user.phone || null,
                     }),
                 });
 
