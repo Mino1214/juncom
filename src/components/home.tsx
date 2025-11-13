@@ -203,8 +203,10 @@ const HomePage = ({ navigate }: NavigateProps) => {
     //         return "active";
     //     }
     // };
+    // 🔥 테스트 모드 (true면 모든 상품을 강제로 판매중 처리)
+    const TEST_SALE_ACTIVE = true; // ← 테스트할 때만 true로 잠깐 바꾸기
     const getSaleStatus = (product: Product) => {
-        if(!product) return "active";
+        if (TEST_SALE_ACTIVE) return "active";
         const now = new Date();
         const releaseDate = product.release_date ? new Date(product.release_date) : null;
 
