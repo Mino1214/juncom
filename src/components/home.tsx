@@ -66,13 +66,13 @@ const HomePage = ({ navigate }: NavigateProps) => {
                     try {
                         const decoded = jwtDecode<CustomJwtPayload>(token); // ✅ 명시적 타입 지정
                         isAdmin = decoded.email === "admin" || decoded.role === "admin";
-                        console.log("decoded token:", decoded);
+                        // console.log("decoded token:", decoded);
                     } catch (e) {
                         console.error("JWT decode error", e);
                     }
                 }
 
-                console.log("현재 로그인 상태:", isAdmin ? "관리자 계정" : "일반 사용자");
+                // console.log("현재 로그인 상태:", isAdmin ? "관리자 계정" : "일반 사용자");
 
                 // ✅ admin 계정이면 테스트용 더미데이터 바로 표시
                 // if (isAdmin) {
@@ -109,7 +109,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                     }
 
                     const data = await res.json();
-                    console.log("Fetched products:", data);
+                    // console.log("Fetched products:", data);
                     setProducts(data);
                 // }
 

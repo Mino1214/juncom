@@ -61,7 +61,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
     const [activeAddressTarget, setActiveAddressTarget] = useState<"user" | "delivery" | null>(null);
     const [showModal, setShowModal] = useState(false);
     const handleOrderClick = (order: Order) => {
-        console.log("🧾 주문 상세 데이터:", order); // ✅ 콘솔에 전체 데이터 출력
+        // console.log("🧾 주문 상세 데이터:", order); // ✅ 콘솔에 전체 데이터 출력
         setSelectedOrder(order);
         setShowModal(true);
     };
@@ -745,7 +745,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                                                                 if (res.ok) {
                                                                     const data = await res.json();
-                                                                    console.log("✅ 배송 정보 수정 성공:", data.order);
+                                                                    // console.log("✅ 배송 정보 수정 성공:", data.order);
                                                                     alert("배송 정보가 수정되었습니다.");
                                                                     setIsEditingDelivery(false);
                                                                     setSelectedOrder(data.order); // 화면 즉시 반영

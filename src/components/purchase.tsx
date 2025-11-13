@@ -68,7 +68,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 if (!res.ok) throw new Error('주문 정보 불러오기 실패');
 
                 const data = await res.json();
-                console.log('주문 정보:', data);
+                // console.log('주문 정보:', data);
 
                 // ✅ 상품 정보 세팅 (서버에서 product 객체가 아닌 경우 직접 구성)
                 setProduct({
@@ -311,9 +311,9 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     goodsName: paymentData.goodsName,
                     returnUrl: paymentData.returnUrl,
                     // 🟩 추가된 구매자 정보
-                    buyerName: deliveryInfo.recipientName,
-                    buyerEmail: userEmail,
-                    buyerTel: deliveryInfo.phone,
+                    buyerName: paymentData.buyerName,    // ✅ 서버에서 온 값 사용
+                    buyerEmail: paymentData.buyerEmail,  // ✅ 서버에서 온 값 사용
+                    buyerTel: paymentData.buyerTel,      // ✅ 서버에서 온 값 사용
                     fnSuccess: async function (response: any) {
                         console.log("결제 성공:", response);
                         try {

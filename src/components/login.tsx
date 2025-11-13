@@ -30,7 +30,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
 
             if (window.Kakao && !window.Kakao.isInitialized()) {
                 window.Kakao.init(KAKAO_JS_KEY);
-                console.log('Kakao SDK initialized:', window.Kakao.isInitialized());
+                // console.log('Kakao SDK initialized:', window.Kakao.isInitialized());
             }
         };
 
@@ -58,7 +58,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
             const data = await response.json(); // ✅ 딱 한 번만 호출
 
             if (response.ok) {
-                console.log("✅ 서버 응답:", data);
+                // console.log("✅ 서버 응답:", data);
                 const { token, user } = data;
 
                 if (!token || !user) {

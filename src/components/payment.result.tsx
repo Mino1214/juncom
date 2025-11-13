@@ -52,7 +52,7 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
 
         // ✅ 수정: tid가 있거나 resultCode가 '0000'이면 성공으로 처리
         if (tid || resultCode === '0000' || success === 'true') {
-            console.log('결제 성공:', { tid, orderId });
+            // console.log('결제 성공:', { tid, orderId });
 
             // tid가 있으면 결제 승인 API 호출
             if (tid) {
@@ -98,7 +98,7 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
             }
         } else {
             // 결제 실패 처리
-            console.log('결제 실패 또는 취소');
+            // console.log('결제 실패 또는 취소');
             setResult({
                 success: false,
                 message: resultMsg || '결제에 실패했습니다'
@@ -184,7 +184,7 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
                                                 amount: result.amount,
                                             }),
                                         });
-                                        console.log(`✅ ${result.orderId} 결제 상태 검증 및 업데이트 완료`);
+                                        // console.log(`✅ ${result.orderId} 결제 상태 검증 및 업데이트 완료`);
                                     } catch (err) {
                                         console.error("결제 상태 확인 실패:", err);
                                     }

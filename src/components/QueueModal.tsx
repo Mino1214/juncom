@@ -97,11 +97,11 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
     useEffect(() => {
         // jobId가 없거나 waiting 상태가 아니면 폴링하지 않음
         if (!jobId || status !== "waiting") {
-            console.log("⏸️ 폴링 조건 미충족", { jobId, status });
+            // console.log("⏸️ 폴링 조건 미충족", { jobId, status });
             return;
         }
 
-        console.log("🔁 큐 폴링 시작", { jobId, productId });
+        // console.log("🔁 큐 폴링 시작", { jobId, productId });
 
         // AbortController 생성
         abortControllerRef.current = new AbortController();
@@ -113,12 +113,12 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
             if (signal.aborted) return;
 
             try {
-                console.log("🔥 폴링 tick - jobId:", jobId);
+                // console.log("🔥 폴링 tick - jobId:", jobId);
 
                 const res = await fetch(`/api/payment/queue/status/${jobId}`, { signal });
                 const data = await res.json();
 
-                console.log("📡 queue/status 응답:", data);
+                // console.log("📡 queue/status 응답:", data);
 
                 if (signal.aborted) return;
 
@@ -130,7 +130,7 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
                 }
 
                 if (data.status === "ready" || data.status === "completed") {
-                    console.log("✅ 차례 도착, 자동 구매 시도");
+                    // console.log("✅ 차례 도착, 자동 구매 시도");
 
                     try {
                         const buyRes = await fetch(
@@ -147,12 +147,12 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
                         );
 
                         const buyJson = await buyRes.json();
-                        console.log("🧾 quick-purchase 응답:", buyJson);
+                        // console.log("🧾 quick-purchase 응답:", buyJson);
 
                         if (!buyJson.success) {
                             // 재고가 없는 경우 대기열 유지
                             if (buyJson.outOfStock) {
-                                console.log("⚠️ 재고 소진, 대기 계속");
+                                // console.log("⚠️ 재고 소진, 대기 계속");
                                 // 대기열로 다시 돌아가기
                                 timeoutId = setTimeout(pollStatus, 2000);
                                 return;
@@ -189,7 +189,7 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
 
             } catch (err: any) {
                 if (err.name === 'AbortError') {
-                    console.log("🛑 폴링 중단됨");
+                    // console.log("🛑 폴링 중단됨");
                     return;
                 }
 
@@ -206,7 +206,7 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
 
         // cleanup 함수
         return () => {
-            console.log("🧹 폴링 cleanup");
+            // console.log("🧹 폴링 cleanup");
             if (abortControllerRef.current) {
                 abortControllerRef.current.abort();
             }
