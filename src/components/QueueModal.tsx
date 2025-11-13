@@ -229,7 +229,10 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
                         {step >= 2 && (
                             <p className="text-gray-700 mb-2">
-                                현재 <strong className="text-blue-600 text-xl">{position ?? "-"}</strong>번째입니다.
+                                <strong className="text-blue-600 text-xl">
+                                    {position ? `500명 다음 ${500 + position}번째` : "-"}
+                                </strong>
+                                입니다.
                             </p>
                         )}
 
