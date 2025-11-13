@@ -241,8 +241,33 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                         {/* ✅ 구매 버튼 - ended 케이스 추가 */}
                         {/* ✅ 구매 버튼 */}
                         <button
-                            onClick={() => {
-                                if (displayStatus === "active") setShowQueueModal(true);
+                            onClick={async () => {
+                                if (displayStatus !== "active") return;
+
+                                try {
+                                    const res = await fetch(
+                                        `https://jimo.world/api/employee/status/check?email=${user?.email}`
+                                    );
+                                    const data = await res.json();
+
+                                    // 🔥 블랙리스트 체크
+                                    if (data.is_blacklisted) {
+                                        alert(
+                                            "노트북 교체 시 본인이 사용하던 노트북을 구매하신 분은\n" +
+                                            "이번 구매에 참여하실 수 없습니다.\n\n" +
+                                            "더 많은 분들께 공평한 기회를 드리기 위한 조치이오니 양해 부탁드립니다."
+                                        );
+                                        return; // QueueModal 열지 않음
+                                    }
+
+                                } catch (error) {
+                                    console.error("블랙리스트 확인 오류:", error);
+                                    alert("일시적인 문제로 접근이 불가합니다.\n잠시 후 다시 시도해주세요.");
+                                    return;
+                                }
+
+                                // 🔥 정상 계정만 구매 가능
+                                setShowQueueModal(true);
                             }}
                             disabled={displayStatus !== "active"}
                             className={`w-full py-4 rounded-xl font-bold text-lg transition ${
@@ -257,7 +282,6 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
                             {displayStatus === "ended" && "품절"}
                             {product.status === "draft" && "임시 저장 상태"}
                         </button>
-
 
 
                         {/* ✅ 혜택 안내 */}

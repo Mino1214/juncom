@@ -310,6 +310,10 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     amount: paymentData.amount,
                     goodsName: paymentData.goodsName,
                     returnUrl: paymentData.returnUrl,
+                    // 🟩 추가된 구매자 정보
+                    buyerName: deliveryInfo.recipientName,
+                    buyerEmail: userEmail,
+                    buyerTel: deliveryInfo.phone,
                     fnSuccess: async function (response: any) {
                         console.log("결제 성공:", response);
                         try {
