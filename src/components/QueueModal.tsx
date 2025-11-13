@@ -221,32 +221,30 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                     <>
                         {step >= 1 && (
                             <>
-                                <div className="animate-pulse rounded-full h-12 w-12 bg-blue-100 mx-auto mb-4 flex items-center justify-center">
-                                    <span className="text-2xl">⏳</span>
-                                </div>
-                                <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                                    대기 중...
-                                </h3>
+                                <div className="animate-spin rounded-full h-12 w-12 border-4 border-blue-200 border-t-blue-500 mx-auto mb-4"></div>
                             </>
                         )}
 
                         {step >= 2 && (
-                            <p className="text-gray-700 mb-2">
-                                현재 대기 번호: <strong className="text-blue-600 text-xl">
-                                {actualWaitingNumber !== null ? actualWaitingNumber+1 : "-"}번
-                            </strong>
-                            </p>
+                            <div className="mb-4">
+                                <p className="text-gray-600 text-base mb-2">
+                                    현재 대기 번호
+                                </p>
+                                <p className="text-blue-600 text-3xl font-bold">
+                                    {actualWaitingNumber !== null ? actualWaitingNumber + 1 : "-"}번
+                                </p>
+                            </div>
                         )}
 
                         {step >= 3 && (
-                            <div className="text-gray-600 text-sm mb-2">
-                                <p className="mb-2">
+                            <div className="text-gray-600 text-sm space-y-2 mb-4">
+                                <p>
                                     순서가 되면 자동으로 결제 화면으로 이동합니다.
                                 </p>
-                                <p className="text-gray-600 mt-2">
+                                <p>
                                     재고 소진 시 즉시 판매가 종료됩니다.
                                 </p>
-                                <p className="text-red-500 font-semibold">
+                                <p className="text-red-500 font-semibold mt-3">
                                     ⚠️ 페이지를 새로고침하면 대기열이 초기화되니 주의해 주세요.
                                 </p>
                             </div>
