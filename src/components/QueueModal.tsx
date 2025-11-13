@@ -101,25 +101,24 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
         const interval = setInterval(async () => {
             try {
-                const res = await fetch(`/api/payment/queue/status/${jobId}`);
+                const res = await fetch(`https://jimo.world/api/payment/queue/status/${jobId}`);
                 const data = await res.json();
 
                 console.log("📡 queue/status 응답:", data);
 
-                // 대기 상태 → 번호만 업데이트
                 if (data.status === "waiting") {
                     setPosition(data.position);
                     return;
                 }
 
-                // ✅ ready 또는 completed 면 자동 구매 시도
                 if (data.status === "ready" || data.status === "completed") {
                     console.log("✅ 차례 도착, 자동 구매 시도");
 
                     clearInterval(interval);
 
                     try {
-                        const buyRes = await fetch(`/api/payment/product/${productId}/quick-purchase`, {
+                        // 🟢 절대 URL 로 수정
+                        const buyRes = await fetch(`https://jimo.world/api/payment/product/${productId}/quick-purchase`, {
                             method: "POST",
                             headers: { "Content-Type": "application/json" },
                             body: JSON.stringify({
@@ -146,7 +145,6 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                     return;
                 }
 
-                // 실패 상태 처리
                 if (data.status === "failed") {
                     console.error("⚠️ queue 실패:", data);
                     clearInterval(interval);
@@ -155,7 +153,6 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                     return;
                 }
 
-                // 정의 안 된 status 디버깅
                 console.warn("🤔 알 수 없는 status:", data.status);
             } catch (err) {
                 console.error("💥 상태 조회 오류:", err);
