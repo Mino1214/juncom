@@ -106,13 +106,12 @@ const ResetPasswordPage = ({ navigate }: NavigateProps) => {
 
         setIsSubmitting(true);
         try {
-            const response = await fetch("https://jimo.world/api/auth/reset-password", {
+            const response = await fetch("https://jimo.world/api/dev/reset-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({
                     email,
                     newPassword,
-                    verificationToken
                 })
             });
             const data = await response.json();
