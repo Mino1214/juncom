@@ -28,12 +28,15 @@ const PurchasePage = ({navigate}: NavigateProps) => {
     const [showModal, setShowModal] = useState<string | null>(null);
     const [product, setProduct] = useState<any>(null); // 상품 정보 state 추가
     // 🔥 페이지 진입 시 30분 경고 1회 표시
+    // 화면 다 렌더된 뒤 실행
     useEffect(() => {
-        // 로그인된 상태에서만 안내
         if (!user) return;
 
-        // 기존 모달이랑 UI 겹치지 않도록 간단 alert 사용 (원하면 모달 버전도 만들어줄게)
-        alert("⚠️ 본 상품은 대기열 이후 30분 내 결제를 완료해야 합니다.\n시간이 지나면 주문이 자동 취소될 수 있습니다.");
+        const timer = setTimeout(() => {
+            alert("⚠️ 30분 이내 결제를 완료해야 합니다.");
+        }, 0);
+
+        return () => clearTimeout(timer);
     }, []);
     useEffect(() => {
         if (!user) {
