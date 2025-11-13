@@ -33,10 +33,10 @@ const ResetPasswordPage = ({ navigate }: NavigateProps) => {
 
     // 인증번호 발송
     const handleSendCode = async () => {
-        if (!emailPattern.test(email)) {
-            alert("이메일은 @kr.kpmg.com 형식만 가능합니다.");
-            return;
-        }
+        // if (!emailPattern.test(email)) {
+        //     alert("이메일은 @kr.kpmg.com 형식만 가능합니다.");
+        //     return;
+        // }
 
         setIsSending(true);
         try {
