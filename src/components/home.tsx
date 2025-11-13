@@ -402,25 +402,12 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                         자세히 보기
                                     </button>
 
-                                    {mainSaleStatus === "active" ? (
-                                        <button
-                                            onClick={() => setShowQueue(true)}
-                                            className="py-2.5 rounded-xl font-semibold bg-brand-600 text-white hover:bg-brand-700 transition"
-                                        >
-                                            구매하기
-                                        </button>
-                                    ) : (
-                                        <button
-                                            disabled
-                                            className="py-2.5 rounded-xl font-semibold bg-gray-100 text-gray-400 cursor-not-allowed"
-                                        >
-                                            {mainSaleStatus === "before"
-                                                ? "판매 예정"
-                                                : mainSaleStatus === "stopped"
-                                                    ? "판매 중지"
-                                                    : "판매 종료"}
-                                        </button>
-                                    )}
+                                    <button
+                                        onClick={() => setShowQueue(true)}
+                                        className="py-2.5 rounded-xl font-semibold bg-brand-600 text-white hover:bg-brand-700 transition"
+                                    >
+                                        구매하기
+                                    </button>
 
                                     {showQueue && (
                                         <QueueModal
