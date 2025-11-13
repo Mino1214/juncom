@@ -243,11 +243,11 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                                 <p className="mb-2">
                                     순서가 되면 자동으로 결제 화면으로 이동합니다.
                                 </p>
-                                <p className="text-red-500 font-semibold">
-                                    ⚠️ 페이지를 새로고침하면 대기열이 초기화되니 주의해 주세요.
-                                </p>
                                 <p className="text-gray-600 mt-1">
                                     제품은 선착순으로 판매되며, 재고 소진 시 즉시 판매가 종료됩니다.
+                                </p>
+                                <p className="text-red-500 font-semibold">
+                                    ⚠️ 페이지를 새로고침하면 대기열이 초기화되니 주의해 주세요.
                                 </p>
                             </div>
                         )}
