@@ -137,7 +137,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         const fetchUserInfo = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`https://jimo.world/api/user/${user.employeeId}`, {
+                const response = await fetch(`https://jimo.world/api/user/${user.email}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }

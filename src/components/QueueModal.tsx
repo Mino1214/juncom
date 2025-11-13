@@ -11,8 +11,11 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
     const { user } = useApp();
     const [status, setStatus] = useState<"loading" | "waiting" | "done" | "failed" | "blocked">("loading");
     const [position, setPosition] = useState<number | null>(null);
-    const [jobId, setJobId] = useState<string | null>(null);   // ⭐ 수정: jobId 변수 되살림
+    const [jobId, setJobId] = useState<string | null>(null);
+    const [errorMessage, setErrorMessage] = useState<string>("");
     const joinedRef = useRef(false);
+    // 🔥 수정: NodeJS.Timeout → number
+    const pollIntervalRef = useRef<number | null>(null);// 🔥 interval 참조 추가
 
     // 단계 애니메이션
     const [step, setStep] = useState(0);
@@ -23,14 +26,22 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
         const initQueueProcess = async () => {
             try {
-                if (!user?.email) throw new Error("로그인 정보가 없습니다.");
+                if (!user?.email) {
+                    throw new Error("로그인 정보가 없습니다.");
+                }
 
                 // 1) 기존 주문 여부 확인
                 const checkRes = await fetch(`https://jimo.world/api/payment/order/check/${user.email}`);
+
+                if (!checkRes.ok) {
+                    throw new Error("주문 확인 중 오류가 발생했습니다.");
+                }
+
                 const checkData = await checkRes.json();
 
                 if (checkData.hasActiveOrder) {
                     setStatus("blocked");
+                    setErrorMessage("이미 진행 중인 주문이 있습니다.");
                     return;
                 }
 
@@ -41,18 +52,31 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                     body: JSON.stringify({
                         productId,
                         employeeId: user.employeeId,
+                        userName: user.name,
+                        userEmail: user.email,
+                        // userPhone: user.phone,
                     }),
                 });
 
-                const data = await res.json();
-                if (!data.success) throw new Error(data.message || "대기열 등록 실패");
+                if (!res.ok) {
+                    throw new Error("대기열 등록 요청 실패");
+                }
 
-                setJobId(data.jobId);      // ⭐ jobId 저장됨
+                const data = await res.json();
+
+                if (!data.success) {
+                    throw new Error(data.message || "대기열 등록 실패");
+                }
+
+                console.log("✅ 대기열 등록 성공:", data);
+
+                setJobId(data.jobId);
                 setPosition(data.position);
                 setStatus("waiting");
             } catch (err) {
                 console.error("❌ 큐 등록 실패:", err);
                 setStatus("failed");
+                setErrorMessage(err instanceof Error ? err.message : "알 수 없는 오류가 발생했습니다.");
             }
         };
 
@@ -60,34 +84,58 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
     }, [productId, user]);
 
     // 폴링 함수
-    const pollStatus = (jobId: string) => {
+    useEffect(() => {
+        if (!jobId || status !== "waiting") return;
+
+        console.log("🔄 폴링 시작:", jobId);
+
         const interval = setInterval(async () => {
             try {
                 const res = await fetch(`https://jimo.world/api/payment/queue/status/${jobId}`);
+
+                if (!res.ok) {
+                    throw new Error("상태 조회 실패");
+                }
+
                 const data = await res.json();
+
+                console.log("📊 폴링 응답:", data);
 
                 if (data.status === "waiting") {
                     setPosition(data.position);
-                } else if (data.status === "done") {
+                } else if (data.status === "completed") { // 🔥 "done" → "completed"
                     clearInterval(interval);
                     setStatus("done");
-                    if (onReady && data.result?.orderId) onReady(data.result.orderId);
+
+                    if (data.result?.orderId) {
+                        console.log("✅ 주문 생성 완료:", data.result.orderId);
+                        onReady(data.result.orderId);
+                    } else {
+                        throw new Error("주문 ID를 받지 못했습니다.");
+                    }
                 } else if (data.status === "failed") {
                     clearInterval(interval);
                     setStatus("failed");
+                    setErrorMessage(data.error || "주문 생성에 실패했습니다.");
                 }
-            } catch {
+            } catch (err) {
+                console.error("❌ 폴링 오류:", err);
                 clearInterval(interval);
                 setStatus("failed");
+                setErrorMessage(err instanceof Error ? err.message : "상태 조회 중 오류가 발생했습니다.");
             }
         }, 2500);
-    };
 
-    // ⭐ jobId 변화 감지 → 폴링 시작
-    useEffect(() => {
-        if (!jobId) return;
-        pollStatus(jobId);
-    }, [jobId]);
+        pollIntervalRef.current = interval;
+
+        // 🔥 cleanup: 컴포넌트 언마운트 시 interval 정리
+        return () => {
+            if (pollIntervalRef.current) {
+                clearInterval(pollIntervalRef.current);
+                pollIntervalRef.current = null;
+            }
+        };
+    }, [jobId, status, onReady]);
 
     // 단계별 텍스트 애니메이션
     useEffect(() => {
@@ -96,35 +144,55 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
             return;
         }
 
-        setStep(0);
-        const t1 = setTimeout(() => setStep(1), 0);
-        const t2 = setTimeout(() => setStep(2), 400);
-        const t3 = setTimeout(() => setStep(3), 800);
-        const t4 = setTimeout(() => setStep(4), 1200);
+        const timeouts = [
+            setTimeout(() => setStep(1), 0),
+            setTimeout(() => setStep(2), 400),
+            setTimeout(() => setStep(3), 800),
+            setTimeout(() => setStep(4), 1200),
+        ];
 
         return () => {
-            clearTimeout(t1);
-            clearTimeout(t2);
-            clearTimeout(t3);
-            clearTimeout(t4);
+            timeouts.forEach(clearTimeout);
         };
     }, [status]);
+
+    // 🔥 모달 닫기 핸들러
+    const handleClose = () => {
+        if (pollIntervalRef.current) {
+            clearInterval(pollIntervalRef.current);
+        }
+        onClose();
+    };
 
     return (
         <div className="fixed inset-0 bg-black/50 z-50 flex items-center justify-center">
             <div className="bg-white p-6 rounded-2xl w-[90%] max-w-md text-center shadow-lg">
 
+                {/* 로딩 중 */}
+                {status === "loading" && (
+                    <>
+                        <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500 mx-auto mb-4"></div>
+                        <p className="text-gray-600">대기열 등록 중...</p>
+                    </>
+                )}
+
+                {/* 대기 중 */}
                 {status === "waiting" && (
                     <>
                         {step >= 1 && (
-                            <h3 className="text-lg font-semibold text-gray-800 mb-2">
-                                대기 중...
-                            </h3>
+                            <>
+                                <div className="animate-pulse rounded-full h-12 w-12 bg-blue-100 mx-auto mb-4 flex items-center justify-center">
+                                    <span className="text-2xl">⏳</span>
+                                </div>
+                                <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                                    대기 중...
+                                </h3>
+                            </>
                         )}
 
                         {step >= 2 && (
                             <p className="text-gray-700 mb-2">
-                                현재 <strong>{position ?? "-"}</strong>번째입니다.
+                                현재 <strong className="text-blue-600 text-xl">{position ?? "-"}</strong>번째입니다.
                             </p>
                         )}
 
@@ -136,12 +204,63 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
                         {step >= 4 && (
                             <button
-                                onClick={onClose}
-                                className="mt-2 w-full bg-gray-200 text-gray-700 py-2 rounded-xl hover:bg-gray-300"
+                                onClick={handleClose}
+                                className="mt-2 w-full bg-gray-200 text-gray-700 py-2 rounded-xl hover:bg-gray-300 transition-colors"
                             >
                                 취소
                             </button>
                         )}
+                    </>
+                )}
+
+                {/* 완료 */}
+                {status === "done" && (
+                    <>
+                        <div className="text-green-500 text-5xl mb-4">✅</div>
+                        <h3 className="text-lg font-semibold text-gray-800 mb-2">
+                            주문 생성 완료!
+                        </h3>
+                        <p className="text-gray-600 text-sm">
+                            결제 화면으로 이동합니다...
+                        </p>
+                    </>
+                )}
+
+                {/* 실패 */}
+                {status === "failed" && (
+                    <>
+                        <div className="text-red-500 text-5xl mb-4">❌</div>
+                        <h3 className="text-lg font-semibold text-red-600 mb-2">
+                            오류 발생
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4">
+                            {errorMessage || "알 수 없는 오류가 발생했습니다."}
+                        </p>
+                        <button
+                            onClick={handleClose}
+                            className="w-full bg-red-500 text-white py-2 rounded-xl hover:bg-red-600 transition-colors"
+                        >
+                            닫기
+                        </button>
+                    </>
+                )}
+
+                {/* 차단됨 (이미 주문 진행 중) */}
+                {status === "blocked" && (
+                    <>
+                        <div className="text-yellow-500 text-5xl mb-4">⚠️</div>
+                        <h3 className="text-lg font-semibold text-yellow-600 mb-2">
+                            진행 중인 주문이 있습니다
+                        </h3>
+                        <p className="text-gray-600 text-sm mb-4">
+                            {errorMessage || "기존 주문을 완료하거나 취소한 후 다시 시도해주세요."}
+                        </p>
+                        <button
+                            onClick={handleClose}
+                            className="w-full bg-yellow-500 text-white py-2 rounded-xl hover:bg-yellow-600 transition-colors"
+                        >
+                            확인
+                        </button>
                     </>
                 )}
 
