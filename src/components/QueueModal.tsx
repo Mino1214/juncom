@@ -2,12 +2,14 @@ import { useEffect, useState, useRef } from "react";
 import { useApp } from "../App";
 
 interface QueueModalProps {
+    visible: boolean;
     productId: number;
     onReady: (orderId: string) => void;
     onClose: () => void;
 }
 
-export default function QueueModal({ productId, onReady, onClose }: QueueModalProps) {
+export default function QueueModal({visible, productId, onReady, onClose }: QueueModalProps) {
+    if (!visible) return null; // ← 핵심
     const { user } = useApp();
     const [status, setStatus] = useState<"loading" | "waiting" | "done" | "failed" | "blocked">("loading");
     const [position, setPosition] = useState<number | null>(null);

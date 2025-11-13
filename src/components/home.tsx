@@ -415,6 +415,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                                     {showQueue && selectedProductId !== null && (
                                         <QueueModal
+                                            visible={showQueue}
                                             productId={selectedProductId}
                                             onReady={(orderId) => {
                                                 setShowQueue(false);
