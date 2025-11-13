@@ -74,22 +74,22 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 console.log("현재 로그인 상태:", isAdmin ? "관리자 계정" : "일반 사용자");
 
                 // ✅ admin 계정이면 테스트용 더미데이터 바로 표시
-                if (isAdmin) {
-                    const response = await fetch("https://jimo.world/api/products/test", {
-                        headers: {
-                            "Authorization": `Bearer ${token}`,
-                            "Content-Type": "application/json",
-                        },
-                    });
+                // if (isAdmin) {
+                //     const response = await fetch("https://jimo.world/api/products/test", {
+                //         headers: {
+                //             "Authorization": `Bearer ${token}`,
+                //             "Content-Type": "application/json",
+                //         },
+                //     });
 
-                    const testData = await response.json();
-                    console.log("관리자 테스트 모드 실행됨",testData);
-                    setProducts(
-                        testData);
-                    setLoading(false);
-                    return;
-                }
-                else {
+                //     const testData = await response.json();
+                //     console.log("관리자 테스트 모드 실행됨",testData);
+                //     setProducts(
+                //         testData);
+                //     setLoading(false);
+                //     return;
+                // }
+                // else {
                     // ✅ 일반 사용자용 실제 데이터 요청
                     const res = await fetch("https://jimo.world/api/products/visible", {
                         headers: {
