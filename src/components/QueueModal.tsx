@@ -19,6 +19,9 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
     // 단계 애니메이션
     const [step, setStep] = useState(0);
 
+    // 실제 대기 번호 계산 (position - 500)
+    const actualWaitingNumber = position ? Math.max(0, position - 500) : null;
+
     useEffect(() => {
         if (joinedRef.current) return;
         joinedRef.current = true;
@@ -229,20 +232,22 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
                         {step >= 2 && (
                             <p className="text-gray-700 mb-2">
-                                <strong className="text-blue-600 text-xl">
-                                    {position ? `500명 다음 ${500 + position}번째` : "-"}
-                                </strong>
-                                입니다.
+                                현재 대기 번호: <strong className="text-blue-600 text-xl">
+                                {actualWaitingNumber !== null ? actualWaitingNumber : "-"}번
+                            </strong>
                             </p>
                         )}
 
                         {step >= 3 && (
                             <div className="text-gray-500 text-sm mb-4">
                                 <p className="mb-2">
-                                    재고가 들어오면 자동으로 결제 화면으로 이동합니다.
+                                    순서가 되면 자동으로 결제 화면으로 이동합니다.
                                 </p>
                                 <p className="text-red-500 font-semibold">
-                                    ⚠️ 페이지를 나가면 대기열이 초기화됩니다.
+                                    ⚠️ 페이지를 새로고침하면 대기열이 초기화되니 주의해 주세요.
+                                </p>
+                                <p className="text-gray-600 mt-1">
+                                    제품은 선착순으로 판매되며, 재고 소진 시 즉시 판매가 종료됩니다.
                                 </p>
                             </div>
                         )}
