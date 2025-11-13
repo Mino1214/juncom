@@ -42,7 +42,25 @@ const AdminPage: React.FC<NavigateProps> = ({navigate}) => {
     const [hasMore, setHasMore] = useState(true);
     const [totalCount, setTotalCount] = useState(0);
     const token = localStorage.getItem("token");
+    const [orderStats, setOrderStats] = useState({
+        total: 0,
+        pending: 0,
+        paid: 0,
+        cancelled: 0
+    });
+    const fetchOrderStats = async () => {
+        try {
+            const token = localStorage.getItem("token");
+            const res = await fetch("https://jimo.world/api/orders/stats", {
+                headers: { Authorization: `Bearer ${token}` }
+            });
 
+            const data = await res.json();
+            setOrderStats(data);
+        } catch (err) {
+            console.error("order stats load error:", err);
+        }
+    };
     // 상단에 추가 (컴포넌트 밖, import 아래)
     function maskName(name?: string) {
         if (!name) return "-";
@@ -99,6 +117,7 @@ const AdminPage: React.FC<NavigateProps> = ({navigate}) => {
     useEffect(() => {
         fetchProducts();
         fetchOrders();
+        fetchOrderStats();
     }, []);
 
     useEffect(() => {
@@ -207,6 +226,28 @@ const AdminPage: React.FC<NavigateProps> = ({navigate}) => {
             </section>
             {/* ======================= 주문 내역 ======================= */}
             <section>
+                {/* 주문 통계 박스 */}
+                <div className="grid grid-cols-4 gap-3 mb-6">
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <div className="text-gray-500 text-sm">총 주문</div>
+                        <div className="text-xl font-bold">{orderStats.total}</div>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <div className="text-gray-500 text-sm">결제 대기</div>
+                        <div className="text-xl font-bold text-yellow-600">{orderStats.pending}</div>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <div className="text-gray-500 text-sm">결제 완료</div>
+                        <div className="text-xl font-bold text-green-600">{orderStats.paid}</div>
+                    </div>
+
+                    <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 text-center">
+                        <div className="text-gray-500 text-sm">취소됨</div>
+                        <div className="text-xl font-bold text-red-600">{orderStats.cancelled}</div>
+                    </div>
+                </div>
                 <h2 className="text-xl md:text-2xl font-bold mb-6 text-gray-900">
                     결제 / 주문 내역
                 </h2>
