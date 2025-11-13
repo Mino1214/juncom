@@ -38,6 +38,10 @@ const PurchasePage = ({navigate}: NavigateProps) => {
 
         return () => clearTimeout(timer);
     }, []);
+
+
+
+
     useEffect(() => {
         if (!user) {
             navigate('/login');
@@ -118,8 +122,16 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                 const res = await fetch(`https://jimo.world/api/products/${productId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
+
+                // 🔥 여기서 판매시작 여부 서버에서 체크
+
                 if (!res.ok) throw new Error('상품 정보 불러오기 실패');
                 const data = await res.json();
+                if (!data.is_released) {
+                    alert("아직 판매 시작 전입니다.");
+                    navigate('#/home');
+                    return;
+                }
                 setProduct(data);
             } catch (err) {
                 console.error(err);
