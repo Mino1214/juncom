@@ -227,35 +227,42 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
 
     const handleDelete = async () => {
-        if (!user) return;
+    if (!user) return;
 
-        const confirmed = confirm('정말로 탈퇴하시겠습니까?\n탈퇴 후 모든 정보가 삭제되며 복구할 수 없습니다.');
+    const confirmed = confirm('정말로 탈퇴하시겠습니까?\n탈퇴 후 모든 정보가 삭제되며 복구할 수 없습니다.');
 
-        if (!confirmed) return;
+    if (!confirmed) return;
 
-        try {
-            const token = localStorage.getItem("token");
-            const response = await fetch(`https://jimo.world/api/user/${user.employeeId}`, {
-                method: 'DELETE',
-                headers: {
-                    "Authorization": `Bearer ${token}`, // ✅ 토큰 첨부
-                    "Content-Type": "application/json",
-                },
-            });
+    try {
+        const token = localStorage.getItem("token");
+        const response = await fetch(`https://jimo.world/api/user/${user.employeeId}`, {
+            method: 'DELETE',
+            headers: {
+                "Authorization": `Bearer ${token}`,
+                "Content-Type": "application/json",
+            },
+        });
 
-            if (response.ok) {
-                alert('회원 탈퇴가 완료되었습니다.');
-                setUser(null);
-                navigate('/login');
-            } else {
-                const data = await response.json();
-                alert(data.message || '회원 탈퇴에 실패했습니다.');
-            }
-        } catch (error) {
-            console.error('Failed to delete user:', error);
-            alert('회원 탈퇴 중 오류가 발생했습니다.');
+        if (response.ok) {
+            alert('회원 탈퇴가 완료되었습니다.');
+
+            // 🔥 로컬 상태 / 로컬 저장소 초기화
+            setUser(null);
+            localStorage.removeItem("token");
+
+            // 🔥 해시 기반 라우팅으로 로그인 페이지 이동
+            navigate('#/login');
+
+        } else {
+            const data = await response.json();
+            alert(data.message || '회원 탈퇴에 실패했습니다.');
         }
-    };
+    } catch (error) {
+        console.error('Failed to delete user:', error);
+        alert('회원 탈퇴 중 오류가 발생했습니다.');
+    }
+};
+
 
     if (loading) {
         return (
