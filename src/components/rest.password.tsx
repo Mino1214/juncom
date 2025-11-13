@@ -3,7 +3,7 @@ import { type NavigateProps } from "../App.tsx";
 
 const ResetPasswordPage = ({ navigate }: NavigateProps) => {
     const [email, setEmail] = useState("");
-    // const [verificationCode, setVerificationCode] = useState("");
+    const [verificationCode, setVerificationCode] = useState("");
     const [isCodeSent, setIsCodeSent] = useState(false);
     const [isVerifying, setIsVerifying] = useState(false);
     const [isVerified, setIsVerified] = useState(false);
