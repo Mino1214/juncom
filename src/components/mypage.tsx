@@ -77,7 +77,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
     const fetchOrders = async () => {
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`https://jimo.world/api/orders?email=${user?.email}`, {
+            const res = await fetch(`https://jimo.world/api/myorder?email=${user?.email}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json",
