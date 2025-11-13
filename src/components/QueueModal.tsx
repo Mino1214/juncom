@@ -95,11 +95,21 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
     // 폴링 (대기열일 때만)
     useEffect(() => {
-        if (!jobId || status !== "waiting") return;
+        if (!jobId) {
+            console.warn("❌ jobId 없음", jobId);
+            return;
+        }
+
+        if (status !== "waiting") {
+            console.warn("⏸️ status waiting 아님:", status);
+            return;
+        }
 
         console.log("🔁 큐 폴링 시작", { jobId, status });
 
         const interval = setInterval(async () => {
+            console.log("🔥 interval tick"); // ← 이거 찍히는지 반드시 확인
+
             try {
                 const res = await fetch(`https://jimo.world/api/payment/queue/status/${jobId}`);
                 const data = await res.json();
@@ -117,22 +127,22 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                     clearInterval(interval);
 
                     try {
-                        // 🟢 절대 URL 로 수정
-                        const buyRes = await fetch(`https://jimo.world/api/payment/product/${productId}/quick-purchase`, {
-                            method: "POST",
-                            headers: { "Content-Type": "application/json" },
-                            body: JSON.stringify({
-                                userName: user?.name || "미입력",
-                                userEmail: user?.email,
-                            }),
-                        });
+                        const buyRes = await fetch(
+                            `https://jimo.world/api/payment/product/${productId}/quick-purchase`,
+                            {
+                                method: "POST",
+                                headers: { "Content-Type": "application/json" },
+                                body: JSON.stringify({
+                                    userName: user?.name || "미입력",
+                                    userEmail: user?.email,
+                                }),
+                            }
+                        );
 
                         const buyJson = await buyRes.json();
                         console.log("🧾 quick-purchase 응답:", buyJson);
 
-                        if (!buyJson.success) {
-                            throw new Error(buyJson.message || "구매 실패");
-                        }
+                        if (!buyJson.success) throw new Error(buyJson.message || "구매 실패");
 
                         setStatus("done");
                         onReady(buyJson.orderId);
@@ -162,10 +172,15 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
             }
         }, 2000);
 
+        console.log("⏱️ interval created");
+
         pollIntervalRef.current = interval as unknown as number;
 
         return () => {
-            if (pollIntervalRef.current) clearInterval(pollIntervalRef.current);
+            if (pollIntervalRef.current) {
+                console.log("🧹 interval cleared");
+                clearInterval(pollIntervalRef.current);
+            }
         };
     }, [jobId, status, onReady, productId, user]);
 
