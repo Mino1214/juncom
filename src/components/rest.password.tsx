@@ -9,7 +9,6 @@ const ResetPasswordPage = ({ navigate }: NavigateProps) => {
     const [isVerified, setIsVerified] = useState(false);
     const [isSending, setIsSending] = useState(false);
     const [timer, setTimer] = useState(0);
-    const [verificationToken, setVerificationToken] = useState("");
     const [newPassword, setNewPassword] = useState("");
     const [confirmPassword, setConfirmPassword] = useState("");
     const [isSubmitting, setIsSubmitting] = useState(false);
