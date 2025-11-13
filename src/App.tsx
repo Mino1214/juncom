@@ -16,11 +16,12 @@ import OrderDetailPage from "./components/order.detail.tsx";
 
 // JWT Payload 타입 정의
 export interface JwtPayload {
-    employeeId: string;
+    email: string;
     role: string;
     name: string;
     exp: number;
 }
+
 // Types
 interface User {
     name: string;

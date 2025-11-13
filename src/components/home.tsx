@@ -6,7 +6,7 @@ import { jwtDecode } from "jwt-decode";
 import QueueModal from "./QueueModal.tsx";
 // ✅ 수정된 admin 판별 부분
 interface CustomJwtPayload {
-    employeeId?: string;
+    email?: string;
     role?: string;
 }
 export interface Product {
@@ -64,7 +64,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 if (token) {
                     try {
                         const decoded = jwtDecode<CustomJwtPayload>(token); // ✅ 명시적 타입 지정
-                        isAdmin = decoded.employeeId === "admin" || decoded.role === "admin";
+                        isAdmin = decoded.email === "admin" || decoded.role === "admin";
                         console.log("decoded token:", decoded);
                     } catch (e) {
                         console.error("JWT decode error", e);

@@ -5,7 +5,7 @@ import {jwtDecode} from "jwt-decode"; // 이미 import 돼 있을 가능성 있�
 interface JwtPayload {
     role?: string;
     name?: string;
-    employeeId?: string;
+    email?: string;
 }
 
 const Header = ({ user, setUser, navigate }: any) => {
