@@ -422,13 +422,24 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                     </button>
 
                                     <button
+                                        disabled={mainSaleStatus !== "active"}
                                         onClick={() => {
-                                            setSelectedProductId(mainProduct.id);
-                                            setShowQueue(true);
+                                            if (mainSaleStatus === "active") {
+                                                setSelectedProductId(mainProduct.id);
+                                                setShowQueue(true);
+                                            }
                                         }}
-                                        className="py-2.5 rounded-xl font-semibold bg-brand-600 text-white"
+                                        className={`py-2.5 rounded-xl font-semibold text-white ${
+                                            mainSaleStatus === "active"
+                                                ? "bg-brand-600 hover:bg-brand-700"
+                                                : "bg-gray-300 cursor-not-allowed"
+                                        }`}
                                     >
-                                        구매하기
+                                        {mainSaleStatus === "before"
+                                            ? "판매 예정"
+                                            : mainSaleStatus === "active"
+                                                ? "구매하기"
+                                                : "판매 종료"}
                                     </button>
 
                                     {showQueue && selectedProductId !== null && (
