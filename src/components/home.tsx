@@ -109,7 +109,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                     }
 
                     const data = await res.json();
-                    console.log("Fetched products:", data);
+                    // console.log("Fetched products:", data);
                     setProducts(data);
                 // }
 
