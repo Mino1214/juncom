@@ -104,18 +104,43 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
 
                 if (data.status === "waiting") {
                     setPosition(data.position);
-                } else if (data.status === "completed") {
+                }
+
+                // 🔥🔥 핵심: ready 상태면 자동 구매 실행
+                else if (data.status === "ready") {
                     clearInterval(interval);
 
-                    setStatus("done");
+                    try {
+                        const buyRes = await fetch(`/api/payment/product/${productId}/quick-purchase`, {
+                            method: "POST",
+                            headers: { "Content-Type": "application/json" },
+                            body: JSON.stringify({
+                                userName: user?.name || "미입력",
+                                userEmail: user?.email,
+                            }),
+                        });
 
-                    if (data.result?.orderId) onReady(data.result.orderId);
-                    else throw new Error("주문 ID 없음");
-                } else if (data.status === "failed") {
+                        const buyJson = await buyRes.json();
+
+                        if (!buyJson.success) {
+                            throw new Error(buyJson.message || "구매 실패");
+                        }
+
+                        setStatus("done");
+                        onReady(buyJson.orderId);
+
+                    } catch (err) {
+                        setStatus("failed");
+                        setErrorMessage("자동 구매 실패");
+                    }
+                }
+
+                else if (data.status === "failed") {
                     clearInterval(interval);
                     setStatus("failed");
                     setErrorMessage(data.error || "오류 발생");
                 }
+
             } catch (err) {
                 clearInterval(interval);
                 setStatus("failed");
