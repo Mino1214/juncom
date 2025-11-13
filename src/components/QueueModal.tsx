@@ -233,7 +233,7 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                         {step >= 2 && (
                             <p className="text-gray-700 mb-2">
                                 현재 대기 번호: <strong className="text-blue-600 text-xl">
-                                {actualWaitingNumber !== null ? actualWaitingNumber : "-"}번
+                                {actualWaitingNumber !== null ? actualWaitingNumber+1 : "-"}번
                             </strong>
                             </p>
                         )}
