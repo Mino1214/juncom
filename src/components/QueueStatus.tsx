@@ -50,6 +50,9 @@ export default function QueueStatus({ productId, onReady }: QueueStatusProps) {
         }, 2500);
     };
 
+    // 실제 대기 인원 계산 (position - 500)
+    const actualWaitingNumber = position ? Math.max(0, position - 500) : null;
+
     return (
         <div className="mt-4">
             {status === "idle" && (
@@ -64,7 +67,7 @@ export default function QueueStatus({ productId, onReady }: QueueStatusProps) {
                 <div className="w-full py-4 bg-amber-50 border border-amber-200 rounded-xl">
                     <div className="text-center">
                         <p className="text-2xl font-bold text-gray-900 mb-2">
-                            현재 대기 번호: {position ?? "-"}번
+                            현재 대기 번호: {actualWaitingNumber ?? "-"}번
                         </p>
                         <p className="text-gray-700 font-medium mb-3">
                             순서가 되면 자동으로 결제 화면으로 이동합니다
