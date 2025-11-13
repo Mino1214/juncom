@@ -239,11 +239,11 @@ export default function QueueModal({ productId, onReady, onClose }: QueueModalPr
                         )}
 
                         {step >= 3 && (
-                            <div className="text-gray-600 text-sm mb-4">
+                            <div className="text-gray-600 text-sm mb-2">
                                 <p className="mb-2">
                                     순서가 되면 자동으로 결제 화면으로 이동합니다.
                                 </p>
-                                <p className="text-gray-600 mt-4">
+                                <p className="text-gray-600 mt-2">
                                     재고 소진 시 즉시 판매가 종료됩니다.
                                 </p>
                                 <p className="text-red-500 font-semibold">
