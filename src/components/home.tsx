@@ -211,7 +211,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
     // 🔥 수정된 getSaleStatus 함수
     // const getSaleStatus = (product: Product) => {
     //     // 1. 재고 체크를 가장 먼저 (최우선 조건)
-    //     if (!product.stock || product.stock === 0) {
+    //     if (!product.stock || product.stock === 0) {f
     //         return "ended";  // 재고 없으면 무조건 판매 종료
     //     }
     //
@@ -250,14 +250,20 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 );
             case "active":
                 return (
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
-                        <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
-                        판매중
+                    // <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-green-100 text-green-800 rounded-full text-xs font-semibold">
+                    //     <div className="w-2 h-2 bg-green-500 rounded-full animate-pulse"></div>
+                    //     판매중
+                    // </div>
+                    <div
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">
+                        <PauseCircle size={12}/>
+                        판매 종료
                     </div>
                 );
             case "stopped":
                 return (
-                    <div className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">
+                    <div
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-gray-100 text-gray-800 rounded-full text-xs font-semibold">
                         <PauseCircle size={12} />
                         판매 중지
                     </div>
