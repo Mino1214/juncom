@@ -188,55 +188,55 @@ const HomePage = ({ navigate }: NavigateProps) => {
     }
 
     // 상품별 판매 상태 계산 함수
-    // const getSaleStatus = (product: Product) => {
-    //     const now = new Date();
-    //     const releaseDate = product.release_date ? new Date(product.release_date) : null;
-    //     const isBeforeRelease = releaseDate && releaseDate > now;
-    //     const isAfterRelease = !releaseDate || (releaseDate && releaseDate <= now);
-    //
-    //     if (product.status === "stopped") {
-    //         return "stopped";
-    //     } else if (isBeforeRelease) {
-    //         return "before";
-    //     } else if (isAfterRelease && product.status === "active" && product.stock > 0) {
-    //         return "active";
-    //     } else if (product.stock === 0) {
-    //         return "ended";
-    //     } else {
-    //         return "active";
-    //     }
-    // };
+    const getSaleStatus = (product: Product) => {
+        const now = new Date();
+        const releaseDate = product.release_date ? new Date(product.release_date) : null;
+        const isBeforeRelease = releaseDate && releaseDate > now;
+        const isAfterRelease = !releaseDate || (releaseDate && releaseDate <= now);
+
+        if (product.status === "stopped") {
+            return "stopped";
+        } else if (isBeforeRelease) {
+            return "before";
+        } else if (isAfterRelease && product.status === "active" && product.stock > 0) {
+            return "active";
+        } else if (product.stock === 0) {
+            return "ended";
+        } else {
+            return "active";
+        }
+    };
     // 🔥 테스트 모드 (true면 모든 상품을 강제로 판매중 처리)
     // const TEST_SALE_ACTIVE = false; // ← 테스트할 때만 true로 잠깐 바꾸기
     // 🔥 수정된 getSaleStatus 함수
-    const getSaleStatus = (product: Product) => {
-        // 1. 재고 체크를 가장 먼저 (최우선 조건)
-        if (!product.stock || product.stock === 0) {
-            return "ended";  // 재고 없으면 무조건 판매 종료
-        }
-
-        // 2. 상태가 stopped인 경우
-        if (product.status === "stopped") {
-            return "stopped";
-        }
-
-        // 3. 출시일 체크
-        if (product.release_date) {
-            const now = new Date();
-            const releaseDate = new Date(
-                product.release_date.includes('T')
-                    ? product.release_date
-                    : product.release_date.replace(' ', 'T') + '+09:00'
-            );
-
-            if (releaseDate > now) {
-                return "before";  // 출시 전
-            }
-        }
-
-        // 4. 그 외 모든 경우는 판매중
-        return "active";
-    };
+    // const getSaleStatus = (product: Product) => {
+    //     // 1. 재고 체크를 가장 먼저 (최우선 조건)
+    //     if (!product.stock || product.stock === 0) {
+    //         return "ended";  // 재고 없으면 무조건 판매 종료
+    //     }
+    //
+    //     // 2. 상태가 stopped인 경우
+    //     if (product.status === "stopped") {
+    //         return "stopped";
+    //     }
+    //
+    //     // 3. 출시일 체크
+    //     if (product.release_date) {
+    //         const now = new Date();
+    //         const releaseDate = new Date(
+    //             product.release_date.includes('T')
+    //                 ? product.release_date
+    //                 : product.release_date.replace(' ', 'T') + '+09:00'
+    //         );
+    //
+    //         if (releaseDate > now) {
+    //             return "before";  // 출시 전
+    //         }
+    //     }
+    //
+    //     // 4. 그 외 모든 경우는 판매중
+    //     return "active";
+    // };
 
     // 상태 배지 컴포넌트
     const StatusBadge = ({ status }: { status: string }) => {
