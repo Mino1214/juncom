@@ -360,6 +360,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                             </div>
 
                             {mainProduct.release_date && new Date(mainProduct.release_date) > new Date() ? (
+                                // 출시 전 - 카운트다운 표시
                                 <div className="grid grid-cols-4 gap-4 max-w-md mx-auto md:mx-0">
                                     {[
                                         {label: "일", value: timeLeft.days},
@@ -379,13 +380,28 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                     ))}
                                 </div>
                             ) : (
+                                // 출시 후 - 재고 상태에 따라 다르게 표시
                                 <div
                                     className="bg-white/25 backdrop-blur-md border border-white/20 rounded-2xl p-6 max-w-md mx-auto md:mx-0">
-                                    <div className="text-2xl font-bold flex items-center gap-2">
-                                        <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
-                                        판매중
-                                    </div>
-                                    {/*<p className="text-white/80 mt-2">절찬 판매중</p>*/}
+                                    {mainProduct.stock > 0 ? (
+                                        // 재고 있음 - 판매중
+                                        <>
+                                            <div className="text-2xl font-bold flex items-center gap-2">
+                                                <div className="w-3 h-3 bg-green-400 rounded-full animate-pulse"></div>
+                                                판매중
+                                            </div>
+                                            <p className="text-white/80 mt-2">재고 {mainProduct.stock}개 남음</p>
+                                        </>
+                                    ) : (
+                                        // 재고 없음 - 판매 종료
+                                        <>
+                                            <div className="text-2xl font-bold flex items-center gap-2">
+                                                <div className="w-3 h-3 bg-red-400 rounded-full"></div>
+                                                판매 종료
+                                            </div>
+                                            <p className="text-white/80 mt-2">재고 소진</p>
+                                        </>
+                                    )}
                                 </div>
                             )}
 
@@ -402,7 +418,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                             minute: "2-digit",
                                         })
                                         : "미정"}
-          </span>
+        </span>
                             </div>
                         </div>
 
@@ -417,7 +433,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                     className="w-full h-full object-cover object-center"
                                 />
                                 <div className="absolute top-4 right-4">
-                                    <StatusBadge status={mainSaleStatus} />
+                                    <StatusBadge status={mainSaleStatus}/>
                                 </div>
                             </div>
                             <div className="p-6">
