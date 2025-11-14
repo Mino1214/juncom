@@ -127,11 +127,11 @@ const PurchasePage = ({navigate}: NavigateProps) => {
 
                 if (!res.ok) throw new Error('상품 정보 불러오기 실패');
                 const data = await res.json();
-                if (!data.is_released) {
-                    alert("아직 판매 시작 전입니다.");
-                    navigate('#/home');
-                    return;
-                }
+                // if (!data.is_released) {
+                //     alert("아직 판매 시작 전입니다.");
+                //     navigate('#/home');
+                //     return;
+                // }
                 setProduct(data);
             } catch (err) {
                 console.error(err);

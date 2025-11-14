@@ -432,19 +432,19 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                                             try {
                                                 // 🔥 1. 시간 체크 먼저
-                                                const timeRes = await fetch('https://jimo.world/api/check/purchase-time', {
-                                                    method: 'POST',
-                                                    headers: {
-                                                        'Content-Type': 'application/json'
-                                                    },
-                                                    body: JSON.stringify({ productId: mainProduct.id })
-                                                });
-
-                                                if (!timeRes.ok) {
-                                                    const timeData = await timeRes.json();
-                                                    alert(timeData.error);
-                                                    return;
-                                                }
+                                                // const timeRes = await fetch('https://jimo.world/api/check/purchase-time', {
+                                                //     method: 'POST',
+                                                //     headers: {
+                                                //         'Content-Type': 'application/json'
+                                                //     },
+                                                //     body: JSON.stringify({ productId: mainProduct.id })
+                                                // });
+                                                //
+                                                // if (!timeRes.ok) {
+                                                //     const timeData = await timeRes.json();
+                                                //     alert(timeData.error);
+                                                //     return;
+                                                // }
 
                                                 // 2. 블랙리스트 체크 (기존 코드)
                                                 const res = await fetch(
