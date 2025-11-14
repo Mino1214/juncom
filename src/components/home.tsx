@@ -431,30 +431,40 @@ const HomePage = ({ navigate }: NavigateProps) => {
                                             if (mainSaleStatus !== "active") return;
 
                                             try {
+                                                // 🔥 1. 시간 체크 먼저
+                                                const timeRes = await fetch('https://jimo.world/api/check/purchase-time', {
+                                                    method: 'POST',
+                                                    headers: {
+                                                        'Content-Type': 'application/json'
+                                                    },
+                                                    body: JSON.stringify({ productId: mainProduct.id })
+                                                });
+
+                                                if (!timeRes.ok) {
+                                                    const timeData = await timeRes.json();
+                                                    alert(timeData.error);
+                                                    return;
+                                                }
+
+                                                // 2. 블랙리스트 체크 (기존 코드)
                                                 const res = await fetch(
                                                     `https://jimo.world/api/employee/status/check?email=${user?.email}`
                                                 );
-
                                                 const data = await res.json();
 
-                                                // 🔥 블랙리스트인 경우 → 구매 불가
                                                 if (data.is_blacklisted) {
-                                                    alert(
-                                                        "노트북 교체 시 본인이 사용하던 노트북을 구매하신 분은 이번 구매에 참여하실 수 없습니다.\n" +
-                                                        "더 많은 분들께 공평한 기회를 드리기 위한 조치이오니 양해 부탁드립니다."
-                                                    );
-                                                    return; // QueueModal 열지 않음
+                                                    alert("노트북 교체 시...");
+                                                    return;
                                                 }
 
-                                            } catch (e) {
-                                                console.error("블랙리스트 체크 오류:", e);
-                                                alert("일시적인 오류가 발생했습니다. 잠시 후 다시 시도해주세요.");
-                                                return;
-                                            }
+                                                // 3. 모두 통과하면 QueueModal 열기
+                                                setSelectedProductId(mainProduct.id);
+                                                setShowQueue(true);
 
-                                            // 🔥 블랙리스트가 아니면 정상적으로 QueueModal 열기
-                                            setSelectedProductId(mainProduct.id);
-                                            setShowQueue(true);
+                                            } catch (e) {
+                                                console.error("구매 검증 오류:", e);
+                                                alert("일시적인 오류가 발생했습니다.");
+                                            }
                                         }}
                                         className={`py-2.5 rounded-xl font-semibold text-white ${
                                             mainSaleStatus === "active"
