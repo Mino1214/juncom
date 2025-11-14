@@ -208,23 +208,33 @@ const HomePage = ({ navigate }: NavigateProps) => {
     // };
     // 🔥 테스트 모드 (true면 모든 상품을 강제로 판매중 처리)
     // const TEST_SALE_ACTIVE = false; // ← 테스트할 때만 true로 잠깐 바꾸기
+    // 🔥 수정된 getSaleStatus 함수
     const getSaleStatus = (product: Product) => {
-        const now = new Date();
-        const releaseDate = product.release_date ? new Date(product.release_date) : null;
-
-        // 재고 없으면 무조건 판매 종료
-        if (product.stock === 0) {
-            return "ended";
+        // 1. 재고 체크를 가장 먼저 (최우선 조건)
+        if (!product.stock || product.stock === 0) {
+            return "ended";  // 재고 없으면 무조건 판매 종료
         }
 
-        // 출시일이 있음 → 날짜 비교
-        if (releaseDate) {
-            if (releaseDate > now) return "before";  // 출시 전
-            else return "active";                    // 출시 후
+        // 2. 상태가 stopped인 경우
+        if (product.status === "stopped") {
+            return "stopped";
         }
 
-        if(!product) return "active";
-        // 출시일 없으면 무조건 active 취급
+        // 3. 출시일 체크
+        if (product.release_date) {
+            const now = new Date();
+            const releaseDate = new Date(
+                product.release_date.includes('T')
+                    ? product.release_date
+                    : product.release_date.replace(' ', 'T') + '+09:00'
+            );
+
+            if (releaseDate > now) {
+                return "before";  // 출시 전
+            }
+        }
+
+        // 4. 그 외 모든 경우는 판매중
         return "active";
     };
 
