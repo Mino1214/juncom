@@ -129,13 +129,17 @@ const HomePage = ({ navigate }: NavigateProps) => {
     useEffect(() => {
         if (products.length === 0) return;
 
-        // 첫 번째 상품의 출시일을 기준으로 카운트다운
         const mainProduct = products[0];
         if (!mainProduct.release_date) return;
 
         const timer = setInterval(() => {
             const now = new Date().getTime();
-            const releaseDate = new Date(mainProduct.release_date!).getTime();
+
+            // 🔥 KST 기반 파싱 (핵심 수정)
+            const releaseDate = new Date(
+                mainProduct.release_date!.replace(" ", "T") + "+09:00"
+            ).getTime();
+
             const distance = releaseDate - now;
 
             if (distance > 0) {
@@ -147,7 +151,6 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 });
             } else {
                 setTimeLeft({ days: 0, hours: 0, minutes: 0, seconds: 0 });
-                clearInterval(timer);
             }
         }, 1000);
 
