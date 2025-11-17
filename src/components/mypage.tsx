@@ -890,7 +890,17 @@ const MyPage = ({ navigate }: NavigateProps) => {
                                     ) : selectedOrder.status === "paid" ? (
                                         <>
                                             <button
-                                                onClick={() => alert("배송조회 기능은 준비 중입니다.")}
+                                                onClick={() => {
+                                                    if (selectedOrder.tracking_number) {
+                                                        window.open(
+                                                            `https://service.epost.go.kr/trace.RetrieveDomRigiTraceList.comm?sid1=${selectedOrder.tracking_number}&displayHeader=`,
+                                                            '_blank',
+                                                            'noopener,noreferrer'
+                                                        );
+                                                    } else {
+                                                        alert("아직 송장번호가 등록되지 않았습니다.");
+                                                    }
+                                                }}
                                                 className="flex-1 py-2 bg-brand-600 text-white rounded-xl font-semibold hover:bg-brand-700 transition"
                                             >
                                                 배송조회
