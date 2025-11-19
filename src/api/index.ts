@@ -1,5 +1,5 @@
 // src/api/index.ts
-const API_BASE_URL = import.meta.env.VITE_API_URL || "https://jimo.world/api";
+const API_BASE_URL = import.meta.env.VITE_API_URL || "https://cleanupsystems.shop/api";
 
 export async function apiRequest<T>(
     endpoint: string,

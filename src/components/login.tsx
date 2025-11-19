@@ -44,7 +44,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
         setLoading(true);
 
         try {
-            const response = await fetch('https://jimo.world/api/auth/login', {
+            const response = await fetch('https://cleanupsystems.shop/api/auth/login', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -125,7 +125,7 @@ const LoginPage = ({ navigate }: NavigateProps) => {
     //
     //                         // 백엔드로 카카오 정보 전송하여 회원 확인
     //                         try {
-    //                             const apiResponse = await fetch('https://jimo.world/api/auth/kakao', {
+    //                             const apiResponse = await fetch('https://cleanupsystems.shop/api/auth/kakao', {
     //                                 method: 'POST',
     //                                 headers: {
     //                                     'Content-Type': 'application/json',

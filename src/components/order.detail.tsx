@@ -42,7 +42,7 @@ const OrderDetailPage = ({ navigate }: NavigateProps) => {
         const fetchOrderDetail = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const res = await fetch(`https://jimo.world/api/orders/${orderId}`, {
+                const res = await fetch(`https://cleanupsystems.shop/api/orders/${orderId}`, {
                     headers: {
                         Authorization: `Bearer ${token}`,
                     },
@@ -131,7 +131,7 @@ const OrderDetailPage = ({ navigate }: NavigateProps) => {
                     </h2>
                     <div className="flex items-center gap-4">
                         <img
-                            src={`https://jimo.world/api/uploads/product-${order.id}.png`}
+                            src={`https://cleanupsystems.shop/api/uploads/product-${order.id}.png`}
                             alt={order.product_name}
                             className="w-20 h-20 object-cover rounded-xl border"
                         />

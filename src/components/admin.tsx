@@ -51,7 +51,7 @@ const AdminPage: React.FC<NavigateProps> = ({navigate}) => {
     const fetchOrderStats = async () => {
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch("https://jimo.world/api/orders/stats", {
+            const res = await fetch("https://cleanupsystems.shop/api/orders/stats", {
                 headers: { Authorization: `Bearer ${token}` }
             });
 
@@ -72,7 +72,7 @@ const AdminPage: React.FC<NavigateProps> = ({navigate}) => {
 
     const fetchUsers = async () => {
         try {
-            const res = await fetch(`https://jimo.world/api/users?page=${page}&limit=50`, {
+            const res = await fetch(`https://cleanupsystems.shop/api/users?page=${page}&limit=50`, {
                 headers: {Authorization: `Bearer ${token}`},
             });
             const data = await res.json();
@@ -87,7 +87,7 @@ const AdminPage: React.FC<NavigateProps> = ({navigate}) => {
     };
     const fetchProducts = async () => {
         try {
-            const response = await fetch("https://jimo.world/api/admin/products", {
+            const response = await fetch("https://cleanupsystems.shop/api/admin/products", {
                 headers: {Authorization: `Bearer ${token}`},
             });
             if (!response.ok) throw new Error(`서버 오류: ${response.status}`);
@@ -103,7 +103,7 @@ const AdminPage: React.FC<NavigateProps> = ({navigate}) => {
 
     const fetchOrders = async () => {
         try {
-            const res = await fetch("https://jimo.world/api/all/orders", {
+            const res = await fetch("https://cleanupsystems.shop/api/all/orders", {
                 headers: {Authorization: `Bearer ${token}`},
             });
             const data = await res.json();

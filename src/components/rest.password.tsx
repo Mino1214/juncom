@@ -40,7 +40,7 @@ const ResetPasswordPage = ({ navigate }: NavigateProps) => {
 
         setIsSending(true);
         try {
-            const response = await fetch("https://jimo.world/api/send-verification", {
+            const response = await fetch("https://cleanupsystems.shop/api/send-verification", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email })
@@ -70,7 +70,7 @@ const ResetPasswordPage = ({ navigate }: NavigateProps) => {
 
         setIsVerifying(true);
         try {
-            const response = await fetch("https://jimo.world/api/verify-code", {
+            const response = await fetch("https://cleanupsystems.shop/api/verify-code", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ email, code: verificationCode })
@@ -106,7 +106,7 @@ const ResetPasswordPage = ({ navigate }: NavigateProps) => {
 
         setIsSubmitting(true);
         try {
-            const response = await fetch("https://jimo.world/api/dev/reset-password", {
+            const response = await fetch("https://cleanupsystems.shop/api/dev/reset-password", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({

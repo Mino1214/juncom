@@ -56,7 +56,7 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
 
             // tid가 있으면 결제 승인 API 호출
             if (tid) {
-                fetch('https://jimo.world/api/payment/result', {
+                fetch('https://cleanupsystems.shop/api/payment/result', {
                     method: 'POST',
                     headers: { 'Content-Type': 'application/json' },
                     body: JSON.stringify({
@@ -175,7 +175,7 @@ const PaymentResultPage: React.FC<Props> = ({ navigate }) => {
                             onClick={async () => {
                                 if (result?.orderId) {
                                     try {
-                                        await fetch("https://jimo.world/api/payment/verify", {
+                                        await fetch("https://cleanupsystems.shop/api/payment/verify", {
                                             method: "POST",
                                             headers: { "Content-Type": "application/json" },
                                             body: JSON.stringify({

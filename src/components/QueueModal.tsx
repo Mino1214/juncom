@@ -226,7 +226,7 @@ export default function QueueModal({visible, productId, onReady, onClose }: Queu
         // 대기열 취소 처리
         if (jobId) {
             try {
-                await fetch(`https://jimo.world/api/payment/queue/cancel`, {
+                await fetch(`https://cleanupsystems.shop/api/payment/queue/cancel`, {
                     method: "POST",
                     headers: { "Content-Type": "application/json" },
                     body: JSON.stringify({ jobId }),

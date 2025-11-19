@@ -13,7 +13,7 @@ export default function QueueStatus({ productId, onReady }: QueueStatusProps) {
     const joinQueue = async () => {
         try {
             setStatus("waiting");
-            const res = await fetch("https://jimo.world/api/payment/queue/init", {
+            const res = await fetch("https://cleanupsystems.shop/api/payment/queue/init", {
                 method: "POST",
                 headers: { "Content-Type": "application/json" },
                 body: JSON.stringify({ productId }),
@@ -34,7 +34,7 @@ export default function QueueStatus({ productId, onReady }: QueueStatusProps) {
 
     const pollStatus = async (jobId: string) => {
         const interval = setInterval(async () => {
-            const res = await fetch(`https://jimo.world/api/payment/queue/status/${jobId}`);
+            const res = await fetch(`https://cleanupsystems.shop/api/payment/queue/status/${jobId}`);
             const data = await res.json();
 
             if (data.status === "waiting") {

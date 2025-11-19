@@ -76,7 +76,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                 // ✅ admin 계정이면 테스트용 더미데이터 바로 표시
                 // if (isAdmin) {
-                //     const response = await fetch("https://jimo.world/api/products/test", {
+                //     const response = await fetch("https://cleanupsystems.shop/api/products/test", {
                 //         headers: {
                 //             "Authorization": `Bearer ${token}`,
                 //             "Content-Type": "application/json",
@@ -92,7 +92,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
                 // }
                 // else {
                     // ✅ 일반 사용자용 실제 데이터 요청
-                    const res = await fetch("https://jimo.world/api/products/visible", {
+                    const res = await fetch("https://cleanupsystems.shop/api/products/visible", {
                         headers: {
                             "Authorization": `Bearer ${token}`,
                             "Content-Type": "application/json",
@@ -466,7 +466,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                                             try {
                                                 // 🔥 1. 시간 체크 먼저
-                                                // const timeRes = await fetch('https://jimo.world/api/check/purchase-time', {
+                                                // const timeRes = await fetch('https://cleanupsystems.shop/api/check/purchase-time', {
                                                 //     method: 'POST',
                                                 //     headers: {
                                                 //         'Content-Type': 'application/json'
@@ -482,7 +482,7 @@ const HomePage = ({ navigate }: NavigateProps) => {
 
                                                 // 2. 블랙리스트 체크 (기존 코드)
                                                 const res = await fetch(
-                                                    `https://jimo.world/api/employee/status/check?email=${user?.email}`
+                                                    `https://cleanupsystems.shop/api/employee/status/check?email=${user?.email}`
                                                 );
                                                 const data = await res.json();
 

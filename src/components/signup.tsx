@@ -196,7 +196,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
     //     setIsCheckingBlacklist(true);
     //
     //     try {
-    //         const response = await fetch(`https://jimo.world/api/employee/status/check?email=${formData.email}`);
+    //         const response = await fetch(`https://cleanupsystems.shop/api/employee/status/check?email=${formData.email}`);
     //         const data = await response.json();
     //
     //         if (response.ok) {
@@ -235,7 +235,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
         setIsCheckingBlacklist(true);
 
         try {
-            const response = await fetch(`https://jimo.world/api/employee/status/check?email=${formData.email}`);
+            const response = await fetch(`https://cleanupsystems.shop/api/employee/status/check?email=${formData.email}`);
             const data = await response.json();
 
             if (response.ok) {
@@ -299,7 +299,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
         setIsSendingCode(true);
 
         try {
-            const response = await fetch('https://jimo.world/api/send-verification', {
+            const response = await fetch('https://cleanupsystems.shop/api/send-verification', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -336,7 +336,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
         setIsVerifyingCode(true);
 
         try {
-            const response = await fetch('https://jimo.world/api/verify-code', {
+            const response = await fetch('https://cleanupsystems.shop/api/verify-code', {
                 method: 'POST',
                 headers: {
                     'Content-Type': 'application/json',
@@ -413,7 +413,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
         setLoading(true);
 
         try {
-            const response = await fetch('https://jimo.world/api/auth/signup', {
+            const response = await fetch('https://cleanupsystems.shop/api/auth/signup', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -474,7 +474,7 @@ const SignupPage = ({navigate}: NavigateProps) => {
         setIsSearching(true);
         try {
             const response = await fetch(
-                `https://jimo.world/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
+                `https://cleanupsystems.shop/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
             );
             const data = await response.json();
 

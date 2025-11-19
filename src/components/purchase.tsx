@@ -66,7 +66,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         const fetchOrderInfo = async (orderId: string) => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`https://jimo.world/api/orders/${orderId}`, {
+                const res = await fetch(`https://cleanupsystems.shop/api/orders/${orderId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
                 if (!res.ok) throw new Error('주문 정보 불러오기 실패');
@@ -119,7 +119,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         const fetchProductInfo = async (productId: string) => {
             try {
                 const token = localStorage.getItem('token');
-                const res = await fetch(`https://jimo.world/api/products/${productId}`, {
+                const res = await fetch(`https://cleanupsystems.shop/api/products/${productId}`, {
                     headers: { Authorization: `Bearer ${token}` },
                 });
 
@@ -160,7 +160,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         const fetchUserInfo = async () => {
             try {
                 const token = localStorage.getItem('token');
-                const response = await fetch(`https://jimo.world/api/user/${user.email}`, {
+                const response = await fetch(`https://cleanupsystems.shop/api/user/${user.email}`, {
                     headers: {
                         'Authorization': `Bearer ${token}`
                     }
@@ -207,7 +207,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
         setIsSearching(true);
         try {
             const response = await fetch(
-                `https://jimo.world/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
+                `https://cleanupsystems.shop/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
             );
             const data = await response.json();
 
@@ -283,7 +283,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
 
             console.log('🛒 최종 주문 ID:', finalOrderId);
             // 백엔드에서 결제 정보 생성
-            const response = await fetch('https://jimo.world/api/payment/request', {
+            const response = await fetch('https://cleanupsystems.shop/api/payment/request', {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify({
@@ -297,7 +297,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     productId: product.id,
                     employeeId: user?.employeeId,
                     // ✅ 서버 엔드포인트로 설정
-                    returnUrl: `https://jimo.world/api/payment/complete`,
+                    returnUrl: `https://cleanupsystems.shop/api/payment/complete`,
 
                     // ✅ 배송 정보 추가
                     recipientName: deliveryInfo.recipientName,
@@ -329,7 +329,7 @@ const PurchasePage = ({navigate}: NavigateProps) => {
                     fnSuccess: async function (response: any) {
                         console.log("결제 성공:", response);
                         try {
-                            const approveRes = await fetch('https://jimo.world/api/payment/result', {
+                            const approveRes = await fetch('https://cleanupsystems.shop/api/payment/result', {
                                 method: 'POST',
                                 headers: { 'Content-Type': 'application/json' },
                                 body: JSON.stringify({

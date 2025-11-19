@@ -77,7 +77,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
     const fetchOrders = async () => {
         try {
             const token = localStorage.getItem("token");
-            const res = await fetch(`https://jimo.world/api/myorder?email=${user?.email}`, {
+            const res = await fetch(`https://cleanupsystems.shop/api/myorder?email=${user?.email}`, {
                 headers: {
                     "Authorization": `Bearer ${token}`,
                     "Content-Type": "application/json",
@@ -107,7 +107,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
         const fetchUserDetail = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const response = await fetch(`https://jimo.world/api/user/${user.email}`,{
+                const response = await fetch(`https://cleanupsystems.shop/api/user/${user.email}`,{
                     headers: {
                         "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json",
@@ -146,7 +146,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
         setIsSearching(true);
         try {
             const response = await fetch(
-                `https://jimo.world/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
+                `https://cleanupsystems.shop/api/address/search?keyword=${encodeURIComponent(addressKeyword)}`
             );
             const data = await response.json();
 
@@ -201,7 +201,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
         try {
             const token = localStorage.getItem("token");
-            const response = await fetch(`https://jimo.world/api/user/${user.email}`, {
+            const response = await fetch(`https://cleanupsystems.shop/api/user/${user.email}`, {
                 method: 'PUT',
                 headers: {
                     "Authorization": `Bearer ${token}`, // ✅ 토큰 첨부
@@ -235,7 +235,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
     try {
         const token = localStorage.getItem("token");
-        const response = await fetch(`https://jimo.world/api/user/${user.email}`, {
+        const response = await fetch(`https://cleanupsystems.shop/api/user/${user.email}`, {
             method: 'DELETE',
             headers: {
                 "Authorization": `Bearer ${token}`,
@@ -726,7 +726,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                                                             try {
                                                                 const token = localStorage.getItem("token");
-                                                                const res = await fetch(`https://jimo.world/api/delivery/${selectedOrder.order_id}`,
+                                                                const res = await fetch(`https://cleanupsystems.shop/api/delivery/${selectedOrder.order_id}`,
                                                                     {
                                                                         method: "PUT",
                                                                         headers: {
@@ -913,7 +913,7 @@ const MyPage = ({ navigate }: NavigateProps) => {
 
                                                     try {
                                                         const token = localStorage.getItem("token");
-                                                        const res = await fetch("https://jimo.world/api/payment/cancel", {
+                                                        const res = await fetch("https://cleanupsystems.shop/api/payment/cancel", {
                                                             method: "POST",
                                                             headers: {
                                                                 "Content-Type": "application/json",

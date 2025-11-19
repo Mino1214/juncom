@@ -48,7 +48,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
         const fetchProduct = async () => {
             try {
                 const token = localStorage.getItem("token");
-                const res = await fetch(`https://jimo.world/api/products/${productId}`, {
+                const res = await fetch(`https://cleanupsystems.shop/api/products/${productId}`, {
                     headers: {
                         "Authorization": `Bearer ${token}`,
                         "Content-Type": "application/json",
@@ -246,7 +246,7 @@ const ProductDetailPage = ({ navigate, user, productId }: ProductDetailPageProps
 
                                 try {
                                     const res = await fetch(
-                                        `https://jimo.world/api/employee/status/check?email=${user?.email}`
+                                        `https://cleanupsystems.shop/api/employee/status/check?email=${user?.email}`
                                     );
                                     const data = await res.json();
 
